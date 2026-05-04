@@ -1,11 +1,5 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
-
-# Distribution / packaging
-dist/
-build/
-*.egg-info/
 
 # Virtual environments
 venv/
@@ -14,15 +8,12 @@ env/
 
 # Testing
 .pytest_cache/
-.coverage
-htmlcov/
 
 # Documentation (if using Sphinx)
-docs/_build/
+docs/build/
 
 # IDE and editors
 .vscode/
-.idea/
 
 # OS generated files
 .DS_Store
