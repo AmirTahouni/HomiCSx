@@ -1,0 +1,278 @@
+<?xml version="1.0"?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf Version="3.0" xmlns:xi="https://www.w3.org/2001/XInclude">
+  <Domain>
+    <Grid Name="mesh" GridType="Uniform">
+      <Topology TopologyType="Quadrilateral" NumberOfElements="5964" NodesPerElement="4">
+        <DataItem Dimensions="5964 4" NumberType="Int" Format="HDF">tension_results.h5:/Mesh/mesh/topology</DataItem>
+      </Topology>
+      <Geometry GeometryType="XY">
+        <DataItem Dimensions="6077 2" Format="HDF">tension_results.h5:/Mesh/mesh/geometry</DataItem>
+      </Geometry>
+    </Grid>
+    <Grid Name="fluctuation" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="fluctuation" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.059999999999999998" />
+        <Attribute Name="fluctuation" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/fluctuation/0_059999999999999998</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="fluctuation" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.14000000000000001" />
+        <Attribute Name="fluctuation" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/fluctuation/0_14000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="fluctuation" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.22000000000000003" />
+        <Attribute Name="fluctuation" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/fluctuation/0_22000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="fluctuation" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.30000000000000004" />
+        <Attribute Name="fluctuation" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/fluctuation/0_30000000000000004</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="fluctuation" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.38000000000000006" />
+        <Attribute Name="fluctuation" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/fluctuation/0_38000000000000006</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="fluctuation" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.40000000000000002" />
+        <Attribute Name="fluctuation" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/fluctuation/0_40000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+    <Grid Name="total_disp" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="total_disp" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.059999999999999998" />
+        <Attribute Name="total_disp" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/total_disp/0_059999999999999998</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="total_disp" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.14000000000000001" />
+        <Attribute Name="total_disp" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/total_disp/0_14000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="total_disp" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.22000000000000003" />
+        <Attribute Name="total_disp" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/total_disp/0_22000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="total_disp" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.30000000000000004" />
+        <Attribute Name="total_disp" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/total_disp/0_30000000000000004</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="total_disp" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.38000000000000006" />
+        <Attribute Name="total_disp" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/total_disp/0_38000000000000006</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="total_disp" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.40000000000000002" />
+        <Attribute Name="total_disp" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="6077 3" Format="HDF">tension_results.h5:/Function/total_disp/0_40000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+    <Grid Name="PK1_stress" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="PK1_stress" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.059999999999999998" />
+        <Attribute Name="PK1_stress" AttributeType="Tensor" Center="Cell">
+          <DataItem Dimensions="5964 9" Format="HDF">tension_results.h5:/Function/PK1_stress/0_059999999999999998</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="PK1_stress" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.14000000000000001" />
+        <Attribute Name="PK1_stress" AttributeType="Tensor" Center="Cell">
+          <DataItem Dimensions="5964 9" Format="HDF">tension_results.h5:/Function/PK1_stress/0_14000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="PK1_stress" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.22000000000000003" />
+        <Attribute Name="PK1_stress" AttributeType="Tensor" Center="Cell">
+          <DataItem Dimensions="5964 9" Format="HDF">tension_results.h5:/Function/PK1_stress/0_22000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="PK1_stress" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.30000000000000004" />
+        <Attribute Name="PK1_stress" AttributeType="Tensor" Center="Cell">
+          <DataItem Dimensions="5964 9" Format="HDF">tension_results.h5:/Function/PK1_stress/0_30000000000000004</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="PK1_stress" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.38000000000000006" />
+        <Attribute Name="PK1_stress" AttributeType="Tensor" Center="Cell">
+          <DataItem Dimensions="5964 9" Format="HDF">tension_results.h5:/Function/PK1_stress/0_38000000000000006</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="PK1_stress" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.40000000000000002" />
+        <Attribute Name="PK1_stress" AttributeType="Tensor" Center="Cell">
+          <DataItem Dimensions="5964 9" Format="HDF">tension_results.h5:/Function/PK1_stress/0_40000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+    <Grid Name="von_Mises" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="von_Mises" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.059999999999999998" />
+        <Attribute Name="von_Mises" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/von_Mises/0_059999999999999998</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="von_Mises" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.14000000000000001" />
+        <Attribute Name="von_Mises" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/von_Mises/0_14000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="von_Mises" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.22000000000000003" />
+        <Attribute Name="von_Mises" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/von_Mises/0_22000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="von_Mises" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.30000000000000004" />
+        <Attribute Name="von_Mises" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/von_Mises/0_30000000000000004</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="von_Mises" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.38000000000000006" />
+        <Attribute Name="von_Mises" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/von_Mises/0_38000000000000006</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="von_Mises" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.40000000000000002" />
+        <Attribute Name="von_Mises" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/von_Mises/0_40000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+    <Grid Name="energy_density" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="energy_density" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.059999999999999998" />
+        <Attribute Name="energy_density" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/energy_density/0_059999999999999998</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="energy_density" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.14000000000000001" />
+        <Attribute Name="energy_density" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/energy_density/0_14000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="energy_density" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.22000000000000003" />
+        <Attribute Name="energy_density" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/energy_density/0_22000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="energy_density" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.30000000000000004" />
+        <Attribute Name="energy_density" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/energy_density/0_30000000000000004</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="energy_density" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.38000000000000006" />
+        <Attribute Name="energy_density" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/energy_density/0_38000000000000006</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="energy_density" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.40000000000000002" />
+        <Attribute Name="energy_density" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/energy_density/0_40000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+    <Grid Name="jacobian" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="jacobian" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.059999999999999998" />
+        <Attribute Name="jacobian" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/jacobian/0_059999999999999998</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="jacobian" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.14000000000000001" />
+        <Attribute Name="jacobian" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/jacobian/0_14000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="jacobian" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.22000000000000003" />
+        <Attribute Name="jacobian" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/jacobian/0_22000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="jacobian" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.30000000000000004" />
+        <Attribute Name="jacobian" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/jacobian/0_30000000000000004</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="jacobian" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.38000000000000006" />
+        <Attribute Name="jacobian" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/jacobian/0_38000000000000006</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="jacobian" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.40000000000000002" />
+        <Attribute Name="jacobian" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="5964 1" Format="HDF">tension_results.h5:/Function/jacobian/0_40000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+  </Domain>
+</Xdmf>
