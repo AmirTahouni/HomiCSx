@@ -1,5 +1,0 @@
-ABBAS
------
-
-akakakakak
-sdasdasdasdasd
