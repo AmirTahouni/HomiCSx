@@ -1,0 +1,563 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.core.stochastic &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/homicsx.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">homicsx.core.stochastic</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for homicsx.core.stochastic</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">statistics</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.homogenization</span><span class="w"> </span><span class="kn">import</span> <span class="n">HomogenizationResult</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">extract_effective_moduli_3d</span><span class="p">,</span>
+    <span class="n">extract_effective_moduli_2d_plane_strain</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="EnsembleStatSummary">
+<a class="viewcode-back" href="../../../api/generated/homicsx.core.html#homicsx.EnsembleStatSummary">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EnsembleStatSummary</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Conteiner for summary of results of an ensemble study.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    engineering_moduli_mean: dict[str, float]</span>
+<span class="sd">        keys: &quot;E&quot; for Yong modulus, &quot;nu&quot; for Poison ratio, &quot;kappa&quot; for bulk modulus, and &quot;mu&quot; for shear modulus.</span>
+<span class="sd">    engineering_moduli_variance: dict[str, float]</span>
+<span class="sd">        keys: &quot;E&quot; for Yong modulus, &quot;nu&quot; for Poison ratio, &quot;kappa&quot; for bulk modulus, and &quot;mu&quot; for shear modulus.</span>
+<span class="sd">    engineering_moduli_stdev: dict[str, float]</span>
+<span class="sd">        keys: &quot;E&quot; for Yong modulus, &quot;nu&quot; for Poison ratio, &quot;kappa&quot; for bulk modulus, and &quot;mu&quot; for shear modulus.</span>
+<span class="sd">    engineering_moduli_max: dict[str, float]</span>
+<span class="sd">        keys: &quot;E&quot; for Yong modulus, &quot;nu&quot; for Poison ratio, &quot;kappa&quot; for bulk modulus, and &quot;mu&quot; for shear modulus.</span>
+<span class="sd">    engineering_moduli_min: dict[str, float]</span>
+<span class="sd">        keys: &quot;E&quot; for Yong modulus, &quot;nu&quot; for Poison ratio, &quot;kappa&quot; for bulk modulus, and &quot;mu&quot; for shear modulus.</span>
+<span class="sd">    C_hom_component_avg: np.ndarray</span>
+<span class="sd">        Component-wise mean of homogenizaed stiffness tensor.</span>
+<span class="sd">    C_hom_component_variance: np.ndarray</span>
+<span class="sd">        Component-wise variance of homogenizaed stiffness tensor. Defined if size of ensemble study is larger than 2.</span>
+<span class="sd">    C_hom_component_stdev: np.ndarray</span>
+<span class="sd">        Component-wise standard-deviation of homogenizaed stiffness tensor. Defined if size of ensemble study is larger than 2.</span>
+<span class="sd">    C_hom_component_max: np.ndarray</span>
+<span class="sd">        Component-wise max of homogenizaed stiffness tensor.</span>
+<span class="sd">    C_hom_component_min: np.ndarray</span>
+<span class="sd">        Component-wise min of homogenizaed stiffness tensor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">engineering_moduli_mean</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">engineering_moduli_variance</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">engineering_moduli_stdev</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">engineering_moduli_max</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">engineering_moduli_min</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">C_hom_component_avg</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">C_hom_component_variance</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">C_hom_component_stdev</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">C_hom_component_max</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">C_hom_component_min</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></div>
+
+
+
+<div class="viewcode-block" id="EnsembleStudyResult">
+<a class="viewcode-back" href="../../../api/generated/homicsx.core.html#homicsx.EnsembleStudyResult">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EnsembleStudyResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Container for ensemble of linear study results, with built in summarizing and visualization utilities.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    result_list: list[`HomigenizationResult`]</span>
+<span class="sd">        Contains the results of the ensemble study in its entirety.</span>
+<span class="sd">    result_suammry: `EnsembleStatSummary`</span>
+<span class="sd">        Contains the summary of the nesemble study.</span>
+<span class="sd">        </span>
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    EnsembleStatSummary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">HomogenizationResult</span><span class="p">]</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_ensemble_statistics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ensumble_result</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">HomogenizationResult</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EnsembleStatSummary</span><span class="p">:</span>
+        <span class="n">homogenization_dim</span> <span class="o">=</span> <span class="n">ensumble_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;dim&quot;</span><span class="p">]</span>
+        <span class="n">two_dimensional_formulation</span> <span class="o">=</span> <span class="n">ensumble_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;two_dimensional_formulation&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">homogenization_dim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+            <span class="n">C_hom_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ensumble_result</span><span class="p">)))</span>
+            <span class="n">kappa_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">mu_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">E_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">nu_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">hom_result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ensumble_result</span><span class="p">):</span>
+                <span class="n">kappa</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="n">extract_effective_moduli_3d</span><span class="p">(</span><span class="n">hom_result</span><span class="o">.</span><span class="n">C_hom</span><span class="p">)</span>
+
+                <span class="n">kappa_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span>
+                <span class="n">mu_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+                <span class="n">E_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+                <span class="n">nu_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span>
+
+                <span class="n">C_hom_list</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">hom_result</span><span class="o">.</span><span class="n">C_hom</span>
+
+            <span class="n">engineering_moduli_mean</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;mu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="p">}</span>
+            <span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">kappa_list</span><span class="p">)</span>
+            <span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mu_list</span><span class="p">)</span>
+            <span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">E_list</span><span class="p">)</span>
+            <span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">nu_list</span><span class="p">)</span>
+
+            <span class="n">engineering_moduli_variance</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;mu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ensumble_result</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">kappa_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">mu_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">E_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">nu_list</span><span class="p">)</span>
+
+            <span class="n">engineering_moduli_stdev</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;mu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ensumble_result</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">kappa_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">mu_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">E_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">nu_list</span><span class="p">)</span>
+
+            <span class="n">engineering_moduli_max</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;mu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="p">}</span>
+            <span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">kappa_list</span><span class="p">)</span>
+            <span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">mu_list</span><span class="p">)</span>
+            <span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">E_list</span><span class="p">)</span>
+            <span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nu_list</span><span class="p">)</span>
+
+            <span class="n">engineering_moduli_min</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;mu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="p">}</span>
+            <span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">kappa_list</span><span class="p">)</span>
+            <span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">mu_list</span><span class="p">)</span>
+            <span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">E_list</span><span class="p">)</span>
+            <span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">nu_list</span><span class="p">)</span>
+
+            <span class="n">C_hom_component_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+            <span class="n">C_hom_component_variance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+            <span class="n">C_hom_component_stdev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+            <span class="n">C_hom_component_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+            <span class="n">C_hom_component_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+                    <span class="n">C_hom_component_avg</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">C_hom_list</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ensumble_result</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">:</span>
+                        <span class="n">C_hom_component_variance</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">C_hom_list</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+                        <span class="n">C_hom_component_stdev</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">C_hom_list</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+                    <span class="n">C_hom_component_max</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">C_hom_list</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+                    <span class="n">C_hom_component_min</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">C_hom_list</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+
+        
+        <span class="k">elif</span> <span class="n">homogenization_dim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">two_dimensional_formulation</span><span class="o">==</span><span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Two dimensional formulation of the fem problem must be either &quot;plane_strain&quot; or &quot;plane_stress&quot;. Recieverd &quot;None&quot;.&#39;</span><span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">two_dimensional_formulation</span><span class="o">==</span><span class="s2">&quot;plane_strain&quot;</span><span class="p">:</span>
+                <span class="n">C_hom_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ensumble_result</span><span class="p">)))</span>
+                <span class="n">kappa_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">mu_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">E_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">nu_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">hom_result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ensumble_result</span><span class="p">):</span>
+                    <span class="n">kappa</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="n">extract_effective_moduli_2d_plane_strain</span><span class="p">(</span><span class="n">hom_result</span><span class="o">.</span><span class="n">C_hom</span><span class="p">)</span>
+
+                    <span class="n">kappa_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span>
+                    <span class="n">mu_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+                    <span class="n">E_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+                    <span class="n">nu_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span>
+
+                    <span class="n">C_hom_list</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">hom_result</span><span class="o">.</span><span class="n">C_hom</span>
+
+                <span class="n">engineering_moduli_mean</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;mu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="p">}</span>
+                <span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">kappa_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mu_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">E_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">nu_list</span><span class="p">)</span>
+
+                <span class="n">engineering_moduli_variance</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;mu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ensumble_result</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">:</span>
+                    <span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">kappa_list</span><span class="p">)</span>
+                    <span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">mu_list</span><span class="p">)</span>
+                    <span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">E_list</span><span class="p">)</span>
+                    <span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">nu_list</span><span class="p">)</span>
+
+                <span class="n">engineering_moduli_stdev</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;mu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ensumble_result</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">:</span>
+                    <span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">kappa_list</span><span class="p">)</span>
+                    <span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">mu_list</span><span class="p">)</span>
+                    <span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">E_list</span><span class="p">)</span>
+                    <span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">nu_list</span><span class="p">)</span>
+
+                <span class="n">engineering_moduli_max</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;mu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="p">}</span>
+                <span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">kappa_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">mu_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">E_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nu_list</span><span class="p">)</span>
+
+                <span class="n">engineering_moduli_min</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;mu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="p">}</span>
+                <span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">kappa_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">mu_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">E_list</span><span class="p">)</span>
+                <span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">nu_list</span><span class="p">)</span>
+
+                <span class="n">C_hom_component_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+                <span class="n">C_hom_component_variance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+                <span class="n">C_hom_component_stdev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+                <span class="n">C_hom_component_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+                <span class="n">C_hom_component_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                        <span class="n">C_hom_component_avg</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">C_hom_list</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ensumble_result</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">:</span>
+                            <span class="n">C_hom_component_variance</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">C_hom_list</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+                            <span class="n">C_hom_component_stdev</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">C_hom_list</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+                        <span class="n">C_hom_component_max</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">C_hom_list</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+                        <span class="n">C_hom_component_min</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">C_hom_list</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
+
+            <span class="k">elif</span> <span class="n">two_dimensional_formulation</span><span class="o">==</span><span class="s2">&quot;plane_stress&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;In the current development phase, plane stress homogenization is not inplemented yet.&quot;</span><span class="p">)</span>
+            
+    
+        <span class="n">output</span> <span class="o">=</span> <span class="n">EnsembleStatSummary</span><span class="p">(</span>
+            <span class="n">C_hom_component_avg</span><span class="o">=</span><span class="n">C_hom_component_avg</span><span class="p">,</span>
+            <span class="n">C_hom_component_variance</span><span class="o">=</span><span class="n">C_hom_component_variance</span><span class="p">,</span>
+            <span class="n">C_hom_component_stdev</span><span class="o">=</span><span class="n">C_hom_component_stdev</span><span class="p">,</span>
+            <span class="n">C_hom_component_max</span><span class="o">=</span><span class="n">C_hom_component_max</span><span class="p">,</span>
+            <span class="n">C_hom_component_min</span><span class="o">=</span><span class="n">C_hom_component_min</span><span class="p">,</span>
+            <span class="n">engineering_moduli_mean</span><span class="o">=</span><span class="n">engineering_moduli_mean</span><span class="p">,</span>
+            <span class="n">engineering_moduli_variance</span><span class="o">=</span><span class="n">engineering_moduli_variance</span><span class="p">,</span>
+            <span class="n">engineering_moduli_stdev</span><span class="o">=</span><span class="n">engineering_moduli_stdev</span><span class="p">,</span>
+            <span class="n">engineering_moduli_max</span><span class="o">=</span><span class="n">engineering_moduli_max</span><span class="p">,</span>
+            <span class="n">engineering_moduli_min</span><span class="o">=</span><span class="n">engineering_moduli_min</span><span class="p">,</span>
+            <span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">output</span>
+    
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="p">:</span> <span class="n">EnsembleStatSummary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_ensemble_statistics</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result_list</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="EnsembleStudyResult.result_moduli">
+<a class="viewcode-back" href="../../../api/generated/homicsx.core.html#homicsx.EnsembleStudyResult.result_moduli">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result_moduli</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns result moduli as a dict with keys &quot;E&quot;, &quot;nu&quot;, &quot;kappa&quot;, &quot;mu&quot;, and list of values as values.&quot;&quot;&quot;</span>
+        <span class="n">homogenization_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;dim&quot;</span><span class="p">]</span>
+        <span class="n">two_dimensional_formulation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;two_dimensional_formulation&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">homogenization_dim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+            <span class="n">kappa_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">mu_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">E_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">nu_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">hom_result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_list</span><span class="p">:</span>
+                <span class="n">kappa</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="n">extract_effective_moduli_3d</span><span class="p">(</span><span class="n">hom_result</span><span class="o">.</span><span class="n">C_hom</span><span class="p">)</span>
+
+                <span class="n">kappa_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span>
+                <span class="n">mu_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+                <span class="n">E_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+                <span class="n">nu_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">homogenization_dim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">two_dimensional_formulation</span><span class="o">==</span><span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Two dimensional formulation of the fem problem must be either &quot;plane_strain&quot; or &quot;plane_stress&quot;. Recieverd &quot;None&quot;.&#39;</span><span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">two_dimensional_formulation</span><span class="o">==</span><span class="s2">&quot;plane_strain&quot;</span><span class="p">:</span>
+                <span class="n">kappa_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">mu_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">E_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">nu_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="k">for</span> <span class="n">hom_result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_list</span><span class="p">:</span>
+                    <span class="n">kappa</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="n">extract_effective_moduli_2d_plane_strain</span><span class="p">(</span><span class="n">hom_result</span><span class="o">.</span><span class="n">C_hom</span><span class="p">)</span>
+
+                    <span class="n">kappa_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span>
+                    <span class="n">mu_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+                    <span class="n">E_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+                    <span class="n">nu_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">two_dimensional_formulation</span><span class="o">==</span><span class="s2">&quot;plane_stress&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;In the current development phase, plane stress homogenization is not inplemented yet.&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;kappa&#39;</span><span class="p">:</span> <span class="n">kappa_list</span><span class="p">,</span>
+            <span class="s1">&#39;mu&#39;</span><span class="p">:</span> <span class="n">mu_list</span><span class="p">,</span>
+            <span class="s1">&#39;E&#39;</span><span class="p">:</span> <span class="n">E_list</span><span class="p">,</span>
+            <span class="s1">&#39;nu&#39;</span><span class="p">:</span> <span class="n">nu_list</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="EnsembleStudyResult.print_summary">
+<a class="viewcode-back" href="../../../api/generated/homicsx.core.html#homicsx.EnsembleStudyResult.print_summary">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints the auto-generated summary of the ensemble study results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=========================================================&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---------------- Ensemble Study Summary -----------------&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C_hom component statistics:&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Mean:&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">C_hom_component_avg</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Variance:&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">C_hom_component_variance</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Standard deviation:&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">C_hom_component_stdev</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Max:&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">C_hom_component_max</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Min:&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">C_hom_component_min</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Engineering moduli statistics: &#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Mean: &#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    kappa:  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    mu:     </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    E:      </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    nu:     </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_mean</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Variance: &#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    kappa:  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    mu:     </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    E:      </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    nu:     </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_variance</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Standard deviation: &#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    kappa:  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    mu:     </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    E:      </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    nu:     </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_stdev</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Max: &#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    kappa:  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    mu:     </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    E:      </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    nu:     </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_max</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Min: &#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    kappa:  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;kappa&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    mu:     </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    E:      </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    nu:     </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_summary</span><span class="o">.</span><span class="n">engineering_moduli_min</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=========================================================&#39;</span><span class="p">)</span></div>
+
+ 
+
+<div class="viewcode-block" id="EnsembleStudyResult.visualize_moduli_histogram">
+<a class="viewcode-back" href="../../../api/generated/homicsx.core.html#homicsx.EnsembleStudyResult.visualize_moduli_histogram">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">visualize_moduli_histogram</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">num_bins</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">         Visualizes moduli distribution using histogram charts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">moduli_list_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_moduli</span><span class="p">()</span>
+        <span class="n">E_list</span> <span class="o">=</span> <span class="n">moduli_list_dict</span><span class="p">[</span><span class="s1">&#39;E&#39;</span><span class="p">]</span>
+        <span class="n">nu_list</span> <span class="o">=</span> <span class="n">moduli_list_dict</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span>
+        <span class="n">kappa_list</span> <span class="o">=</span> <span class="n">moduli_list_dict</span><span class="p">[</span><span class="s1">&#39;kappa&#39;</span><span class="p">]</span>
+        <span class="n">mu_list</span> <span class="o">=</span> <span class="n">moduli_list_dict</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]</span>
+        
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">E_list</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Young moduli distribution&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency&quot;</span><span class="p">)</span>
+
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">nu_list</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Poison ration distribution&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency&quot;</span><span class="p">)</span>
+
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">kappa_list</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Bulk moduli distribution&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency&quot;</span><span class="p">)</span>
+
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">mu_list</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">num_bins</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Shear moduli distribution&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+</div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># stochastic</span>
+    <span class="s2">&quot;EnsembleStatSummary&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EnsembleStudyResult&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

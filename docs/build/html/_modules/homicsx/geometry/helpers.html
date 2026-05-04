@@ -1,0 +1,680 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.geometry.helpers &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/homicsx.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">homicsx.geometry.helpers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for homicsx.geometry.helpers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">lvl</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">verbosity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">verbosity</span> <span class="o">&gt;=</span> <span class="n">lvl</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="as_domain_size">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.as_domain_size">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">as_domain_size</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standardizes the RVE domain dimensions into a NumPy array.</span>
+
+<span class="sd">    This utility function converts various input formats (scalar, list, tuple) </span>
+<span class="sd">    into a consistent 1D NumPy array representing the side lengths of the </span>
+<span class="sd">    domain.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        The expected spatial dimension (e.g., 2 or 3).</span>
+<span class="sd">    domain_size : float | tuple | list | np.ndarray</span>
+<span class="sd">        The input defining the domain size. </span>
+<span class="sd">        - If a scalar (float/int) is provided, it is interpreted as a uniform </span>
+<span class="sd">          length for all dimensions (cubic/square domain).</span>
+<span class="sd">        - If a sequence is provided, it must contain exactly `dim` elements </span>
+<span class="sd">          representing the length along each axis.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        A 1D array of shape `(dim,)` containing the domain lengths as floats.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        - If the scalar value is non-positive.</span>
+<span class="sd">        - If the provided sequence length does not match `dim`.</span>
+<span class="sd">        - If any of the dimension values are non-positive.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; as_domain_size(dim=2, domain_size=1.0)</span>
+<span class="sd">    array([1.0, 1.0])</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; as_domain_size(dim=3, domain_size=[1.0, 2.0, 1.5])</span>
+<span class="sd">    array([1.0, 2.0, 1.5])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">domain_size</span><span class="p">):</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">domain_size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">L</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;domain_size must be positive.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">domain_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">dim</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;domain_size must have length </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">arr</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All domain dimensions must be positive.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">arr</span></div>
+
+
+
+<div class="viewcode-block" id="circle_area">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.circle_area">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">circle_area</span><span class="p">(</span><span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates circle area.&quot;&quot;&quot;</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">radius</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;radius must be positive.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">radius</span><span class="o">**</span><span class="mi">2</span></div>
+
+
+
+<div class="viewcode-block" id="sphere_volume">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.sphere_volume">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sphere_volume</span><span class="p">(</span><span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates sphere volume.&quot;&quot;&quot;</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">radius</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;radius must be positive.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">radius</span><span class="o">**</span><span class="mi">3</span></div>
+
+
+
+<div class="viewcode-block" id="ellipse_area">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.ellipse_area">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ellipse_area</span><span class="p">(</span><span class="n">semi_axes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates ellipse area.&quot;&quot;&quot;</span>
+    <span class="n">semi_axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">semi_axes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">semi_axes</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">semi_axes</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ellipse semi-axes must have length 2 and be positive.&quot;</span><span class="p">)</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">semi_axes</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span></div>
+
+
+
+<div class="viewcode-block" id="ellipsoid_volume">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.ellipsoid_volume">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ellipsoid_volume</span><span class="p">(</span><span class="n">semi_axes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates ellipsoid volume.&quot;&quot;&quot;</span>
+    <span class="n">semi_axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">semi_axes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">semi_axes</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">semi_axes</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ellipsoid semi-axes must have length 3 and be positive.&quot;</span><span class="p">)</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">semi_axes</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">*</span> <span class="n">c</span></div>
+
+
+
+<div class="viewcode-block" id="normalize_axis_ratios">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.normalize_axis_ratios">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_axis_ratios</span><span class="p">(</span><span class="n">axis_ratios</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standardizes axis ratio inputs into a consistent NumPy array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    axis_ratios : array_like</span>
+<span class="sd">        Input values for axis ratios (can be list, tuple, or array).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        A flattened 1D array of ratios.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If any of the ratios are non-positive.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ratios</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">axis_ratios</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">ratios</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All axis ratios must be positive.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ratios</span></div>
+
+
+
+<div class="viewcode-block" id="monodisperse_circle_radius">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.monodisperse_circle_radius">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">monodisperse_circle_radius</span><span class="p">(</span><span class="n">volume_fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">num_particles</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the radius of circles in a 2D monodisperse system.</span>
+
+<span class="sd">    The radius :math:`R` is derived from the target area fraction.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    volume_fraction : float</span>
+<span class="sd">        Target area fraction [0 to 1].</span>
+<span class="sd">    num_particles : int</span>
+<span class="sd">        Total number of circles to be placed.</span>
+<span class="sd">    domain_size : np.ndarray</span>
+<span class="sd">        Dimensions of the 2D domain [L_x, L_y].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The calculated uniform radius for all circles.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">total_area</span> <span class="o">=</span> <span class="n">volume_fraction</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">domain_size</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">total_area</span> <span class="o">/</span> <span class="n">num_particles</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="monodisperse_sphere_radius">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.monodisperse_sphere_radius">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">monodisperse_sphere_radius</span><span class="p">(</span><span class="n">volume_fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">num_particles</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the radius of spheres in a 3D monodisperse system.</span>
+
+<span class="sd">    The radius :math:`R` is derived from the target volume fraction.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    volume_fraction : float</span>
+<span class="sd">        Target volume fraction (0 to 1).</span>
+<span class="sd">    num_particles : int</span>
+<span class="sd">        Total number of spheres to be placed.</span>
+<span class="sd">    domain_size : np.ndarray</span>
+<span class="sd">        Dimensions of the 3D domain [L_x, L_y, L_z].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The calculated uniform radius for all spheres.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">total_volume</span> <span class="o">=</span> <span class="n">volume_fraction</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">domain_size</span><span class="p">))</span>
+    <span class="n">particle_volume</span> <span class="o">=</span> <span class="n">total_volume</span> <span class="o">/</span> <span class="n">num_particles</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(((</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">particle_volume</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="monodisperse_ellipse_axes">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.monodisperse_ellipse_axes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">monodisperse_ellipse_axes</span><span class="p">(</span><span class="n">volume_fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">num_particles</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">axis_ratios</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the semi-axes lengths for ellipses in a 2D monodisperse system.</span>
+
+<span class="sd">    Given a target area fraction and relative axis ratios, this function computes </span>
+<span class="sd">    the absolute lengths of the semi-axes (a, b) such that each ellipse has </span>
+<span class="sd">    the same area and the system reaches the desired volume fraction.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    volume_fraction : float</span>
+<span class="sd">        Target area fraction [0 to 1].</span>
+<span class="sd">    num_particles : int</span>
+<span class="sd">        Number of ellipses to be generated.</span>
+<span class="sd">    domain_size : np.ndarray</span>
+<span class="sd">        Dimensions of the 2D domain [L_x, L_y].</span>
+<span class="sd">    axis_ratios : array_like</span>
+<span class="sd">        Relative ratios of the axes (e.g., [1.0, 2.0] for an ellipse twice </span>
+<span class="sd">        as long in one direction).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        An array containing the absolute lengths of the two semi-axes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ratios</span> <span class="o">=</span> <span class="n">normalize_axis_ratios</span><span class="p">(</span><span class="n">axis_ratios</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ratios</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;2D ellipse axis_ratios must have length 2.&quot;</span><span class="p">)</span>
+    <span class="n">total_area</span> <span class="o">=</span> <span class="n">volume_fraction</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">domain_size</span><span class="p">))</span>
+    <span class="n">particle_area</span> <span class="o">=</span> <span class="n">total_area</span> <span class="o">/</span> <span class="n">num_particles</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">particle_area</span> <span class="o">/</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">ratios</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">ratios</span></div>
+
+
+
+<div class="viewcode-block" id="monodisperse_ellipsoid_axes">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.monodisperse_ellipsoid_axes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">monodisperse_ellipsoid_axes</span><span class="p">(</span><span class="n">volume_fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">num_particles</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">axis_ratios</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the semi-axes lengths for ellipsoids in a 3D monodisperse system.</span>
+
+<span class="sd">    Computes the absolute lengths of the semi-axes (a, b, c) for 3D ellipsoids </span>
+<span class="sd">    based on the target volume fraction and prescribed relative axis ratios.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    volume_fraction : float</span>
+<span class="sd">        Target volume fraction [0 to 1].</span>
+<span class="sd">    num_particles : int</span>
+<span class="sd">        Number of ellipsoids to be generated.</span>
+<span class="sd">    domain_size : np.ndarray</span>
+<span class="sd">        Dimensions of the 3D domain [L_x, L_y, L_z].</span>
+<span class="sd">    axis_ratios : array_like</span>
+<span class="sd">        Relative ratios of the three axes (e.g., [1.0, 1.0, 2.0] for a prolate spheroid).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        An array containing the absolute lengths of the three semi-axes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ratios</span> <span class="o">=</span> <span class="n">normalize_axis_ratios</span><span class="p">(</span><span class="n">axis_ratios</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ratios</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;3D ellipsoid axis_ratios must have length 3.&quot;</span><span class="p">)</span>
+    <span class="n">total_volume</span> <span class="o">=</span> <span class="n">volume_fraction</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">domain_size</span><span class="p">))</span>
+    <span class="n">particle_volume</span> <span class="o">=</span> <span class="n">total_volume</span> <span class="o">/</span> <span class="n">num_particles</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="n">particle_volume</span> <span class="o">/</span> <span class="p">((</span><span class="mf">4.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">ratios</span><span class="p">)))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">ratios</span></div>
+
+
+
+<div class="viewcode-block" id="sample_random_center">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.sample_random_center">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sample_random_center</span><span class="p">(</span><span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate random center within the domain bounds.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">domain_size</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">*</span> <span class="n">domain_size</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">minimum_image_delta</span><span class="p">(</span><span class="n">p1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">p2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the minimum-image displacement vector under periodic boundary conditions.</span>
+
+<span class="sd">    Given two points in a periodic domain, this function returns the shortest</span>
+<span class="sd">    displacement vector from ``p2`` to ``p1`` by applying the minimum-image</span>
+<span class="sd">    convention independently in each coordinate direction.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    p1 : np.ndarray</span>
+<span class="sd">        Coordinates of the first point.</span>
+<span class="sd">    p2 : np.ndarray</span>
+<span class="sd">        Coordinates of the second point.</span>
+<span class="sd">    domain_size : np.ndarray</span>
+<span class="sd">        Periodic domain lengths along each coordinate direction. Each entry</span>
+<span class="sd">        must be positive and correspond to the size of the domain in that</span>
+<span class="sd">        dimension.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The wrapped displacement vector ``p1 - p2`` adjusted so that each</span>
+<span class="sd">        component lies in the nearest periodic image of the domain.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For each coordinate direction, the returned displacement is mapped into</span>
+<span class="sd">    the interval approximately ``[-L/2, L/2]``, where ``L`` is the domain</span>
+<span class="sd">    length in that direction. This is the standard minimum-image convention</span>
+<span class="sd">    used in periodic particle simulations, overlap checks, and molecular / </span>
+<span class="sd">    microstructure computations.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    If the domain length is 10 in 1D, and the points are at 1 and 9, the</span>
+<span class="sd">    direct difference is ``1 - 9 = -8``. Under periodic wrapping, the minimum</span>
+<span class="sd">    image displacement becomes ``+2``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">-</span> <span class="n">p2</span>
+    <span class="k">return</span> <span class="n">delta</span> <span class="o">-</span> <span class="n">domain_size</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">delta</span> <span class="o">/</span> <span class="n">domain_size</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">conservative_mesh_safety_radius</span><span class="p">(</span><span class="n">semi_axes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="n">semi_axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">semi_axes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">semi_axes</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">is_mesh_valid_primitive</span><span class="p">(</span><span class="n">center</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">semi_axes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">clearance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">semi_axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">semi_axes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">domain_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">domain_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">center</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">domain_size</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;center and domain_size must have same dimension.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">semi_axes</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">domain_size</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;semi_axes and domain_size must have same dimension.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">center</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">center</span> <span class="o">&gt;=</span> <span class="n">domain_size</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">safety_r</span> <span class="o">=</span> <span class="n">conservative_mesh_safety_radius</span><span class="p">(</span><span class="n">semi_axes</span><span class="p">)</span>
+
+    <span class="c1"># Faces</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">domain_size</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">domain_size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">d1</span> <span class="o">-</span> <span class="n">safety_r</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">clearance</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">d2</span> <span class="o">-</span> <span class="n">safety_r</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">clearance</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># Corners</span>
+    <span class="k">for</span> <span class="n">signs</span> <span class="ow">in</span> <span class="n">product</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="n">domain_size</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+        <span class="n">corner</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">signs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">domain_size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">domain_size</span><span class="o">.</span><span class="n">size</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">center</span> <span class="o">-</span> <span class="n">corner</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">d</span> <span class="o">-</span> <span class="n">safety_r</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">clearance</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">primitives_overlap_periodic</span><span class="p">(</span>
+    <span class="n">center_1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">semi_axes_1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">shape_1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">center_2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">semi_axes_2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">shape_2</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">clearance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks for overlap between two geometric primitives in a periodic domain.</span>
+
+<span class="sd">    This function determines if two shapes intersect, accounting for the </span>
+<span class="sd">    &#39;Minimum Image Convention&#39; to handle periodicity. It supports both </span>
+<span class="sd">    perfectly round shapes (circles/spheres) and axis-aligned ellipses/ellipsoids.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    center_1, center_2 : np.ndarray</span>
+<span class="sd">        Coordinates of the centers of the first and second primitives.</span>
+<span class="sd">    semi_axes_1, semi_axes_2 : np.ndarray</span>
+<span class="sd">        Lengths of the semi-axes (or radii) for each primitive.</span>
+<span class="sd">    shape_1, shape_2 : str</span>
+<span class="sd">        Geometric types: &quot;circle&quot;, &quot;sphere&quot;, &quot;ellipse&quot;, or &quot;ellipsoid&quot;.</span>
+<span class="sd">    domain_size : np.ndarray</span>
+<span class="sd">        Dimensions of the periodic unit cell [L_x, L_y, (L_z)].</span>
+<span class="sd">    clearance : float, default 0.0</span>
+<span class="sd">        Minimum required separation distance between the surfaces of the </span>
+<span class="sd">        two primitives. Positive values enforce a safety gap.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the primitives overlap (or violate the clearance), False otherwise.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - For round shapes, the Euclidean distance between centers is compared </span>
+<span class="sd">      to the sum of radii plus clearance.</span>
+<span class="sd">    - For axis-aligned ellipses/ellipsoids, an approximate overlap check is </span>
+<span class="sd">      performed by scaling the distance vector by the sum of semi-axes.</span>
+<span class="sd">    - This implementation assumes that non-spherical shapes are not rotated</span>
+<span class="sd">      relative to the domain axes.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    minimum_image_delta : Computes the shortest distance vector under periodic BCs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">center_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center_1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">center_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center_2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">semi_axes_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">semi_axes_1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">semi_axes_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">semi_axes_2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">domain_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">domain_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">minimum_image_delta</span><span class="p">(</span><span class="n">center_1</span><span class="p">,</span> <span class="n">center_2</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">)</span>
+
+    <span class="n">both_round</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">shape_1</span> <span class="o">==</span> <span class="s2">&quot;circle&quot;</span> <span class="ow">and</span> <span class="n">shape_2</span> <span class="o">==</span> <span class="s2">&quot;circle&quot;</span> <span class="ow">and</span> <span class="n">delta</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="ow">or</span>
+        <span class="p">(</span><span class="n">shape_1</span> <span class="o">==</span> <span class="s2">&quot;sphere&quot;</span> <span class="ow">and</span> <span class="n">shape_2</span> <span class="o">==</span> <span class="s2">&quot;sphere&quot;</span> <span class="ow">and</span> <span class="n">delta</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">both_round</span><span class="p">:</span>
+        <span class="n">r1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">semi_axes_1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">semi_axes_2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">delta</span><span class="p">))</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">+</span> <span class="n">clearance</span><span class="p">)</span>
+
+    <span class="n">summed_axes</span> <span class="o">=</span> <span class="n">semi_axes_1</span> <span class="o">+</span> <span class="n">semi_axes_2</span> <span class="o">+</span> <span class="n">clearance</span>
+    <span class="n">scaled</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">/</span> <span class="n">summed_axes</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">scaled</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">1.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">overlaps_existing_periodic</span><span class="p">(</span>
+    <span class="n">candidate_center</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">candidate_axes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">candidate_shape</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">existing_centers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">existing_axes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">existing_shapes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">clearance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if a candidate particle overlaps with any previously placed particles.</span>
+
+<span class="sd">    This function iterates through the collection of existing particles and </span>
+<span class="sd">    performs a pairwise overlap check against the candidate, accounting for </span>
+<span class="sd">    periodic boundary conditions. It is a core component of the Random </span>
+<span class="sd">    Sequential Adsorption (RSA) algorithm.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    candidate_center : np.ndarray</span>
+<span class="sd">        The proposed center coordinates for the new particle.</span>
+<span class="sd">    candidate_axes : np.ndarray</span>
+<span class="sd">        The semi-axes lengths (radii) of the candidate particle.</span>
+<span class="sd">    candidate_shape : str</span>
+<span class="sd">        The geometry type of the candidate (e.g., &quot;circle&quot;, &quot;ellipse&quot;).</span>
+<span class="sd">    existing_centers : list[np.ndarray]</span>
+<span class="sd">        A list containing the centers of all particles already accepted.</span>
+<span class="sd">    existing_axes : list[np.ndarray]</span>
+<span class="sd">        A list containing the semi-axes of all particles already accepted.</span>
+<span class="sd">    existing_shapes : list[str]</span>
+<span class="sd">        A list of geometry type strings for each existing particle.</span>
+<span class="sd">    domain_size : np.ndarray</span>
+<span class="sd">        The dimensions of the periodic RVE [L_x, L_y, (L_z)].</span>
+<span class="sd">    clearance : float</span>
+<span class="sd">        The minimum required buffer distance between any two particles.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the candidate overlaps with at least one existing particle </span>
+<span class="sd">        (within the clearance distance), False if the position is &#39;safe&#39;.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The function uses a &#39;First-Hit&#39; logic: it returns True immediately upon </span>
+<span class="sd">    detecting the first overlap, which optimizes performance during the </span>
+<span class="sd">    stochastic placement process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">center_i</span><span class="p">,</span> <span class="n">axes_i</span><span class="p">,</span> <span class="n">shape_i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">existing_centers</span><span class="p">,</span> <span class="n">existing_axes</span><span class="p">,</span> <span class="n">existing_shapes</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">primitives_overlap_periodic</span><span class="p">(</span>
+            <span class="n">candidate_center</span><span class="p">,</span>
+            <span class="n">candidate_axes</span><span class="p">,</span>
+            <span class="n">candidate_shape</span><span class="p">,</span>
+            <span class="n">center_i</span><span class="p">,</span>
+            <span class="n">axes_i</span><span class="p">,</span>
+            <span class="n">shape_i</span><span class="p">,</span>
+            <span class="n">domain_size</span><span class="p">,</span>
+            <span class="n">clearance</span><span class="o">=</span><span class="n">clearance</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="generate_periodic_image_centers">
+<a class="viewcode-back" href="../../../api/generated/homicsx.geometry.html#homicsx.geometry.generate_periodic_image_centers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_periodic_image_centers</span><span class="p">(</span><span class="n">center</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">extents</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates necessary periodic image centers for a particle near domain boundaries.</span>
+
+<span class="sd">    This function identifies if a particle (defined by its center and axis-aligned </span>
+<span class="sd">    bounding box extents) crosses any boundary of the periodic domain. If it </span>
+<span class="sd">    does, it calculates the centers of the &#39;ghost&#39; images in the neighboring </span>
+<span class="sd">    periodic cells.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    center : np.ndarray</span>
+<span class="sd">        Coordinates of the particle&#39;s center.</span>
+<span class="sd">    extents : np.ndarray</span>
+<span class="sd">        The maximum reach of the particle from its center along each axis </span>
+<span class="sd">        (e.g., radii or semi-axes). Used to check boundary intersection.</span>
+<span class="sd">    domain_size : np.ndarray</span>
+<span class="sd">        Dimensions of the periodic unit cell [L_x, L_y, (L_z)].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[np.ndarray]</span>
+<span class="sd">        A list of center coordinates for the required periodic images. </span>
+<span class="sd">        Returns an empty list if the particle is fully contained within </span>
+<span class="sd">        the domain (no boundary crossing).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function uses a selective approach: it only generates images for </span>
+<span class="sd">      the specific directions where the particle exceeds the domain bounds.</span>
+<span class="sd">    - If a particle sits in a corner, it will correctly generate images for </span>
+<span class="sd">      all adjacent cells (including diagonal ones) using a Cartesian product </span>
+<span class="sd">      of valid shifts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">extents</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">extents</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">domain_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">domain_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">shift_options</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">domain_size</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">center</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">extents</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">domain_size</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">center</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">extents</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">domain_size</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">domain_size</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">shift_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+
+    <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">shift_tuple</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">shift_options</span><span class="p">):</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shift_tuple</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">shift</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">center</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">images</span></div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># helpers</span>
+    <span class="s2">&quot;as_domain_size&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;circle_area&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sphere_volume&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ellipse_area&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ellipsoid_volume&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;normalize_axis_ratios&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;monodisperse_circle_radius&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;monodisperse_sphere_radius&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;monodisperse_ellipse_axes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;monodisperse_ellipsoid_axes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sample_random_center&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;minimum_image_delta&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;primitives_overlap_periodic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;overlaps_existing_periodic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;generate_periodic_image_centers&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

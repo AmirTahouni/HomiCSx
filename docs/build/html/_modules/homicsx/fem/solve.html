@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.fem.solve &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/homicsx.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">homicsx.fem.solve</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for homicsx.fem.solve</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx</span><span class="w"> </span><span class="kn">import</span> <span class="n">fem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem.petsc</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearProblem</span> <span class="k">as</span> <span class="n">DOLFINxLinearProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.nls.petsc</span><span class="w"> </span><span class="kn">import</span> <span class="n">NewtonSolver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">petsc4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PETSc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx_mpc</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.core.fem</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LinearProblemDefinition</span><span class="p">,</span>
+    <span class="n">MixedLinearProblemDefinition</span><span class="p">,</span>
+    <span class="n">NonlinearProblemDefinition</span><span class="p">,</span>
+    <span class="n">SolveResult</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.nonlinear_problem</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonlinearProblemMPC</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">default_linear_solver_options</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return default PETSc options for linear problems.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, Any]</span>
+<span class="sd">        Dictionary of PETSc options.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    These defaults follow the same spirit as your current FEM code:</span>
+<span class="sd">    direct solve with LU factorization and MUMPS when available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;preonly&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;lu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pc_factor_mat_solver_type&quot;</span><span class="p">:</span> <span class="s2">&quot;mumps&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">default_nonlinear_solver_options</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return default PETSc/SNES-style options for nonlinear problems.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, Any]</span>
+<span class="sd">        Dictionary of PETSc options.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    These options are intentionally modest and can be tuned later. The actual</span>
+<span class="sd">    NewtonSolver setup is handled in `solve_nonlinear_problem`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;preonly&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;lu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pc_factor_mat_solver_type&quot;</span><span class="p">:</span> <span class="s2">&quot;mumps&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<div class="viewcode-block" id="solve_linear_problem">
+<a class="viewcode-back" href="../../../api/generated/homicsx.fem.html#homicsx.fem.solve_linear_problem">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_linear_problem</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">:</span> <span class="n">LinearProblemDefinition</span><span class="p">,</span>
+    <span class="n">petsc_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SolveResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Solve a linear variational problem.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    problem:</span>
+<span class="sd">        Linear problem definition returned by the assembly layer.</span>
+<span class="sd">    petsc_options:</span>
+<span class="sd">        Optional PETSc options dictionary. If omitted, default linear solver</span>
+<span class="sd">        options are used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    SolveResult</span>
+<span class="sd">        Result object containing the solved displacement field and basic status</span>
+<span class="sd">        information.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If an MPC object is present, the dolfinx_mpc linear problem wrapper is used.</span>
+<span class="sd">    - Otherwise, a standard DOLFINx linear problem is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">petsc_options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">petsc_options</span> <span class="o">=</span> <span class="n">default_linear_solver_options</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">problem</span><span class="o">.</span><span class="n">mpc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">linear_problem</span> <span class="o">=</span> <span class="n">dolfinx_mpc</span><span class="o">.</span><span class="n">LinearProblem</span><span class="p">(</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">bilinear_form</span><span class="p">,</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">linear_form</span><span class="p">,</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">mpc</span><span class="p">,</span>
+            <span class="n">bcs</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">bcs</span><span class="p">,</span>
+            <span class="n">u</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+            <span class="n">petsc_options</span><span class="o">=</span><span class="n">petsc_options</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">linear_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+        <span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">num_iterations</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">linear_problem</span> <span class="o">=</span> <span class="n">fem</span><span class="o">.</span><span class="n">petsc</span><span class="o">.</span><span class="n">LinearProblem</span><span class="p">(</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">bilinear_form</span><span class="p">,</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">linear_form</span><span class="p">,</span>
+            <span class="n">bcs</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">bcs</span><span class="p">,</span>
+            <span class="n">u</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+            <span class="n">petsc_options</span><span class="o">=</span><span class="n">petsc_options</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">problem</span><span class="o">.</span><span class="n">solution</span> <span class="o">=</span> <span class="n">linear_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+        <span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">num_iterations</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">SolveResult</span><span class="p">(</span>
+        <span class="n">solution</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+        <span class="n">converged</span><span class="o">=</span><span class="n">converged</span><span class="p">,</span>
+        <span class="n">num_iterations</span><span class="o">=</span><span class="n">num_iterations</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;solver_type&quot;</span><span class="p">:</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;used_mpc&quot;</span><span class="p">:</span> <span class="n">problem</span><span class="o">.</span><span class="n">mpc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;petsc_options&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">petsc_options</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_nonlinear_problem</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">:</span> <span class="n">NonlinearProblemMPC</span><span class="p">,</span>
+    <span class="n">petsc_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_it</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span>
+    <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+    <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+    <span class="n">convergence_criterion</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;residual&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SolveResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Solve a nonlinear variational problem.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    problem:</span>
+<span class="sd">        Nonlinear problem definition returned by the assembly layer.</span>
+<span class="sd">    petsc_options:</span>
+<span class="sd">        Optional PETSc options dictionary for the linear solves inside Newton.</span>
+<span class="sd">        If omitted, default nonlinear solver options are used.</span>
+<span class="sd">    max_it:</span>
+<span class="sd">        Maximum number of Newton iterations.</span>
+<span class="sd">    atol:</span>
+<span class="sd">        Absolute tolerance for Newton convergence.</span>
+<span class="sd">    rtol:</span>
+<span class="sd">        Relative tolerance for Newton convergence.</span>
+<span class="sd">    convergence_criterion:</span>
+<span class="sd">        Newton convergence criterion. Typical values include &quot;residual&quot; and</span>
+<span class="sd">        &quot;incremental&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    SolveResult</span>
+<span class="sd">        Result object containing the solved displacement field and convergence</span>
+<span class="sd">        information.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If an MPC object is present, the nonlinear problem is wrapped with</span>
+<span class="sd">      dolfinx_mpc.NonlinearProblem.</span>
+<span class="sd">    - Otherwise, a standard DOLFINx nonlinear problem is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Nonlinear MPC solver not yet implemented due to dolfinx_mpc solver unstability.&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">petsc_options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">petsc_options</span> <span class="o">=</span> <span class="n">default_nonlinear_solver_options</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">problem</span><span class="o">.</span><span class="n">mpc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nonlinear_problem</span> <span class="o">=</span> <span class="n">dolfinx_mpc</span><span class="o">.</span><span class="n">NonlinearProblem</span><span class="p">(</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">residual_form</span><span class="p">,</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">mpc</span><span class="p">,</span>
+            <span class="n">bcs</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">bcs</span><span class="p">,</span>
+            <span class="n">J</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">jacobian_form</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nonlinear_problem</span> <span class="o">=</span> <span class="n">fem</span><span class="o">.</span><span class="n">petsc</span><span class="o">.</span><span class="n">NonlinearProblem</span><span class="p">(</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">residual_form</span><span class="p">,</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+            <span class="n">bcs</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">bcs</span><span class="p">,</span>
+            <span class="n">J</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">jacobian_form</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">solver</span> <span class="o">=</span> <span class="n">NewtonSolver</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="o">.</span><span class="n">function_space</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">nonlinear_problem</span><span class="p">)</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">convergence_criterion</span> <span class="o">=</span> <span class="n">convergence_criterion</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">atol</span> <span class="o">=</span> <span class="n">atol</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">rtol</span> <span class="o">=</span> <span class="n">rtol</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">max_it</span> <span class="o">=</span> <span class="n">max_it</span>
+
+    <span class="n">ksp</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">krylov_solver</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="n">ksp</span><span class="o">.</span><span class="n">getOptionsPrefix</span><span class="p">()</span>
+    <span class="n">opts</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">Options</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">petsc_options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">opts</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setFromOptions</span><span class="p">()</span>
+
+    <span class="n">num_iterations</span><span class="p">,</span> <span class="n">converged</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
+    <span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">scatter_forward</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">SolveResult</span><span class="p">(</span>
+        <span class="n">solution</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+        <span class="n">converged</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">converged</span><span class="p">),</span>
+        <span class="n">num_iterations</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">),</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;solver_type&quot;</span><span class="p">:</span> <span class="s2">&quot;nonlinear&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;used_mpc&quot;</span><span class="p">:</span> <span class="n">problem</span><span class="o">.</span><span class="n">mpc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;petsc_options&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">petsc_options</span><span class="p">),</span>
+            <span class="s2">&quot;max_it&quot;</span><span class="p">:</span> <span class="n">max_it</span><span class="p">,</span>
+            <span class="s2">&quot;atol&quot;</span><span class="p">:</span> <span class="n">atol</span><span class="p">,</span>
+            <span class="s2">&quot;rtol&quot;</span><span class="p">:</span> <span class="n">rtol</span><span class="p">,</span>
+            <span class="s2">&quot;convergence_criterion&quot;</span><span class="p">:</span> <span class="n">convergence_criterion</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_mixed_linear_problem</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">:</span> <span class="n">MixedLinearProblemDefinition</span><span class="p">,</span>
+    <span class="n">petsc_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SolveResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Solve a mixed linear variational problem.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    problem:</span>
+<span class="sd">        Mixed linear problem definition returned by `fem.mixed`.</span>
+<span class="sd">    petsc_options:</span>
+<span class="sd">        Optional PETSc options dictionary. If omitted, default linear solver</span>
+<span class="sd">        options are used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    SolveResult</span>
+<span class="sd">        Result object containing the solved mixed field and basic status</span>
+<span class="sd">        information.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If an MPC object is present, the solution must live on</span>
+<span class="sd">      `mpc.function_space`, which should already have been handled by the</span>
+<span class="sd">      mixed problem builder.</span>
+<span class="sd">    - This solver is intended for linear hybrid / mixed formulations such as</span>
+<span class="sd">      displacement-pressure systems.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;mixed linear formulation is not implemented yet.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">petsc_options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">petsc_options</span> <span class="o">=</span> <span class="n">default_linear_solver_options</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">problem</span><span class="o">.</span><span class="n">mpc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">linear_problem</span> <span class="o">=</span> <span class="n">dolfinx_mpc</span><span class="o">.</span><span class="n">LinearProblem</span><span class="p">(</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">bilinear_form</span><span class="p">,</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">linear_form</span><span class="p">,</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">mpc</span><span class="p">,</span>
+            <span class="n">bcs</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">bcs</span><span class="p">,</span>
+            <span class="n">u</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+            <span class="n">petsc_options</span><span class="o">=</span><span class="n">petsc_options</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">linear_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+        <span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">num_iterations</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">linear_problem</span> <span class="o">=</span> <span class="n">DOLFINxLinearProblem</span><span class="p">(</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">bilinear_form</span><span class="p">,</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">linear_form</span><span class="p">,</span>
+            <span class="n">bcs</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">bcs</span><span class="p">,</span>
+            <span class="n">u</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+            <span class="n">petsc_options</span><span class="o">=</span><span class="n">petsc_options</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">problem</span><span class="o">.</span><span class="n">solution</span> <span class="o">=</span> <span class="n">linear_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+        <span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">num_iterations</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">SolveResult</span><span class="p">(</span>
+        <span class="n">solution</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+        <span class="n">converged</span><span class="o">=</span><span class="n">converged</span><span class="p">,</span>
+        <span class="n">num_iterations</span><span class="o">=</span><span class="n">num_iterations</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;solver_type&quot;</span><span class="p">:</span> <span class="s2">&quot;mixed_linear&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;used_mpc&quot;</span><span class="p">:</span> <span class="n">problem</span><span class="o">.</span><span class="n">mpc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;petsc_options&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">petsc_options</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_problem</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">:</span> <span class="n">LinearProblemDefinition</span> <span class="o">|</span> <span class="n">MixedLinearProblemDefinition</span> <span class="o">|</span> <span class="n">NonlinearProblemDefinition</span><span class="p">,</span>
+    <span class="n">petsc_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">nonlinear_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SolveResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Solve either a linear, mixed-linear, or nonlinear problem using one</span>
+<span class="sd">    convenience entry point.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    problem:</span>
+<span class="sd">        Problem definition object.</span>
+<span class="sd">    petsc_options:</span>
+<span class="sd">        Optional PETSc options dictionary.</span>
+<span class="sd">    **nonlinear_kwargs:</span>
+<span class="sd">        Extra keyword arguments passed to `solve_nonlinear_problem` if the</span>
+<span class="sd">        problem is nonlinear.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    SolveResult</span>
+<span class="sd">        Solver result.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If the problem type is unsupported.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">LinearProblemDefinition</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">solve_linear_problem</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">petsc_options</span><span class="o">=</span><span class="n">petsc_options</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">MixedLinearProblemDefinition</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Mixed-linear MPC solver is currently not supported.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">solve_mixed_linear_problem</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">petsc_options</span><span class="o">=</span><span class="n">petsc_options</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">NonlinearProblemDefinition</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Non-linear MPC solver is currently not supported due to dolfinx_mpc non-linear solver instability.&#39;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">solve_nonlinear_problem</span><span class="p">(</span>
+            <span class="n">problem</span><span class="p">,</span>
+            <span class="n">petsc_options</span><span class="o">=</span><span class="n">petsc_options</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">nonlinear_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported problem type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">problem</span><span class="p">)</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># solve</span>
+    <span class="s2">&quot;solve_linear_problem&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

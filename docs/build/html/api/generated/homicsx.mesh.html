@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.mesh &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="homicsx.fem" href="homicsx.fem.html" />
+    <link rel="prev" title="homicsx.geometry" href="homicsx.geometry.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../homicsx.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="homicsx.html">homicsx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.core.html">homicsx.core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.geometry.html">homicsx.geometry</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">homicsx.mesh</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.mesh.classify_outer_boundaries"><code class="docutils literal notranslate"><span class="pre">classify_outer_boundaries()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.mesh.add_cell_physical_groups"><code class="docutils literal notranslate"><span class="pre">add_cell_physical_groups()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.mesh.add_boundary_physical_groups"><code class="docutils literal notranslate"><span class="pre">add_boundary_physical_groups()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.mesh.build_gmsh_model"><code class="docutils literal notranslate"><span class="pre">build_gmsh_model()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.mesh.generate_mesh"><code class="docutils literal notranslate"><span class="pre">generate_mesh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.mesh.gmsh_model_to_dolfinx_mesh"><code class="docutils literal notranslate"><span class="pre">gmsh_model_to_dolfinx_mesh()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.fem.html">homicsx.fem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.homogenization.html">homicsx.homogenization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.stochastic.html">homicsx.stochastic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.visualization.html">homicsx.visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.utils.html">homicsx.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../homicsx.html">API reference</a></li>
+      <li class="breadcrumb-item active">homicsx.mesh</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/generated/homicsx.mesh.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-homicsx.mesh">
+<span id="homicsx-mesh"></span><h1>homicsx.mesh<a class="headerlink" href="#module-homicsx.mesh" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.mesh.classify_outer_boundaries">
+<span class="sig-prename descclassname"><span class="pre">homicsx.mesh.</span></span><span class="sig-name descname"><span class="pre">classify_outer_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/mesh/tagging.html#classify_outer_boundaries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.mesh.classify_outer_boundaries" title="Link to this definition"></a></dt>
+<dd><p>Classify outer boundary entities of the RVE box using center-of-mass tests.</p>
+<p>In 2D: classify 1D boundary curves
+In 3D: classify 2D boundary surfaces</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Spacial dimension of the domain (2 or 3).</p></li>
+<li><p><strong>dim_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – States the size of the domain in its dimensions:
+- [Lx, Ly] for 2D domains.
+- [Lx, Ly, Lz] for 3D domains.</p></li>
+<li><p><strong>tol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The tolerance with respect to which the outer boundaries are being detected and calssified.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Mapping from boundary names to lists of Gmsh entity tags.</p>
+<p>In 2D, the keys are:
+- “left”
+- “right”
+- “bottom”
+- “top”</p>
+<p>In 3D, the keys are:
+- “left”
+- “right”
+- “bottom”
+- “top”
+- “near”
+- “far”</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list[int]]</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Boundary classification is based on the center of mass of each boundary
+entity. This approach is well suited to the assumptions:
+axis-aligned rectangular/cuboidal domains with boundaries lying on planes
+of constant x, y, and z.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.mesh.add_cell_physical_groups">
+<span class="sig-prename descclassname"><span class="pre">homicsx.mesh.</span></span><span class="sig-name descname"><span class="pre">add_cell_physical_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_entity_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_entity_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_phase_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/mesh/tagging.html#add_cell_physical_groups"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.mesh.add_cell_physical_groups" title="Link to this definition"></a></dt>
+<dd><p>Add physical groups for the matrix region and all non-matrix material phases.</p>
+<p>This function assigns Gmsh physical groups to cell regions so that they can
+later be converted into DOLFINx cell tags. One physical group is created
+for the matrix, and one physical group is created for each material phase
+present in the clipped inclusion regions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Geometric dimension of the regions being tagged.
+Must be 2 for area regions or 3 for volume regions.</p></li>
+<li><p><strong>matrix_entity_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[int]</span></code>) – Gmsh entity tags corresponding to the matrix region after all inclusion
+phases have been subtracted from the outer box.</p></li>
+<li><p><strong>phase_entity_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list[int]]</span></code>) – Mapping from <code class="docutils literal notranslate"><span class="pre">phase_id</span></code> to lists of Gmsh entity tags belonging to that
+material phase.</p></li>
+<li><p><strong>matrix_phase_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Phase identifier representing the matrix material. Defaults to 0.</p></li>
+<li><p><strong>physical_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicalTags</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <em>optional</em>) – Tagging convention used to generate physical group IDs and names.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a default <code class="docutils literal notranslate"><span class="pre">PhysicalTags</span></code> instance is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>In the default tagging convention:
+- matrix phase -&gt; tag 1
+- phase k -&gt; tag <code class="docutils literal notranslate"><span class="pre">phase_tag_offset</span> <span class="pre">+</span> <span class="pre">k</span></code></p>
+<p>These physical groups later become DOLFINx <code class="docutils literal notranslate"><span class="pre">cell_tags</span></code> and are typically
+used to assign material properties phase by phase.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.mesh.add_boundary_physical_groups">
+<span class="sig-prename descclassname"><span class="pre">homicsx.mesh.</span></span><span class="sig-name descname"><span class="pre">add_boundary_physical_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_entities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/mesh/tagging.html#add_boundary_physical_groups"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.mesh.add_boundary_physical_groups" title="Link to this definition"></a></dt>
+<dd><p>Add physical groups for the outer boundaries of the RVE domain.</p>
+<p>This function takes the output of <code class="docutils literal notranslate"><span class="pre">classify_outer_boundaries</span></code> and assigns
+named physical groups to the corresponding Gmsh boundary entities. These
+physical groups later become DOLFINx facet tags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Geometric dimension of the RVE.
+Must be 2 or 3.</p></li>
+<li><p><strong>boundary_entities</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list[int]]</span></code>) – Mapping from boundary names to lists of Gmsh entity tags.</p></li>
+<li><p><strong>physical_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicalTags</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <em>optional</em>) – Tagging convention used to assign physical group IDs to boundaries.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a default <code class="docutils literal notranslate"><span class="pre">PhysicalTags</span></code> instance is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The boundary names follow the axis-aligned convention:
+- 2D: left, right, bottom, top
+- 3D: left, right, bottom, top, near, far</p>
+<p>These physical groups are typically used later for periodic boundary
+conditions or other facet-based constraints in FEniCSx.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.mesh.build_gmsh_model">
+<span class="sig-prename descclassname"><span class="pre">homicsx.mesh.</span></span><span class="sig-name descname"><span class="pre">build_gmsh_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rve'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_interfaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interface_dist_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interface_dist_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/mesh/gmsh_builder.html#build_gmsh_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.mesh.build_gmsh_model" title="Link to this definition"></a></dt>
+<dd><p>Build a Gmsh OCC model from an <code class="docutils literal notranslate"><span class="pre">RVEGeometry</span></code> object.</p>
+<p>This function constructs the geometric model of the representative volume
+element, performs phase-wise clipping of inclusion primitives to the outer
+box, subtracts all non-matrix phases from the matrix, assigns physical
+groups to cells and boundaries, and optionally defines a mesh refinement
+field near material interfaces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geometry</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">RVEGeometry</span></code>) – Geometry object describing the RVE domain, inclusions, and material
+phase IDs.</p></li>
+<li><p><strong>min_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Minimum mesh element size, typically used near interfaces.</p></li>
+<li><p><strong>max_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Maximum mesh element size, typically used away from interfaces.</p></li>
+<li><p><strong>model_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – Name assigned to the Gmsh model. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;rve&quot;</span></code>.</p></li>
+<li><p><strong>physical_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicalTags</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <em>optional</em>) – Tagging convention for matrix, phases, and boundaries.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a default <code class="docutils literal notranslate"><span class="pre">PhysicalTags</span></code> instance is used.</p></li>
+<li><p><strong>boundary_tol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Tolerance used to classify outer boundary entities by position.
+Defaults to <code class="docutils literal notranslate"><span class="pre">1e-8</span></code>.</p></li>
+<li><p><strong>refine_interfaces</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, create a distance-based mesh refinement field around
+material interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>interface_dist_min</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <em>optional</em>) – Distance below which the minimum mesh size is enforced in the interface
+refinement field.</p></li>
+<li><p><strong>interface_dist_max</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <em>optional</em>) – Distance beyond which the maximum mesh size is enforced in the
+interface refinement field.</p></li>
+<li><p><strong>verbosity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Gmsh verbosity level. Defaults to 0.</p></li>
+<li><p><strong>optimize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, enable Gmsh mesh optimization. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>smoothing_steps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Number of requested mesh smoothing iterations. Defaults to 10.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary containing metadata about the constructed model, including:
+- <code class="docutils literal notranslate"><span class="pre">&quot;dim&quot;</span></code> : geometric dimension
+- <code class="docutils literal notranslate"><span class="pre">&quot;domain_size&quot;</span></code> : RVE side lengths
+- <code class="docutils literal notranslate"><span class="pre">&quot;matrix_phase_id&quot;</span></code> : matrix phase identifier
+- <code class="docutils literal notranslate"><span class="pre">&quot;matrix_cell_tag&quot;</span></code> : physical tag of the matrix
+- <code class="docutils literal notranslate"><span class="pre">&quot;phase_cell_tags&quot;</span></code> : mapping from phase ID to physical cell tag
+- <code class="docutils literal notranslate"><span class="pre">&quot;matrix_entity_tags&quot;</span></code> : Gmsh entity tags of the matrix region
+- <code class="docutils literal notranslate"><span class="pre">&quot;phase_entity_tags&quot;</span></code> : mapping from phase ID to region tags
+- <code class="docutils literal notranslate"><span class="pre">&quot;boundary_entities&quot;</span></code> : outer boundary entity classification
+- <code class="docutils literal notranslate"><span class="pre">&quot;interface_entity_tags&quot;</span></code> : collected interface entity tags</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function builds the geometric and tagging model only. It does not call
+<code class="docutils literal notranslate"><span class="pre">gmsh.model.mesh.generate(...)</span></code>.</p>
+<p>Important assumptions of the current implementation:
+- the outer domain is rectangular in 2D or cuboidal in 3D,
+- the outer domain starts at the origin,
+- inclusions are axis-aligned,
+- periodic images are already explicitly stored in</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">geometry.inclusions</span></code>.</p>
+</div></blockquote>
+<section id="multi-phase-behavior">
+<h2>Multi-phase behavior<a class="headerlink" href="#multi-phase-behavior" title="Link to this heading"></a></h2>
+<p>All non-matrix inclusions are grouped by <code class="docutils literal notranslate"><span class="pre">phase_id</span></code> and clipped phase by
+phase. Each phase receives its own physical group, which later becomes a
+distinct DOLFINx cell tag.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.mesh.generate_mesh">
+<span class="sig-prename descclassname"><span class="pre">homicsx.mesh.</span></span><span class="sig-name descname"><span class="pre">generate_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/mesh/gmsh_builder.html#generate_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.mesh.generate_mesh" title="Link to this definition"></a></dt>
+<dd><p>Build, mesh, and convert an RVE geometry into DOLFINx mesh objects.</p>
+<p>This is the main high-level meshing entry point. It initializes Gmsh,
+builds the OCC model from the provided <code class="docutils literal notranslate"><span class="pre">RVEGeometry</span></code> and <code class="docutils literal notranslate"><span class="pre">MeshSettings</span></code> objects, generates the mesh,
+and converts the result to DOLFINx compatible mesh, cell tags, and facet tags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geometry</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">RVEGeometry</span></code>) – Geometry object describing the RVE to be meshed.</p></li>
+<li><p><strong>mesh_settings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSettings</span></code>) – A structured data object containing all necessary meshing parameters and settings.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mesh</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.mesh.Mesh</span></code>) – Generated DOLFINx mesh.</p></li>
+<li><p><strong>cell_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.mesh.MeshTags</span></code>) – Cell-wise tags corresponding to matrix and material phase regions.</p></li>
+<li><p><strong>facet_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.mesh.MeshTags</span></code>) – Facet-wise tags corresponding to outer domain boundaries.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Internally, this function performs the following steps:
+1. initialize Gmsh,
+2. build the geometric model and physical groups,
+3. generate the mesh on <code class="docutils literal notranslate"><span class="pre">model_rank</span></code>,
+4. convert the Gmsh model to DOLFINx,
+5. finalize Gmsh if requested.</p>
+<p>This function is intended to be the main user-facing API for the meshing
+module.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="homicsx.core.html#homicsx.core.MeshSettings" title="homicsx.core.MeshSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">homicsx.core.MeshSettings</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.mesh.gmsh_model_to_dolfinx_mesh">
+<span class="sig-prename descclassname"><span class="pre">homicsx.mesh.</span></span><span class="sig-name descname"><span class="pre">gmsh_model_to_dolfinx_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">mpi4py.MPI.COMM_WORLD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/mesh/converters.html#gmsh_model_to_dolfinx_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.mesh.gmsh_model_to_dolfinx_mesh" title="Link to this definition"></a></dt>
+<dd><p>Convert the current active Gmsh model into DOLFINx mesh objects.</p>
+<p>This function wraps <code class="docutils literal notranslate"><span class="pre">dolfinx.io.gmshio.model_to_mesh</span></code> for the current
+<code class="docutils literal notranslate"><span class="pre">gmsh.model</span></code>. It is intended to be called after the Gmsh geometry has
+been constructed, physical groups have been assigned, and mesh generation
+has already been performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Geometric dimension of the mesh.
+Must be 2 for planar RVEs or 3 for volumetric RVEs.</p></li>
+<li><p><strong>comm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">mpi4py.MPI.Comm</span></code>, <em>optional</em>) – MPI communicator used for mesh distribution. Defaults to
+<code class="docutils literal notranslate"><span class="pre">MPI.COMM_WORLD</span></code>.</p></li>
+<li><p><strong>model_rank</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Rank that owns the Gmsh model and provides it during conversion.
+Defaults to 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mesh</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.mesh.Mesh</span></code>) – The converted DOLFINx mesh.</p></li>
+<li><p><strong>cell_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.mesh.MeshTags</span></code>) – Cell-wise physical tags, typically representing matrix and inclusions
+phases.</p></li>
+<li><p><strong>facet_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.mesh.MeshTags</span></code>) – Facet-wise physical tags, typically representing outer boundaries.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function assumes that the current Gmsh model is valid and already
+meshed. It does not create geometry or generate mesh elements itself.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="homicsx.geometry.html" class="btn btn-neutral float-left" title="homicsx.geometry" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="homicsx.fem.html" class="btn btn-neutral float-right" title="homicsx.fem" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

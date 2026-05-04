@@ -1,0 +1,736 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.mesh.gmsh_builder &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/homicsx.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">homicsx.mesh.gmsh_builder</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for homicsx.mesh.gmsh_builder</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">gmsh</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.core.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Inclusion</span><span class="p">,</span> <span class="n">RVEGeometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.core.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicalTags</span><span class="p">,</span> <span class="n">MeshSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.converters</span><span class="w"> </span><span class="kn">import</span> <span class="n">gmsh_model_to_dolfinx_mesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tagging</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">add_boundary_physical_groups</span><span class="p">,</span>
+    <span class="n">add_cell_physical_groups</span><span class="p">,</span>
+    <span class="n">classify_outer_boundaries</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_matrix_phase_id</span><span class="p">(</span><span class="n">geometry</span><span class="p">:</span> <span class="n">RVEGeometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the phase identifier used for the matrix material.</span>
+
+<span class="sd">    The current convention is that the first entry of ``geometry.phase_ids``</span>
+<span class="sd">    represents the matrix phase. If no phase IDs are provided, this function</span>
+<span class="sd">    falls back to 0.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    geometry : RVEGeometry</span>
+<span class="sd">        Geometry object containing the list of phase identifiers present in the</span>
+<span class="sd">        RVE.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        Phase identifier to be treated as the matrix phase.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This is a simple project-level convention rather than a fully general</span>
+<span class="sd">    material model. It keeps the current architecture lightweight while still</span>
+<span class="sd">    supporting multi-phase unit cells.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">geometry</span><span class="o">.</span><span class="n">phase_ids</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">phase_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_non_matrix_inclusions_by_phase</span><span class="p">(</span>
+    <span class="n">geometry</span><span class="p">:</span> <span class="n">RVEGeometry</span><span class="p">,</span>
+    <span class="n">matrix_phase_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Inclusion</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Group all non-matrix inclusions by material phase.</span>
+
+<span class="sd">    This function filters out inclusions belonging to the matrix phase and</span>
+<span class="sd">    returns the remaining inclusions grouped by ``phase_id``. The grouping is</span>
+<span class="sd">    used later to clip and tag each material phase separately in the Gmsh model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    geometry : RVEGeometry</span>
+<span class="sd">        Geometry object containing all inclusions, including periodic images.</span>
+<span class="sd">    matrix_phase_id : int</span>
+<span class="sd">        Phase identifier treated as the matrix material.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[int, list[Inclusion]]</span>
+<span class="sd">        Mapping from non-matrix ``phase_id`` values to lists of corresponding</span>
+<span class="sd">        ``Inclusion`` objects.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Periodic images are kept exactly as stored in ``geometry.inclusions``.</span>
+<span class="sd">    This function does not attempt to reconstruct original/image relationships;</span>
+<span class="sd">    it only groups by phase.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">grouped</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Inclusion</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">inclusion</span> <span class="ow">in</span> <span class="n">geometry</span><span class="o">.</span><span class="n">inclusions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">inclusion</span><span class="o">.</span><span class="n">phase_id</span><span class="p">)</span> <span class="o">==</span> <span class="n">matrix_phase_id</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">grouped</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">inclusion</span><span class="o">.</span><span class="n">phase_id</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inclusion</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">grouped</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_box_domain</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create the outer rectangular or cuboidal RVE domain in the Gmsh OCC model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        Geometric dimension of the domain.</span>
+<span class="sd">        Must be 2 for a rectangle or 3 for a box.</span>
+<span class="sd">    domain_size : ndarray</span>
+<span class="sd">        Domain side lengths:</span>
+<span class="sd">        - ``[Lx, Ly]`` in 2D</span>
+<span class="sd">        - ``[Lx, Ly, Lz]`` in 3D</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        Gmsh OCC entity tag of the created box domain.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The current implementation assumes that the domain starts at the origin.</span>
+<span class="sd">    No translated or rotated outer domains are supported at this stage.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">occ</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">occ</span><span class="o">.</span><span class="n">add_rectangle</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">domain_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">domain_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">occ</span><span class="o">.</span><span class="n">add_box</span><span class="p">(</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">domain_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">domain_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">domain_size</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+        <span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported dimension: </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_inclusion</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">inclusion</span><span class="p">:</span> <span class="n">Inclusion</span><span class="p">,</span> <span class="n">use_inner</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds a single primitive to OCC and returns its tag.&quot;&quot;&quot;</span>
+    <span class="n">occ</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span>
+    <span class="n">radii</span> <span class="o">=</span> <span class="n">inclusion</span><span class="o">.</span><span class="n">inner_radii</span> <span class="k">if</span> <span class="n">use_inner</span> <span class="k">else</span> <span class="n">inclusion</span><span class="o">.</span><span class="n">outer_radii</span>
+
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">inclusion</span><span class="o">.</span><span class="n">center</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span> <span class="o">=</span> <span class="p">(</span><span class="n">radii</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">radii</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">inclusion</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;circle&quot;</span> <span class="k">else</span> <span class="n">radii</span>
+        <span class="k">return</span> <span class="n">occ</span><span class="o">.</span><span class="n">addDisk</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">inclusion</span><span class="o">.</span><span class="n">center</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inclusion</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;sphere&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">occ</span><span class="o">.</span><span class="n">addSphere</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">radii</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># ellipsoid</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">occ</span><span class="o">.</span><span class="n">addSphere</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">occ</span><span class="o">.</span><span class="n">dilate</span><span class="p">([(</span><span class="mi">3</span><span class="p">,</span> <span class="n">tag</span><span class="p">)],</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">radii</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">radii</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">radii</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">tag</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_collect_interface_entities</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">phase_dimtags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collect lower-dimensional entities representing material interfaces.</span>
+
+<span class="sd">    This function extracts the boundaries of the clipped phase regions and keeps</span>
+<span class="sd">    only the entities of codimension one:</span>
+<span class="sd">    - curves in 2D</span>
+<span class="sd">    - surfaces in 3D</span>
+
+<span class="sd">    These entities are later used to define mesh-refinement fields near</span>
+<span class="sd">    material interfaces.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phase_dimtags : list[tuple[int, int]]</span>
+<span class="sd">        Gmsh dimension-tag pairs representing clipped material phase regions.</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        Geometric dimension of the problem.</span>
+<span class="sd">        Must be 2 or 3.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[int]</span>
+<span class="sd">        Sorted list of unique Gmsh entity tags representing material interfaces.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If no phase regions are provided, an empty list is returned.</span>
+<span class="sd">    The function does not distinguish between different non-matrix phases; it</span>
+<span class="sd">    simply collects all interface entities together.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">phase_dimtags</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">fdim</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">boundary_dimtags</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getBoundary</span><span class="p">(</span>
+        <span class="n">phase_dimtags</span><span class="p">,</span>
+        <span class="n">oriented</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">interface_tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entity_dim</span><span class="p">,</span> <span class="n">entity_tag</span> <span class="ow">in</span> <span class="n">boundary_dimtags</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">entity_dim</span> <span class="o">==</span> <span class="n">fdim</span><span class="p">:</span>
+            <span class="n">interface_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entity_tag</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">interface_tags</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_mesh_options</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">min_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">max_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">smoothing_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set global Gmsh mesh-generation options.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    min_size : float</span>
+<span class="sd">        Global minimum characteristic mesh size.</span>
+<span class="sd">    max_size : float</span>
+<span class="sd">        Global maximum characteristic mesh size.</span>
+<span class="sd">    verbosity : int, optional</span>
+<span class="sd">        Gmsh verbosity level. Defaults to 0.</span>
+<span class="sd">    optimize : bool, optional</span>
+<span class="sd">        If ``True``, enable Gmsh mesh optimization and Netgen optimization.</span>
+<span class="sd">        Defaults to ``True``.</span>
+<span class="sd">    smoothing_steps : int, optional</span>
+<span class="sd">        Number of mesh smoothing iterations. Defaults to 10.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    These options define the baseline mesh behavior for the model. Local mesh</span>
+<span class="sd">    refinement near interfaces, if enabled later, is layered on top of these</span>
+<span class="sd">    global settings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;General.Verbosity&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">verbosity</span><span class="p">))</span>
+
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.CharacteristicLengthMin&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_size</span><span class="p">))</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.CharacteristicLengthMax&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_size</span><span class="p">))</span>
+
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.Optimize&quot;</span><span class="p">,</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">optimize</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.OptimizeNetgen&quot;</span><span class="p">,</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">optimize</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.Smoothing&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">smoothing_steps</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_interface_refinement_field</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">interface_entity_tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">min_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">max_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">dist_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dist_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Define a simple distance-based mesh refinement field near interfaces.</span>
+
+<span class="sd">    This function creates a Gmsh background mesh field that enforces a finer</span>
+<span class="sd">    mesh near material interfaces and allows a coarser mesh away from them.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        Geometric dimension of the problem.</span>
+<span class="sd">        Must be 2 or 3.</span>
+<span class="sd">    interface_entity_tags : list[int]</span>
+<span class="sd">        Gmsh entity tags representing material interfaces:</span>
+<span class="sd">        curves in 2D or surfaces in 3D.</span>
+<span class="sd">    min_size : float</span>
+<span class="sd">        Minimum mesh size to apply close to interfaces.</span>
+<span class="sd">    max_size : float</span>
+<span class="sd">        Maximum mesh size to apply far from interfaces.</span>
+<span class="sd">    dist_min : float or None, optional</span>
+<span class="sd">        Distance below which ``min_size`` is enforced.</span>
+<span class="sd">        If ``None``, a default value based on ``max_size`` is used.</span>
+<span class="sd">    dist_max : float or None, optional</span>
+<span class="sd">        Distance beyond which ``max_size`` is enforced.</span>
+<span class="sd">        If ``None``, a default value based on ``max_size`` is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The refinement strategy is simple:</span>
+<span class="sd">    - one distance field,</span>
+<span class="sd">    - one threshold field,</span>
+<span class="sd">    - one background mesh field.</span>
+
+<span class="sd">    If ``interface_entity_tags`` is empty, the function returns without</span>
+<span class="sd">    creating any refinement field.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">interface_entity_tags</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">dist_min</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dist_min</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">max_size</span>
+    <span class="k">if</span> <span class="n">dist_max</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dist_max</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">max_size</span>
+
+    <span class="n">field</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">field</span>
+
+    <span class="n">field</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Distance&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">field</span><span class="o">.</span><span class="n">setNumbers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;CurvesList&quot;</span><span class="p">,</span> <span class="n">interface_entity_tags</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">field</span><span class="o">.</span><span class="n">setNumbers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;FacesList&quot;</span><span class="p">,</span> <span class="n">interface_entity_tags</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported dimension: </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">field</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Threshold&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">field</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;InField&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">field</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;SizeMin&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_size</span><span class="p">))</span>
+    <span class="n">field</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;SizeMax&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_size</span><span class="p">))</span>
+    <span class="n">field</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;DistMin&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">dist_min</span><span class="p">))</span>
+    <span class="n">field</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;DistMax&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">dist_max</span><span class="p">))</span>
+
+    <span class="n">field</span><span class="o">.</span><span class="n">setAsBackgroundMesh</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="build_gmsh_model">
+<a class="viewcode-back" href="../../../api/generated/homicsx.mesh.html#homicsx.build_gmsh_model">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_gmsh_model</span><span class="p">(</span>
+    <span class="n">geometry</span><span class="p">:</span> <span class="n">RVEGeometry</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">min_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">max_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rve&quot;</span><span class="p">,</span>
+    <span class="n">physical_tags</span><span class="p">:</span> <span class="n">PhysicalTags</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">boundary_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+    <span class="n">refine_interfaces</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">interface_dist_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">interface_dist_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbosity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">smoothing_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build a Gmsh OCC model from an ``RVEGeometry`` object.</span>
+
+<span class="sd">    This function constructs the geometric model of the representative volume</span>
+<span class="sd">    element, performs phase-wise clipping of inclusion primitives to the outer</span>
+<span class="sd">    box, subtracts all non-matrix phases from the matrix, assigns physical</span>
+<span class="sd">    groups to cells and boundaries, and optionally defines a mesh refinement</span>
+<span class="sd">    field near material interfaces.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    geometry : RVEGeometry</span>
+<span class="sd">        Geometry object describing the RVE domain, inclusions, and material</span>
+<span class="sd">        phase IDs.</span>
+<span class="sd">    min_size : float</span>
+<span class="sd">        Minimum mesh element size, typically used near interfaces.</span>
+<span class="sd">    max_size : float</span>
+<span class="sd">        Maximum mesh element size, typically used away from interfaces.</span>
+<span class="sd">    model_name : str, optional</span>
+<span class="sd">        Name assigned to the Gmsh model. Defaults to ``&quot;rve&quot;``.</span>
+<span class="sd">    physical_tags : PhysicalTags or None, optional</span>
+<span class="sd">        Tagging convention for matrix, phases, and boundaries.</span>
+<span class="sd">        If ``None``, a default ``PhysicalTags`` instance is used.</span>
+<span class="sd">    boundary_tol : float, optional</span>
+<span class="sd">        Tolerance used to classify outer boundary entities by position.</span>
+<span class="sd">        Defaults to ``1e-8``.</span>
+<span class="sd">    refine_interfaces : bool, optional</span>
+<span class="sd">        If ``True``, create a distance-based mesh refinement field around</span>
+<span class="sd">        material interfaces. Defaults to ``True``.</span>
+<span class="sd">    interface_dist_min : float or None, optional</span>
+<span class="sd">        Distance below which the minimum mesh size is enforced in the interface</span>
+<span class="sd">        refinement field.</span>
+<span class="sd">    interface_dist_max : float or None, optional</span>
+<span class="sd">        Distance beyond which the maximum mesh size is enforced in the</span>
+<span class="sd">        interface refinement field.</span>
+<span class="sd">    verbosity : int, optional</span>
+<span class="sd">        Gmsh verbosity level. Defaults to 0.</span>
+<span class="sd">    optimize : bool, optional</span>
+<span class="sd">        If ``True``, enable Gmsh mesh optimization. Defaults to ``True``.</span>
+<span class="sd">    smoothing_steps : int, optional</span>
+<span class="sd">        Number of requested mesh smoothing iterations. Defaults to 10.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary containing metadata about the constructed model, including:</span>
+<span class="sd">        - ``&quot;dim&quot;`` : geometric dimension</span>
+<span class="sd">        - ``&quot;domain_size&quot;`` : RVE side lengths</span>
+<span class="sd">        - ``&quot;matrix_phase_id&quot;`` : matrix phase identifier</span>
+<span class="sd">        - ``&quot;matrix_cell_tag&quot;`` : physical tag of the matrix</span>
+<span class="sd">        - ``&quot;phase_cell_tags&quot;`` : mapping from phase ID to physical cell tag</span>
+<span class="sd">        - ``&quot;matrix_entity_tags&quot;`` : Gmsh entity tags of the matrix region</span>
+<span class="sd">        - ``&quot;phase_entity_tags&quot;`` : mapping from phase ID to region tags</span>
+<span class="sd">        - ``&quot;boundary_entities&quot;`` : outer boundary entity classification</span>
+<span class="sd">        - ``&quot;interface_entity_tags&quot;`` : collected interface entity tags</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function builds the geometric and tagging model only. It does not call</span>
+<span class="sd">    ``gmsh.model.mesh.generate(...)``.</span>
+
+<span class="sd">    Important assumptions of the current implementation:</span>
+<span class="sd">    - the outer domain is rectangular in 2D or cuboidal in 3D,</span>
+<span class="sd">    - the outer domain starts at the origin,</span>
+<span class="sd">    - inclusions are axis-aligned,</span>
+<span class="sd">    - periodic images are already explicitly stored in</span>
+<span class="sd">      ``geometry.inclusions``.</span>
+
+<span class="sd">    Multi-phase behavior</span>
+<span class="sd">    --------------------</span>
+<span class="sd">    All non-matrix inclusions are grouped by ``phase_id`` and clipped phase by</span>
+<span class="sd">    phase. Each phase receives its own physical group, which later becomes a</span>
+<span class="sd">    distinct DOLFINx cell tag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">physical_tags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">physical_tags</span> <span class="o">=</span> <span class="n">PhysicalTags</span><span class="p">()</span>
+
+    <span class="n">dim</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+    <span class="n">domain_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">domain_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">matrix_phase_id</span> <span class="o">=</span> <span class="n">_matrix_phase_id</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+    <span class="n">_set_mesh_options</span><span class="p">(</span>
+        <span class="n">min_size</span><span class="o">=</span><span class="n">min_size</span><span class="p">,</span>
+        <span class="n">max_size</span><span class="o">=</span><span class="n">max_size</span><span class="p">,</span>
+        <span class="n">verbosity</span><span class="o">=</span><span class="n">verbosity</span><span class="p">,</span>
+        <span class="n">optimize</span><span class="o">=</span><span class="n">optimize</span><span class="p">,</span>
+        <span class="n">smoothing_steps</span><span class="o">=</span><span class="n">smoothing_steps</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">occ</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span>
+
+    <span class="n">cell_tag</span> <span class="o">=</span> <span class="n">_add_box_domain</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">domain_size</span><span class="p">)</span>
+    <span class="n">cell_dimtag</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">cell_tag</span><span class="p">)</span>
+
+    <span class="n">inclusions_by_phase</span> <span class="o">=</span> <span class="n">_non_matrix_inclusions_by_phase</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">matrix_phase_id</span><span class="p">)</span>
+
+    <span class="n">phase_primitive_tags</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">phase_id</span><span class="p">,</span> <span class="n">inclusions</span> <span class="ow">in</span> <span class="n">inclusions_by_phase</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">inc</span> <span class="ow">in</span> <span class="n">inclusions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">inc</span><span class="o">.</span><span class="n">has_interphase</span><span class="p">:</span>
+                <span class="n">outer_tag</span> <span class="o">=</span> <span class="n">_add_inclusion</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">inc</span><span class="p">,</span> <span class="n">use_inner</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">inner_tag</span> <span class="o">=</span> <span class="n">_add_inclusion</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">inc</span><span class="p">,</span> <span class="n">use_inner</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">cut_tags</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">occ</span><span class="o">.</span><span class="n">cut</span><span class="p">([(</span><span class="n">dim</span><span class="p">,</span> <span class="n">outer_tag</span><span class="p">)],</span> <span class="p">[(</span><span class="n">dim</span><span class="p">,</span> <span class="n">inner_tag</span><span class="p">)],</span> 
+                                    <span class="n">removeObject</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">removeTool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="n">inter_phase_id</span> <span class="o">=</span> <span class="n">inc</span><span class="o">.</span><span class="n">interphase_phase_id</span>
+                <span class="n">phase_primitive_tags</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">inter_phase_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cut_tags</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+                <span class="n">phase_primitive_tags</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">inc</span><span class="o">.</span><span class="n">phase_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inner_tag</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tag</span> <span class="o">=</span> <span class="n">_add_inclusion</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">inc</span><span class="p">,</span> <span class="n">use_inner</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">phase_primitive_tags</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">inc</span><span class="o">.</span><span class="n">phase_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+
+    <span class="n">occ</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+
+    <span class="n">phase_dimtags</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">all_clipped_phase_dimtags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">phase_id</span><span class="p">,</span> <span class="n">primitive_tags</span> <span class="ow">in</span> <span class="n">phase_primitive_tags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">primitive_tags</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">clipped_dimtags</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">occ</span><span class="o">.</span><span class="n">intersect</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">cell_dimtag</span><span class="p">],</span>
+            <span class="p">[(</span><span class="n">dim</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">primitive_tags</span><span class="p">],</span>
+            <span class="n">removeObject</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">removeTool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">occ</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+
+        <span class="n">clipped_dimtags</span> <span class="o">=</span> <span class="p">[(</span><span class="n">d</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">clipped_dimtags</span> <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="n">dim</span><span class="p">]</span>
+        <span class="n">phase_dimtags</span><span class="p">[</span><span class="n">phase_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">clipped_dimtags</span>
+        <span class="n">all_clipped_phase_dimtags</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">clipped_dimtags</span><span class="p">)</span>
+
+    <span class="c1"># ساخت ماتریس (Matrix = Box - All Inclusions)</span>
+    <span class="k">if</span> <span class="n">all_clipped_phase_dimtags</span><span class="p">:</span>
+        <span class="n">matrix_dimtags</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">occ</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">cell_dimtag</span><span class="p">],</span>
+            <span class="n">all_clipped_phase_dimtags</span><span class="p">,</span>
+            <span class="n">removeObject</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">removeTool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">occ</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">matrix_dimtags</span> <span class="o">=</span> <span class="p">[</span><span class="n">cell_dimtag</span><span class="p">]</span>
+
+    <span class="n">matrix_entity_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span> <span class="k">for</span> <span class="n">entity_dim</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">matrix_dimtags</span> <span class="k">if</span> <span class="n">entity_dim</span> <span class="o">==</span> <span class="n">dim</span><span class="p">]</span>
+
+    <span class="n">phase_entity_tags</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">phase_id</span><span class="p">,</span> <span class="n">dimtags</span> <span class="ow">in</span> <span class="n">phase_dimtags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="n">phase_entity_tags</span><span class="p">[</span><span class="n">phase_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span> <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">dimtags</span> <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="n">dim</span><span class="p">]</span>
+
+    <span class="n">add_cell_physical_groups</span><span class="p">(</span>
+        <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+        <span class="n">matrix_entity_tags</span><span class="o">=</span><span class="n">matrix_entity_tags</span><span class="p">,</span>
+        <span class="n">phase_entity_tags</span><span class="o">=</span><span class="n">phase_entity_tags</span><span class="p">,</span>
+        <span class="n">matrix_phase_id</span><span class="o">=</span><span class="n">matrix_phase_id</span><span class="p">,</span>
+        <span class="n">physical_tags</span><span class="o">=</span><span class="n">physical_tags</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">boundary_entities</span> <span class="o">=</span> <span class="n">classify_outer_boundaries</span><span class="p">(</span>
+        <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+        <span class="n">domain_size</span><span class="o">=</span><span class="n">domain_size</span><span class="p">,</span>
+        <span class="n">tol</span><span class="o">=</span><span class="n">boundary_tol</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">add_boundary_physical_groups</span><span class="p">(</span>
+        <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+        <span class="n">boundary_entities</span><span class="o">=</span><span class="n">boundary_entities</span><span class="p">,</span>
+        <span class="n">physical_tags</span><span class="o">=</span><span class="n">physical_tags</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">occ</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+
+    <span class="n">interface_entity_tags</span> <span class="o">=</span> <span class="n">_collect_interface_entities</span><span class="p">(</span>
+        <span class="n">phase_dimtags</span><span class="o">=</span><span class="n">all_clipped_phase_dimtags</span><span class="p">,</span>
+        <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">refine_interfaces</span><span class="p">:</span>
+        <span class="n">_set_interface_refinement_field</span><span class="p">(</span>
+            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+            <span class="n">interface_entity_tags</span><span class="o">=</span><span class="n">interface_entity_tags</span><span class="p">,</span>
+            <span class="n">min_size</span><span class="o">=</span><span class="n">min_size</span><span class="p">,</span>
+            <span class="n">max_size</span><span class="o">=</span><span class="n">max_size</span><span class="p">,</span>
+            <span class="n">dist_min</span><span class="o">=</span><span class="n">interface_dist_min</span><span class="p">,</span>
+            <span class="n">dist_max</span><span class="o">=</span><span class="n">interface_dist_max</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">phase_cell_tags</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">phase_id</span><span class="p">:</span> <span class="n">physical_tags</span><span class="o">.</span><span class="n">cell_tag_for_phase</span><span class="p">(</span><span class="n">phase_id</span><span class="p">,</span> <span class="n">matrix_phase_id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">phase_id</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">phase_entity_tags</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;dim&quot;</span><span class="p">:</span> <span class="n">dim</span><span class="p">,</span>
+        <span class="s2">&quot;domain_size&quot;</span><span class="p">:</span> <span class="n">domain_size</span><span class="p">,</span>
+        <span class="s2">&quot;matrix_phase_id&quot;</span><span class="p">:</span> <span class="n">matrix_phase_id</span><span class="p">,</span>
+        <span class="s2">&quot;matrix_cell_tag&quot;</span><span class="p">:</span> <span class="n">physical_tags</span><span class="o">.</span><span class="n">cell_tag_for_phase</span><span class="p">(</span><span class="n">matrix_phase_id</span><span class="p">,</span> <span class="n">matrix_phase_id</span><span class="p">),</span>
+        <span class="s2">&quot;phase_cell_tags&quot;</span><span class="p">:</span> <span class="n">phase_cell_tags</span><span class="p">,</span>
+        <span class="s2">&quot;matrix_entity_tags&quot;</span><span class="p">:</span> <span class="n">matrix_entity_tags</span><span class="p">,</span>
+        <span class="s2">&quot;phase_entity_tags&quot;</span><span class="p">:</span> <span class="n">phase_entity_tags</span><span class="p">,</span>
+        <span class="s2">&quot;boundary_entities&quot;</span><span class="p">:</span> <span class="n">boundary_entities</span><span class="p">,</span>
+        <span class="s2">&quot;interface_entity_tags&quot;</span><span class="p">:</span> <span class="n">interface_entity_tags</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="generate_mesh">
+<a class="viewcode-back" href="../../../api/generated/homicsx.mesh.html#homicsx.generate_mesh">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_mesh</span><span class="p">(</span>
+    <span class="n">geometry</span><span class="p">:</span> <span class="n">RVEGeometry</span><span class="p">,</span>
+    <span class="n">mesh_settings</span><span class="p">:</span> <span class="n">MeshSettings</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build, mesh, and convert an RVE geometry into DOLFINx mesh objects.</span>
+
+<span class="sd">    This is the main high-level meshing entry point. It initializes Gmsh,</span>
+<span class="sd">    builds the OCC model from the provided ``RVEGeometry`` and ``MeshSettings`` objects, generates the mesh,</span>
+<span class="sd">    and converts the result to DOLFINx compatible mesh, cell tags, and facet tags.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    geometry : RVEGeometry</span>
+<span class="sd">        Geometry object describing the RVE to be meshed.</span>
+<span class="sd">    mesh_settings: MeshSettings</span>
+<span class="sd">        A structured data object containing all necessary meshing parameters and settings.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mesh : dolfinx.mesh.Mesh</span>
+<span class="sd">        Generated DOLFINx mesh.</span>
+<span class="sd">    cell_tags : dolfinx.mesh.MeshTags</span>
+<span class="sd">        Cell-wise tags corresponding to matrix and material phase regions.</span>
+<span class="sd">    facet_tags : dolfinx.mesh.MeshTags</span>
+<span class="sd">        Facet-wise tags corresponding to outer domain boundaries.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    Internally, this function performs the following steps:</span>
+<span class="sd">    1. initialize Gmsh,</span>
+<span class="sd">    2. build the geometric model and physical groups,</span>
+<span class="sd">    3. generate the mesh on ``model_rank``,</span>
+<span class="sd">    4. convert the Gmsh model to DOLFINx,</span>
+<span class="sd">    5. finalize Gmsh if requested.</span>
+
+<span class="sd">    This function is intended to be the main user-facing API for the meshing</span>
+<span class="sd">    module.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    homicsx.core.MeshSettings</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mesh_settings</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="n">mesh_settings</span><span class="o">.</span><span class="n">model_rank</span><span class="p">:</span>
+            <span class="n">build_gmsh_model</span><span class="p">(</span>
+                <span class="n">geometry</span><span class="p">,</span>
+                <span class="n">min_size</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">min_size</span><span class="p">,</span>
+                <span class="n">max_size</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">max_size</span><span class="p">,</span>
+                <span class="n">model_name</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                <span class="n">physical_tags</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">physical_tags</span><span class="p">,</span>
+                <span class="n">boundary_tol</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">boundary_tol</span><span class="p">,</span>
+                <span class="n">refine_interfaces</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">refine_interfaces</span><span class="p">,</span>
+                <span class="n">interface_dist_min</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">interface_dist_min</span><span class="p">,</span>
+                <span class="n">interface_dist_max</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">interface_dist_max</span><span class="p">,</span>
+                <span class="n">verbosity</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">verbosity</span><span class="p">,</span>
+                <span class="n">optimize</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">optimize</span><span class="p">,</span>
+                <span class="n">smoothing_steps</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">smoothing_steps</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">mesh_settings</span><span class="o">.</span><span class="n">view</span><span class="p">:</span>
+                <span class="n">gmsh</span><span class="o">.</span><span class="n">fltk</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+        <span class="n">mesh</span><span class="p">,</span> <span class="n">cell_tags</span><span class="p">,</span> <span class="n">facet_tags</span> <span class="o">=</span> <span class="n">gmsh_model_to_dolfinx_mesh</span><span class="p">(</span>
+            <span class="n">dim</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">dim</span><span class="p">),</span>
+            <span class="n">comm</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span>
+            <span class="n">model_rank</span><span class="o">=</span><span class="n">mesh_settings</span><span class="o">.</span><span class="n">model_rank</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mesh_settings</span><span class="o">.</span><span class="n">finalize</span><span class="p">:</span>
+            <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">cell_tags</span><span class="p">,</span> <span class="n">facet_tags</span></div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+   <span class="c1"># gmsh_builder</span>
+    <span class="s2">&quot;build_gmsh_model&quot;</span><span class="p">,</span> 
+    <span class="s2">&quot;generate_mesh&quot;</span><span class="p">,</span> 
+<span class="p">]</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,242 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.stochastic &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="homicsx.visualization" href="homicsx.visualization.html" />
+    <link rel="prev" title="homicsx.homogenization" href="homicsx.homogenization.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../homicsx.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="homicsx.html">homicsx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.core.html">homicsx.core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.geometry.html">homicsx.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.mesh.html">homicsx.mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.fem.html">homicsx.fem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.homogenization.html">homicsx.homogenization</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">homicsx.stochastic</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.stochastic.perform_ensemble_study"><code class="docutils literal notranslate"><span class="pre">perform_ensemble_study()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.stochastic.sweep_volume_fraction_linear"><code class="docutils literal notranslate"><span class="pre">sweep_volume_fraction_linear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.stochastic.sweep_stiffness_contrast_linear"><code class="docutils literal notranslate"><span class="pre">sweep_stiffness_contrast_linear()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.visualization.html">homicsx.visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.utils.html">homicsx.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../homicsx.html">API reference</a></li>
+      <li class="breadcrumb-item active">homicsx.stochastic</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/generated/homicsx.stochastic.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-homicsx.stochastic">
+<span id="homicsx-stochastic"></span><h1>homicsx.stochastic<a class="headerlink" href="#module-homicsx.stochastic" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.stochastic.perform_ensemble_study">
+<span class="sig-prename descclassname"><span class="pre">homicsx.stochastic.</span></span><span class="sig-name descname"><span class="pre">perform_ensemble_study</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ensemble_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Physical_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fem_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_phase_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">homogenization_solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">homogenization_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'complete'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/stochastic/ensemble.html#perform_ensemble_study"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.stochastic.perform_ensemble_study" title="Link to this definition"></a></dt>
+<dd><p>Executes a statistical ensemble study by generating and solving multiple RVEs.</p>
+<p>This function automates the entire pipeline: from random geometry generation
+and meshing to finite element solving and homogenization. It collects results
+from multiple realizations to allow for statistical characterization of
+effective material properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ensemble_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of random realizations to generate and solve.</p></li>
+<li><p><strong>geometry_input</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">GeometryInput</span></code>) – Parameters for the RSA geometry generator (dim, volume fraction, etc.).</p></li>
+<li><p><strong>mesh_settings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSettings</span></code>) – Configuration for the mesh generator (refinement, element types).</p></li>
+<li><p><strong>Physical_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicalTags</span></code>) – Identifiers for different regions (phases) within the mesh.</p></li>
+<li><p><strong>assignment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialAssignment</span></code>) – Mapping of physical tags to material constitutive laws and properties.</p></li>
+<li><p><strong>fem_settings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ProblemSettings</span></code>) – Solver settings, including tolerances and boundary condition types.</p></li>
+<li><p><strong>matrix_phase_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0</span></code>) – The physical tag ID representing the matrix phase.</p></li>
+<li><p><strong>homogenization_solver</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">&quot;linear&quot;</span></code>) – The type of solver to use. Currently only “linear” is implemented.</p></li>
+<li><p><strong>homogenization_mode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">&quot;complete&quot;</span></code>) – Defines the scope of homogenization (e.g., full stiffness tensor vs. scalar).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A container holding the list of all individual results and associated
+metadata for post-processing and statistical averaging.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">EnsembleStudyResult</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – If a solver type other than “linear” is requested.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">study</span> <span class="o">=</span> <span class="n">perform_ensemble_study</span><span class="p">(</span><span class="n">ensemble_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">geometry_input</span><span class="o">=</span><span class="n">my_input</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average Stiffness: </span><span class="si">{</span><span class="n">study</span><span class="o">.</span><span class="n">print_summary</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">study</span><span class="o">.</span><span class="n">visualize_moduli_histogram</span><span class="p">(</span><span class="n">num_bins</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.stochastic.sweep_volume_fraction_linear">
+<span class="sig-prename descclassname"><span class="pre">homicsx.stochastic.</span></span><span class="sig-name descname"><span class="pre">sweep_volume_fraction_linear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sweep_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">homogenization_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_assignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fem_settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/stochastic/sweep.html#sweep_volume_fraction_linear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.stochastic.sweep_volume_fraction_linear" title="Link to this definition"></a></dt>
+<dd><p>Performs a parametric sweep over different volume fractions to study
+the evolution of effective elastic properties.</p>
+<p>For each volume fraction in the input list, this function generates a
+random microstructure, solves the linear elasticity homogenization problem,
+and extracts effective moduli (e.g., Young’s Modulus). It concludes by
+plotting the normalized stiffness (E_hom / E_matrix) against the volume fraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sweep_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[float]</span></code>) – A list of volume fractions (between 0 and 1) to be analyzed.</p></li>
+<li><p><strong>homogenization_mode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The scope of computation: ‘partial’ or ‘complete’.</p></li>
+<li><p><strong>geometry_settings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">GeometryInput</span></code>) – Base configuration for geometry generation (updated per sweep step).</p></li>
+<li><p><strong>mesh_settings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSettings</span></code>) – Parameters for the meshing engine.</p></li>
+<li><p><strong>physical_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicalTags</span></code>) – Database of material and boundary tags.</p></li>
+<li><p><strong>material_assignment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialAssignment</span></code>) – Definition of phase properties (Matrix, Inclusions).</p></li>
+<li><p><strong>fem_settings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ProblemSettings</span></code>) – Solver parameters including 2D formulation types (e.g., plane strain).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A container containing the detailed results for each volume fraction
+and metadata such as the stiffness contrast ratio.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">EnsembleStudyResult</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If an invalid homogenization_mode is provided.</p></li>
+<li><p><strong>NotImplementedError</strong> – If 2D plane stress formulation is requested.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The function assumes the matrix phase is at index 0 in <cite>material_assignment</cite>
+to compute the normalization ratio for the final plot.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.stochastic.sweep_stiffness_contrast_linear">
+<span class="sig-prename descclassname"><span class="pre">homicsx.stochastic.</span></span><span class="sig-name descname"><span class="pre">sweep_stiffness_contrast_linear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sweep_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">homogenization_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_assignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fem_settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/stochastic/sweep.html#sweep_stiffness_contrast_linear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.stochastic.sweep_stiffness_contrast_linear" title="Link to this definition"></a></dt>
+<dd><p>Analyzes the effect of material property contrast on the effective Young’s modulus.</p>
+<p>This function performs a sweep over different stiffness ratios (E_particle / E_matrix).
+In each step, it fixes the matrix modulus to 1.0 and scales the particle modulus
+according to the contrast value. This is particularly useful for validating
+the numerical model against analytical bounds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sweep_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[float]</span></code>) – A list of ratios representing (E_inclusion / E_matrix).</p></li>
+<li><p><strong>homogenization_mode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The scope of computation: ‘partial’ or ‘complete’.</p></li>
+<li><p><strong>geometry_settings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">GeometryInput</span></code>) – Configuration for the RVE geometry.</p></li>
+<li><p><strong>mesh_settings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSettings</span></code>) – Parameters for mesh generation.</p></li>
+<li><p><strong>physical_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicalTags</span></code>) – Mapping of IDs to physical regions.</p></li>
+<li><p><strong>material_assignment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialAssignment</span></code>) – The material database (updated in each iteration with new moduli).</p></li>
+<li><p><strong>fem_settings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ProblemSettings</span></code>) – Solver settings and 2D/3D formulation options.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A container holding the results for each contrast level and
+associated simulation metadata.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">EnsembleStudyResult</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The function automatically normalizes the results by setting E_matrix = 1.0,
+making the output E_homogenized inherently representative of the
+stiffness enhancement factor.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="homicsx.homogenization.html" class="btn btn-neutral float-left" title="homicsx.homogenization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="homicsx.visualization.html" class="btn btn-neutral float-right" title="homicsx.visualization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

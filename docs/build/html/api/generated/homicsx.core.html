@@ -1,0 +1,804 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.core &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="homicsx.geometry" href="homicsx.geometry.html" />
+    <link rel="prev" title="homicsx" href="homicsx.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../homicsx.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="homicsx.html">homicsx</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">homicsx.core</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.Inclusion"><code class="docutils literal notranslate"><span class="pre">Inclusion</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.Inclusion.dim"><code class="docutils literal notranslate"><span class="pre">Inclusion.dim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.Inclusion.radius"><code class="docutils literal notranslate"><span class="pre">Inclusion.radius</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.Inclusion.has_interphase"><code class="docutils literal notranslate"><span class="pre">Inclusion.has_interphase</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.Inclusion.inner_radii"><code class="docutils literal notranslate"><span class="pre">Inclusion.inner_radii</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.Inclusion.outer_radii"><code class="docutils literal notranslate"><span class="pre">Inclusion.outer_radii</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.Inclusion.volume_measure"><code class="docutils literal notranslate"><span class="pre">Inclusion.volume_measure</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.Inclusion.core_volume"><code class="docutils literal notranslate"><span class="pre">Inclusion.core_volume</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.Inclusion.interphase_volume"><code class="docutils literal notranslate"><span class="pre">Inclusion.interphase_volume</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.Inclusion.total_volume"><code class="docutils literal notranslate"><span class="pre">Inclusion.total_volume</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.Inclusion.is_periodic_image"><code class="docutils literal notranslate"><span class="pre">Inclusion.is_periodic_image()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.GeometryInput"><code class="docutils literal notranslate"><span class="pre">GeometryInput</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.RVEGeometry"><code class="docutils literal notranslate"><span class="pre">RVEGeometry</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.RVEGeometry.domain_measure"><code class="docutils literal notranslate"><span class="pre">RVEGeometry.domain_measure</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.RVEGeometry.core_volume_fraction"><code class="docutils literal notranslate"><span class="pre">RVEGeometry.core_volume_fraction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.RVEGeometry.interphase_volume_fraction"><code class="docutils literal notranslate"><span class="pre">RVEGeometry.interphase_volume_fraction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.RVEGeometry.total_inclusion_volume_fraction"><code class="docutils literal notranslate"><span class="pre">RVEGeometry.total_inclusion_volume_fraction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.RVEGeometry.add_inclusion"><code class="docutils literal notranslate"><span class="pre">RVEGeometry.add_inclusion()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.PhysicalTags"><code class="docutils literal notranslate"><span class="pre">PhysicalTags</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.PhysicalTags.cell_tag_for_phase"><code class="docutils literal notranslate"><span class="pre">PhysicalTags.cell_tag_for_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.PhysicalTags.cell_name_for_phase"><code class="docutils literal notranslate"><span class="pre">PhysicalTags.cell_name_for_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.PhysicalTags.boundary_name_to_tag"><code class="docutils literal notranslate"><span class="pre">PhysicalTags.boundary_name_to_tag()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.MeshSettings"><code class="docutils literal notranslate"><span class="pre">MeshSettings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.LinearElasticIsotropic"><code class="docutils literal notranslate"><span class="pre">LinearElasticIsotropic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.NonlinearMaterialModel"><code class="docutils literal notranslate"><span class="pre">NonlinearMaterialModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.NonlinearMaterialModel.psi_form"><code class="docutils literal notranslate"><span class="pre">NonlinearMaterialModel.psi_form()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.NeoHookeanIsotropic"><code class="docutils literal notranslate"><span class="pre">NeoHookeanIsotropic</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.NeoHookeanIsotropic.mu"><code class="docutils literal notranslate"><span class="pre">NeoHookeanIsotropic.mu</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.NeoHookeanIsotropic.lmbda"><code class="docutils literal notranslate"><span class="pre">NeoHookeanIsotropic.lmbda</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.NeoHookeanIsotropic.psi_form"><code class="docutils literal notranslate"><span class="pre">NeoHookeanIsotropic.psi_form()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.MaterialAssignment"><code class="docutils literal notranslate"><span class="pre">MaterialAssignment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.ProblemSettings"><code class="docutils literal notranslate"><span class="pre">ProblemSettings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.LinearProblemDefinition"><code class="docutils literal notranslate"><span class="pre">LinearProblemDefinition</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.SolveResult"><code class="docutils literal notranslate"><span class="pre">SolveResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.HomogenizationResult"><code class="docutils literal notranslate"><span class="pre">HomogenizationResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.EnsembleStatSummary"><code class="docutils literal notranslate"><span class="pre">EnsembleStatSummary</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.core.EnsembleStudyResult"><code class="docutils literal notranslate"><span class="pre">EnsembleStudyResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.EnsembleStudyResult.result_moduli"><code class="docutils literal notranslate"><span class="pre">EnsembleStudyResult.result_moduli()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.EnsembleStudyResult.print_summary"><code class="docutils literal notranslate"><span class="pre">EnsembleStudyResult.print_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.core.EnsembleStudyResult.visualize_moduli_histogram"><code class="docutils literal notranslate"><span class="pre">EnsembleStudyResult.visualize_moduli_histogram()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.geometry.html">homicsx.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.mesh.html">homicsx.mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.fem.html">homicsx.fem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.homogenization.html">homicsx.homogenization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.stochastic.html">homicsx.stochastic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.visualization.html">homicsx.visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.utils.html">homicsx.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../homicsx.html">API reference</a></li>
+      <li class="breadcrumb-item active">homicsx.core</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/generated/homicsx.core.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-homicsx.core">
+<span id="homicsx-core"></span><h1>homicsx.core<a class="headerlink" href="#module-homicsx.core" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.Inclusion">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">Inclusion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radii</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interphase_thickness_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interphase_phase_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic_source_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/geometry.html#Inclusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.Inclusion" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a geometric inclusion (particle) within the RVE.</p>
+<p>This class defines the geometry, phase properties, and interphase
+characteristics of a single inclusion. It supports both 2D and 3D
+shapes, including circular, spherical, and ellipsoidal geometries,
+with built-in support for periodic boundary conditions and interphase layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>center</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – The coordinates of the inclusion center (2D or 3D).</p></li>
+<li><p><strong>phase_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Material phase identifier for the inclusion core.</p></li>
+<li><p><strong>shape</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SupportedShape</span></code>) – Geometry type. Must be one of: “circle”, “sphere”, “ellipse”, “ellipsoid”.</p></li>
+<li><p><strong>radii</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Geometric dimensions. Represents the radius for circles/spheres,
+or semi-axes for ellipses/ellipsoids.</p></li>
+<li><p><strong>interphase_thickness_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Ratio of the interphase thickness relative to the total radius/semi-axes.
+Must be in the range [0.0, 1.0). Default is 0.0 (no interphase).</p></li>
+<li><p><strong>interphase_phase_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></code>, <em>optional</em>) – Material phase identifier for the interphase layer. If not provided
+and thickness ratio &gt; 0, defaults to <cite>phase_id + 100</cite>.</p></li>
+<li><p><strong>periodic_source_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></code>, <em>optional</em>) – The ID of the original inclusion if this instance is a periodic image
+across the RVE boundaries. Default is None.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any]</span></code>, <em>optional</em>) – Additional user-defined data associated with the inclusion.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If dimensions, phase IDs, or radii are inconsistent with the specified shape.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.Inclusion.dim">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dim</span></span><a class="headerlink" href="#homicsx.core.Inclusion.dim" title="Link to this definition"></a></dt>
+<dd><p>The spatial dimension (2 or 3) of the inclusion.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.Inclusion.radius">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">radius</span></span><a class="headerlink" href="#homicsx.core.Inclusion.radius" title="Link to this definition"></a></dt>
+<dd><p>If shape is circle of sphere, returns radius.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.Inclusion.has_interphase">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">has_interphase</span></span><a class="headerlink" href="#homicsx.core.Inclusion.has_interphase" title="Link to this definition"></a></dt>
+<dd><p>True if the inclusion has an active interphase layer.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.Inclusion.inner_radii">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">inner_radii</span></span><a class="headerlink" href="#homicsx.core.Inclusion.inner_radii" title="Link to this definition"></a></dt>
+<dd><p>Inner radii of the inclusion. Same as outer radii if there is no interphase.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.Inclusion.outer_radii">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">outer_radii</span></span><a class="headerlink" href="#homicsx.core.Inclusion.outer_radii" title="Link to this definition"></a></dt>
+<dd><p>Outer radii of the inclusion.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.Inclusion.volume_measure">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">volume_measure</span></span><a class="headerlink" href="#homicsx.core.Inclusion.volume_measure" title="Link to this definition"></a></dt>
+<dd><p>Total volume of the RVE.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.Inclusion.core_volume">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">core_volume</span></span><a class="headerlink" href="#homicsx.core.Inclusion.core_volume" title="Link to this definition"></a></dt>
+<dd><p>Volume of the core of the inclusion, excluding the interphase layer from the total volume.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.Inclusion.interphase_volume">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">interphase_volume</span></span><a class="headerlink" href="#homicsx.core.Inclusion.interphase_volume" title="Link to this definition"></a></dt>
+<dd><p>Volume of the interphase, excluding the core from the total volume.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.Inclusion.total_volume">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">total_volume</span></span><a class="headerlink" href="#homicsx.core.Inclusion.total_volume" title="Link to this definition"></a></dt>
+<dd><p>Total volume (or area in 2D) of the inclusion including its interphase.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="homicsx.core.Inclusion.is_periodic_image">
+<span class="sig-name descname"><span class="pre">is_periodic_image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/geometry.html#Inclusion.is_periodic_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.Inclusion.is_periodic_image" title="Link to this definition"></a></dt>
+<dd><p>Returns true if inclusion is a periodic image.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.GeometryInput">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">GeometryInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispersion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_fraction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clearance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_fraction_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_particles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_ratios</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attempts_per_restart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interphase_thickness_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/geometry.html#GeometryInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.GeometryInput" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Configuration container for RVE geometry generation.</p>
+<p>This class holds all physical and algorithmic parameters required to
+generate a Representative Volume Element (RVE).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Spatial dimension of the RVE. Must be 2 or 3.</p></li>
+<li><p><strong>dispersion</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Type of particle size distribution. Options: “mono” (uniform size)
+or “poly” (random size within a range).</p></li>
+<li><p><strong>shape</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Geometry of the inclusions.
+3D options: “sphere”, “ellipsoid”.
+2D options: “circle”, “ellipse”.</p></li>
+<li><p><strong>volume_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Target total volume fraction of the inclusions (range: [0, 1]).</p></li>
+<li><p><strong>clearance</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Minimum allowable distance between the surfaces of any two inclusions.</p></li>
+<li><p><strong>domain_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span> <span class="pre">|</span> <span class="pre">tuple</span> <span class="pre">|</span> <span class="pre">list</span> <span class="pre">|</span> <span class="pre">np.ndarray</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">1.0</span></code>) – Dimensions of the RVE bounding box. If a single float is provided,
+a cubic/square domain is assumed.</p></li>
+<li><p><strong>volume_fraction_tolerance</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Allowable deviation from the target volume fraction. Required for
+“poly” dispersion, must be None for “mono”.</p></li>
+<li><p><strong>num_particles</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Fixed number of particles to generate. Required for “mono”,
+must be None for “poly”.</p></li>
+<li><p><strong>axis_ratios</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[int]</span></code>, <em>optional</em>) – Ratios of semi-axes for ellipsoidal/elliptical shapes.</p></li>
+<li><p><strong>max_radius</strong> (<em>min_radius</em><em>,</em>) – The range for primary radius/semi-axis generation.
+Required for “poly”, must be None for “mono”.</p></li>
+<li><p><strong>max_scale</strong> (<em>min_scale</em><em>,</em>) – Scaling factors for particle sizes in polydisperse systems.</p></li>
+<li><p><strong>max_restarts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">100</span></code>) – Maximum number of global attempts to satisfy the volume fraction.</p></li>
+<li><p><strong>attempts_per_restart</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">100000</span></code>) – Number of random placement trials before restarting or failing.</p></li>
+<li><p><strong>seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Seed for the random number generator to ensure reproducibility.</p></li>
+<li><p><strong>interphase_thickness_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0.0</span></code>) – Relative thickness of the interphase layer surrounding each inclusion. If set to 0.0, no interphase layer will be implemented.</p></li>
+<li><p><strong>verbosity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0</span></code>) – Level of logging output during the generation process (0 for silent).</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The class enforces strict mutual exclusivity between “mono” and “poly”
+modes. In “mono” mode, the number of particles is fixed, while in
+“poly” mode, the generator attempts to fill the volume until the
+<cite>volume_fraction</cite> (within tolerance) is reached using a size distribution.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If invalid dimensions, shapes, or conflicting dispersion parameters
+    are provided.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.RVEGeometry">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">RVEGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inclusions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_volume_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realized_volume_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/geometry.html#RVEGeometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.RVEGeometry" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents the micro-structure of a representative volume element (RVE) collected from a macroscopic composite body.
+An object of this class contains the domain definition and all of the inclusion data (including the periodic images)
+inside the domain required to build the mesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – States the spacial dimention of the RVE (2 for 2D and 3 for 3D)</p></li>
+<li><p><strong>domain_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – States the size of the domain in its dimensions:
+- Of size 2 and including Lx and Ly for 2D domains.
+- Of size 3 and including Lx, Ly, and Lz for 3D domains.</p></li>
+<li><p><strong>inclusions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[Inclusion]</span></code>) – Contains all of the inclusion data, including the centers, radii, phase IDs, shapes, and source IDs if periodic.</p></li>
+<li><p><strong>phase_ids</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">]</span></code>) – Tuple of material phase identifiers present in the RVE.
+The first entry ID is treated as the matrix phase. Defults to (0, 1) as a 2 phase composite.</p></li>
+<li><p><strong>target_volume_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The input target volume fraction intended for the generated RVE.</p></li>
+<li><p><strong>realized_volume_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The output realized volume fraction of the RVE. Intended to equal to ‘target_volume_fraction’.</p></li>
+<li><p><strong>seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The random seed used in the RVE generation process.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Optional dictionary for additional properties.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>An object of this class explicitly contains the periodic images inside ‘inclusions’, if available.</p></li>
+<li><p>Domain is assumed to start at origin.</p></li>
+<li><p>No geometric validation (eg. overlap checks) is enforced here.</p></li>
+</ul>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#homicsx.core.Inclusion" title="homicsx.core.Inclusion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Inclusion</span></code></a></p>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.RVEGeometry.domain_measure">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">domain_measure</span></span><a class="headerlink" href="#homicsx.core.RVEGeometry.domain_measure" title="Link to this definition"></a></dt>
+<dd><p>The total area (2D) or volume (3D) of the RVE domain.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.RVEGeometry.core_volume_fraction">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">core_volume_fraction</span></span><a class="headerlink" href="#homicsx.core.RVEGeometry.core_volume_fraction" title="Link to this definition"></a></dt>
+<dd><p>The volume fraction of only the inclusion cores (excluding interphases).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.RVEGeometry.interphase_volume_fraction">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">interphase_volume_fraction</span></span><a class="headerlink" href="#homicsx.core.RVEGeometry.interphase_volume_fraction" title="Link to this definition"></a></dt>
+<dd><p>The volume fraction occupied by the interphase layers.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.RVEGeometry.total_inclusion_volume_fraction">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">total_inclusion_volume_fraction</span></span><a class="headerlink" href="#homicsx.core.RVEGeometry.total_inclusion_volume_fraction" title="Link to this definition"></a></dt>
+<dd><p>The sum of core and interphase volume fractions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="homicsx.core.RVEGeometry.add_inclusion">
+<span class="sig-name descname"><span class="pre">add_inclusion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inclusion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/geometry.html#RVEGeometry.add_inclusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.RVEGeometry.add_inclusion" title="Link to this definition"></a></dt>
+<dd><p>Add an inclusion of type <cite>Inclusion</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.PhysicalTags">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">PhysicalTags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_tag_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">near</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">far</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/mesh.html#PhysicalTags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.PhysicalTags" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Defines physical-tag convention for the mesh module.</p>
+<p>It centralizes the tag ID for both cell entities (matrix and inclusion phases) and the boundary facets.
+It ensures consistent physical tagging across GMSH and DOLFINx.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The physical tag used for matrix region.
+By default set to 1.</p></li>
+<li><p><strong>phase_tag_offset</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The offset used to distinguish and separate the tags used for matrix/boundary entities and inclusion phases.
+phase_tag = phase_id + phase_tag_offset</p></li>
+<li><p><strong>left</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The physical tag assigned to the left boundary (x = 0).
+Fixed to 3.</p></li>
+<li><p><strong>right</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The physical tag assigned to the right boundary (x = Lx).
+Fixed to 4.</p></li>
+<li><p><strong>bottom</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The physical tag assigned to the bottom boundary (y = 0).
+Fixed to 5.</p></li>
+<li><p><strong>top</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The physical tag assigned to the top boundary (y = Ly).
+Fixed to 6.</p></li>
+<li><p><strong>near</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The physical tag assigned to the near boundary (z = 0, only in 3D).
+Fixed to 7.</p></li>
+<li><p><strong>far</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The physical tag assigned to the far boundary (z = Lz, only in 3D).
+Fixed to 8.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Boundary physical tags are fixed and dimensional-dependent.</p></li>
+</ul>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="homicsx.core.PhysicalTags.cell_tag_for_phase">
+<span class="sig-name descname"><span class="pre">cell_tag_for_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_phase_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/mesh.html#PhysicalTags.cell_tag_for_phase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.PhysicalTags.cell_tag_for_phase" title="Link to this definition"></a></dt>
+<dd><p>Calculates the unique integer tag for a given material phase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phase_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The ID of the phase to tag.</p></li>
+<li><p><strong>matrix_phase_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0</span></code>) – The ID that represents the matrix in the geometry model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The physical tag (either <cite>matrix</cite> or <cite>offset + phase_id</cite>).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="homicsx.core.PhysicalTags.cell_name_for_phase">
+<span class="sig-name descname"><span class="pre">cell_name_for_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_phase_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_interphase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/mesh.html#PhysicalTags.cell_name_for_phase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.PhysicalTags.cell_name_for_phase" title="Link to this definition"></a></dt>
+<dd><p>Generates a human-readable string name for a material phase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phase_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The ID of the phase.</p></li>
+<li><p><strong>matrix_phase_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0</span></code>) – The ID designated as the matrix.</p></li>
+<li><p><strong>is_interphase</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code>) – Whether the phase represents an interphase layer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A string name like “Matrix”, “Core_Phase_1”, or “Interphase_Phase_101”.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="homicsx.core.PhysicalTags.boundary_name_to_tag">
+<span class="sig-name descname"><span class="pre">boundary_name_to_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/mesh.html#PhysicalTags.boundary_name_to_tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.PhysicalTags.boundary_name_to_tag" title="Link to this definition"></a></dt>
+<dd><p>Returns a mapping of boundary names to their corresponding integer tags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Dimension of the problem (2 or 3).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary where keys are boundary names (e.g., “left”, “top”)
+and values are their assigned physical tags.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int]</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <cite>dim</cite> is not 2 or 3.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.MeshSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">MeshSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rve'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_interfaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interface_dist_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interface_dist_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">view</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">finalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/mesh.html#MeshSettings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.MeshSettings" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Container for GMSH mesh generator input parameters and settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Minimum mesh element size, typically used near material interfaces.</p></li>
+<li><p><strong>max_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Maximum mesh element size, typically used in bulk regions.</p></li>
+<li><p><strong>comm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">mpi4py.MPI.Comm</span></code>, <em>optional</em>) – MPI communicator used for mesh conversion and distribution.
+Defaults to <code class="docutils literal notranslate"><span class="pre">MPI.COMM_WORLD</span></code>.</p></li>
+<li><p><strong>model_rank</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Rank responsible for constructing the Gmsh model and generating the
+mesh. Defaults to 0.</p></li>
+<li><p><strong>model_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – Name assigned to the Gmsh model. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;rve&quot;</span></code>.</p></li>
+<li><p><strong>physical_tags</strong> (<a class="reference internal" href="#homicsx.core.PhysicalTags" title="homicsx.core.PhysicalTags"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicalTags</span></code></a> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <em>optional</em>) – Tagging convention for physical groups. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, defaults are used.</p></li>
+<li><p><strong>boundary_tol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Tolerance used for outer boundary classification. Defaults to <code class="docutils literal notranslate"><span class="pre">1e-8</span></code>.</p></li>
+<li><p><strong>refine_interfaces</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, enable simple refinement near material interfaces.
+Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>interface_dist_min</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <em>optional</em>) – Distance below which the minimum mesh size is enforced in the interface
+refinement field.</p></li>
+<li><p><strong>interface_dist_max</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <em>optional</em>) – Distance beyond which the maximum mesh size is enforced in the
+interface refinement field.</p></li>
+<li><p><strong>verbosity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Gmsh verbosity level. Defaults to 0.</p></li>
+<li><p><strong>optimize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, enable Gmsh mesh optimization. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>smoothing_steps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Number of mesh smoothing iterations requested from Gmsh.
+Defaults to 10.</p></li>
+<li><p><strong>view</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, open the Gmsh GUI viewer after mesh generation on the
+model-owning rank. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>finalize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, finalize Gmsh before returning. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.LinearElasticIsotropic">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">LinearElasticIsotropic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">young_modulus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poisson_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/material.html#LinearElasticIsotropic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.LinearElasticIsotropic" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Isotropic small-strain linear-elastic material.</p>
+<p>This is the standard linear-elastic material model currently used for
+heterogeneous elasticity problems in HomiCSx. It is defined by Young’s
+modulus and Poisson’s ratio and is intended for phases that follow an
+infinitesimal-strain constitutive law.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>young_modulus</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Young’s modulus E of the material.</p></li>
+<li><p><strong>poisson_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Poisson’s ratio nu of the material.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any]</span></code>) – Optional free-form dictionary for additional information.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.NonlinearMaterialModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">NonlinearMaterialModel</span></span><a class="reference internal" href="../../_modules/homicsx/core/material.html#NonlinearMaterialModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.NonlinearMaterialModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract base class for nonlinear hyperelastic material models.</p>
+<p>This class defines the interface for material models that provide a
+strain energy density function (Psi), which is used to derive the
+constitutive response in finite strain simulations.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="homicsx.core.NonlinearMaterialModel.psi_form">
+<span class="sig-name descname"><span class="pre">psi_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">F</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/material.html#NonlinearMaterialModel.psi_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.NonlinearMaterialModel.psi_form" title="Link to this definition"></a></dt>
+<dd><p>Computes the strain energy density expression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>F</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Form</span></code>, <em>optional</em>) – The deformation gradient tensor.</p></li>
+<li><p><strong>u</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.fem.Function</span></code>, <em>optional</em>) – The displacement field.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – If the subclass does not implement this method.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.NeoHookeanIsotropic">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">NeoHookeanIsotropic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">young_modulus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poisson_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NeoHookeanIsotropic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/material.html#NeoHookeanIsotropic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.NeoHookeanIsotropic" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#homicsx.core.NonlinearMaterialModel" title="homicsx.core.material.NonlinearMaterialModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearMaterialModel</span></code></a></p>
+<p>Neo-Hookean finite-strain nonlinear-elastic material.</p>
+<p>It is defined by Young’s
+modulus and Poisson’s ratio and is intended for phases that follow a
+finite-strain constitutive law.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>young_modulus</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Young’s modulus E of the material.</p></li>
+<li><p><strong>poisson_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Poisson’s ratio nu of the material.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any]</span></code>) – Optional free-form dictionary for additional information.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.NeoHookeanIsotropic.mu">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mu</span></span><a class="headerlink" href="#homicsx.core.NeoHookeanIsotropic.mu" title="Link to this definition"></a></dt>
+<dd><p>Shear modulus</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="homicsx.core.NeoHookeanIsotropic.lmbda">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">lmbda</span></span><a class="headerlink" href="#homicsx.core.NeoHookeanIsotropic.lmbda" title="Link to this definition"></a></dt>
+<dd><p>First Lame parameter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="homicsx.core.NeoHookeanIsotropic.psi_form">
+<span class="sig-name descname"><span class="pre">psi_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">F</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/material.html#NeoHookeanIsotropic.psi_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.NeoHookeanIsotropic.psi_form" title="Link to this definition"></a></dt>
+<dd><p>Compressible Neo-Hookean strain energy density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>F</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">UFL</span> <span class="pre">tensor</span></code>) – Deformation gradient.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Strain energy density.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">UFL</span> <span class="pre">expression</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.MaterialAssignment">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">MaterialAssignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">materials_by_phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/material.html#MaterialAssignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.MaterialAssignment" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Map phase ids to material models.</p>
+<p>HomiCSx geometry is phase-based, so the most natural place to assign
+material models is at the phase-id level. This object keeps that mapping
+explicit and lightweight.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>materials_by_phase</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">object]</span></code>) – Dictionary mapping each phase id to a concrete material object such as
+<cite>LinearElasticIsotropic</cite> or <cite>NeoHookeanIsotropic</cite>.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any]</span></code>) – Optional free-form dictionary for bookkeeping or future extensions.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The matrix is usually phase_id = 0, but that convention is not enforced
+here.</p></li>
+<li><p>Different phases may use different constitutive models.</p></li>
+<li><p>The FEM assembly layer later decides whether the global problem is linear
+or nonlinear based on the assigned materials.</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.ProblemSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">ProblemSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinematics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'small_strain'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_dimensional_formulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Lagrange'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quadrature_degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">petsc_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/fem.html#ProblemSettings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.ProblemSettings" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Basic settings for continuum-mechanics FEM problems in HomiCSx.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Geometric dimension of the mesh. Supported values are 2 and 3.</p></li>
+<li><p><strong>kinematics</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – <dl class="simple">
+<dt>Name of the kinematic setting. Typical values are:</dt><dd><ul>
+<li><p>”small_strain”</p></li>
+<li><p>”finite_strain”</p></li>
+</ul>
+</dd>
+</dl>
+<p>This is mainly descriptive metadata. The actual global problem type
+is inferred from the assigned material models during assembly.</p>
+</p></li>
+<li><p><strong>two_dimensional_formulation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span></code>) – Optional label for 2D problems. For now, “plane_strain” is the main
+intended use. Use None for 3D.</p></li>
+<li><p><strong>element_family</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Finite-element family used for the displacement field.</p></li>
+<li><p><strong>element_degree</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Polynomial degree of the displacement field.</p></li>
+<li><p><strong>quadrature_degree</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></code>) – Optional quadrature degree, stored here for future use.</p></li>
+<li><p><strong>petsc_options</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any]</span> <span class="pre">|</span> <span class="pre">None</span></code>) – Optional dictionary of PETSc or solver options.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any]</span></code>) – Optional free-form dictionary for bookkeeping or later extensions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.LinearProblemDefinition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">LinearProblemDefinition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trial_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bilinear_form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bcs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/fem.html#LinearProblemDefinition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.LinearProblemDefinition" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Container for a linear variational problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function_space</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.fem.FunctionSpace</span></code>) – Displacement function space.</p></li>
+<li><p><strong>trial_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.fem.Function</span></code>) – Trial function of the variational problem.</p></li>
+<li><p><strong>test_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.fem.Function</span></code>) – Test function of the variational problem.</p></li>
+<li><p><strong>bilinear_form</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Form</span></code>) – Bilinear form a(u, v).</p></li>
+<li><p><strong>linear_form</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Form</span></code>) – Linear form L(v).</p></li>
+<li><p><strong>bcs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[dolfinx.fem.DirichletBC]</span></code>) – List of Dirichlet boundary conditions.</p></li>
+<li><p><strong>mpc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx_mpc.MultiPointConstraint</span> <span class="pre">|</span> <span class="pre">None</span></code>) – Optional multi-point constraint object.</p></li>
+<li><p><strong>solution</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.fem.Function</span></code>) – Displacement function used to store the solution.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any]</span></code>) – Optional free-form dictionary for bookkeeping.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Keeping these values together makes the downstream solve step easier to
+read and avoids passing many related FEM objects around separately.</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.SolveResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">SolveResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">converged</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/fem.html#SolveResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.SolveResult" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Result returned by linear solver wrappers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solution</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Any</span></code>) – Final solved displacement field.</p></li>
+<li><p><strong>converged</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether the solver reported convergence.</p></li>
+<li><p><strong>num_iterations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></code>) – Number of solver iterations if available. For direct linear solvers,
+this may be None.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any]</span></code>) – Optional free-form dictionary containing solver information.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This result object stays intentionally compact. It is mainly meant to carry
+the solved field together with a few important status values.</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.HomogenizationResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">HomogenizationResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_hom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_cases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_stresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fluctuation_fields</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/homogenization.html#HomogenizationResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.HomogenizationResult" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Result of a linear homogenization run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>C_hom</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Homogenized stiffness matrix in Voigt notation.</p></li>
+<li><p><strong>load_cases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[np.ndarray]</span></code>) – List of macroscopic strain tensors used in the solve loop.</p></li>
+<li><p><strong>average_stresses</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[np.ndarray]</span></code>) – List of volume-averaged stress vectors, one per load case.</p></li>
+<li><p><strong>fluctuation_fields</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[any]</span></code>) – Solved periodic fluctuation fields, one per load case.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">any]</span></code>) – Optional bookkeeping dictionary.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.EnsembleStatSummary">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">EnsembleStatSummary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engineering_moduli_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engineering_moduli_variance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engineering_moduli_stdev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engineering_moduli_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engineering_moduli_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_hom_component_avg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_hom_component_variance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_hom_component_stdev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_hom_component_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_hom_component_min</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/stochastic.html#EnsembleStatSummary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.EnsembleStatSummary" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Conteiner for summary of results of an ensemble study.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>engineering_moduli_mean</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code>) – keys: “E” for Yong modulus, “nu” for Poison ratio, “kappa” for bulk modulus, and “mu” for shear modulus.</p></li>
+<li><p><strong>engineering_moduli_variance</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code>) – keys: “E” for Yong modulus, “nu” for Poison ratio, “kappa” for bulk modulus, and “mu” for shear modulus.</p></li>
+<li><p><strong>engineering_moduli_stdev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code>) – keys: “E” for Yong modulus, “nu” for Poison ratio, “kappa” for bulk modulus, and “mu” for shear modulus.</p></li>
+<li><p><strong>engineering_moduli_max</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code>) – keys: “E” for Yong modulus, “nu” for Poison ratio, “kappa” for bulk modulus, and “mu” for shear modulus.</p></li>
+<li><p><strong>engineering_moduli_min</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code>) – keys: “E” for Yong modulus, “nu” for Poison ratio, “kappa” for bulk modulus, and “mu” for shear modulus.</p></li>
+<li><p><strong>C_hom_component_avg</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Component-wise mean of homogenizaed stiffness tensor.</p></li>
+<li><p><strong>C_hom_component_variance</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Component-wise variance of homogenizaed stiffness tensor. Defined if size of ensemble study is larger than 2.</p></li>
+<li><p><strong>C_hom_component_stdev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Component-wise standard-deviation of homogenizaed stiffness tensor. Defined if size of ensemble study is larger than 2.</p></li>
+<li><p><strong>C_hom_component_max</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Component-wise max of homogenizaed stiffness tensor.</p></li>
+<li><p><strong>C_hom_component_min</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Component-wise min of homogenizaed stiffness tensor.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.core.EnsembleStudyResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.core.</span></span><span class="sig-name descname"><span class="pre">EnsembleStudyResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/stochastic.html#EnsembleStudyResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.EnsembleStudyResult" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Container for ensemble of linear study results, with built in summarizing and visualization utilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[`HomigenizationResult</span></code>]`) – Contains the results of the ensemble study in its entirety.</p></li>
+<li><p><strong>result_suammry</strong> (<cite>EnsembleStatSummary</cite>) – Contains the summary of the nesemble study.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#homicsx.core.EnsembleStatSummary" title="homicsx.core.EnsembleStatSummary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EnsembleStatSummary</span></code></a></p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="homicsx.core.EnsembleStudyResult.result_moduli">
+<span class="sig-name descname"><span class="pre">result_moduli</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/stochastic.html#EnsembleStudyResult.result_moduli"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.EnsembleStudyResult.result_moduli" title="Link to this definition"></a></dt>
+<dd><p>Returns result moduli as a dict with keys “E”, “nu”, “kappa”, “mu”, and list of values as values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="homicsx.core.EnsembleStudyResult.print_summary">
+<span class="sig-name descname"><span class="pre">print_summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/stochastic.html#EnsembleStudyResult.print_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.EnsembleStudyResult.print_summary" title="Link to this definition"></a></dt>
+<dd><p>Prints the auto-generated summary of the ensemble study results.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="homicsx.core.EnsembleStudyResult.visualize_moduli_histogram">
+<span class="sig-name descname"><span class="pre">visualize_moduli_histogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/core/stochastic.html#EnsembleStudyResult.visualize_moduli_histogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.core.EnsembleStudyResult.visualize_moduli_histogram" title="Link to this definition"></a></dt>
+<dd><p>Visualizes moduli distribution using histogram charts.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="homicsx.html" class="btn btn-neutral float-left" title="homicsx" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="homicsx.geometry.html" class="btn btn-neutral float-right" title="homicsx.geometry" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

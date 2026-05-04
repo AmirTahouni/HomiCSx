@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.homogenization &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="homicsx.stochastic" href="homicsx.stochastic.html" />
+    <link rel="prev" title="homicsx.fem" href="homicsx.fem.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../homicsx.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="homicsx.html">homicsx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.core.html">homicsx.core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.geometry.html">homicsx.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.mesh.html">homicsx.mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.fem.html">homicsx.fem</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">homicsx.homogenization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.homogenization.stress_to_voigt_components"><code class="docutils literal notranslate"><span class="pre">stress_to_voigt_components()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.homogenization.average_stress_vector"><code class="docutils literal notranslate"><span class="pre">average_stress_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.homogenization.solve_linear_homogenization"><code class="docutils literal notranslate"><span class="pre">solve_linear_homogenization()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.homogenization.AdaptiveSettings"><code class="docutils literal notranslate"><span class="pre">AdaptiveSettings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.homogenization.plot_homogenization_summary"><code class="docutils literal notranslate"><span class="pre">plot_homogenization_summary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.homogenization.plot_each_load_case"><code class="docutils literal notranslate"><span class="pre">plot_each_load_case()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.homogenization.solve_nonlinear_homogenization"><code class="docutils literal notranslate"><span class="pre">solve_nonlinear_homogenization()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.stochastic.html">homicsx.stochastic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.visualization.html">homicsx.visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.utils.html">homicsx.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../homicsx.html">API reference</a></li>
+      <li class="breadcrumb-item active">homicsx.homogenization</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/generated/homicsx.homogenization.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-homicsx.homogenization">
+<span id="homicsx-homogenization"></span><h1>homicsx.homogenization<a class="headerlink" href="#module-homicsx.homogenization" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.homogenization.stress_to_voigt_components">
+<span class="sig-prename descclassname"><span class="pre">homicsx.homogenization.</span></span><span class="sig-name descname"><span class="pre">stress_to_voigt_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/homogenization/linear.html#stress_to_voigt_components"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.homogenization.stress_to_voigt_components" title="Link to this definition"></a></dt>
+<dd><p>Return stress components in Voigt-style order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stress</strong> – UFL stress tensor.</p></li>
+<li><p><strong>dim</strong> – Problem dimension.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of UFL scalar expressions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The ordering is:
+- 2D: [s11, s22, s12]
+- 3D: [s11, s22, s33, s12, s13, s23]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.homogenization.average_stress_vector">
+<span class="sig-prename descclassname"><span class="pre">homicsx.homogenization.</span></span><span class="sig-name descname"><span class="pre">average_stress_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/homogenization/linear.html#average_stress_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.homogenization.average_stress_vector" title="Link to this definition"></a></dt>
+<dd><p>Compute the volume-averaged stress vector in Voigt notation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.homogenization.solve_linear_homogenization">
+<span class="sig-prename descclassname"><span class="pre">homicsx.homogenization.</span></span><span class="sig-name descname"><span class="pre">solve_linear_homogenization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facet_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_phase_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'complete'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">petsc_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/homogenization/linear.html#solve_linear_homogenization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.homogenization.solve_linear_homogenization" title="Link to this definition"></a></dt>
+<dd><p>Computes the effective (homogenized) stiffness tensor of an RVE using periodic BCs.</p>
+<p>The function applies elementary macro-strains to the RVE, solves for the
+fluctuation displacement fields, and computes the volume-averaged stress
+to populate the constitutive matrix (C_hom).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh_obj</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.mesh.Mesh</span></code>) – The computational mesh of the RVE.</p></li>
+<li><p><strong>cell_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.mesh.MeshTags</span></code>) – Tags for different material phases (Inclusions/Matrix).</p></li>
+<li><p><strong>assignment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialAssignment</span></code>) – Constitutive properties for each phase.</p></li>
+<li><p><strong>settings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ProblemSettings</span></code>) – Simulation parameters (dimension, 2D formulation, etc.).</p></li>
+<li><p><strong>mode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">&quot;complete&quot;</span></code>) –</p>
+<ul>
+<li><p>“complete”: Solves for all components of the C matrix (3 in 2D, 6 in 3D).</p></li>
+<li><p>“partial”: Assumes macro-isotropy; solves only for unique components
+to reduce computational cost.</p></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Contains the homogenized stiffness matrix (C_hom), average stresses,
+and the full fluctuation displacement fields for each load case.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">HomogenizationResult</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Fluctuation Field: The solution solved here is only the periodic
+fluctuation ‘v’. The total displacement is u = E:x + v.</p></li>
+<li><p>Stability: Currently restricted to linear problems due to known
+instabilities in nonlinear MPC implementations within dolfinx_mpc.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.homogenization.AdaptiveSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.homogenization.</span></span><span class="sig-name descname"><span class="pre">AdaptiveSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_step_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.025</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_step_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_iters_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_iters_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">growth_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutback_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/homogenization/nlhelpers.html#AdaptiveSettings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.homogenization.AdaptiveSettings" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Configuration for adaptive time-stepping in nonlinear solvers.</p>
+<p>This class defines the parameters used to dynamically adjust the increment
+size based on the convergence behavior of the Newton-Raphson iterations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_step_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0.025</span></code>) – The fraction of the total simulation time for the first increment.</p></li>
+<li><p><strong>min_step</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">1e-6</span></code>) – The absolute minimum allowed step size before the solver terminates.</p></li>
+<li><p><strong>max_step_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0.2</span></code>) – The maximum allowed step size as a fraction of total time.
+Prevents the solver from taking too large jumps that miss physics.</p></li>
+<li><p><strong>target_iters_min</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">4</span></code>) – Lower bound for Newton iterations. If converged in fewer steps,
+the next increment will be increased.</p></li>
+<li><p><strong>target_iters_max</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">8</span></code>) – Upper bound for Newton iterations. If convergence takes more steps,
+the next increment will be reduced.</p></li>
+<li><p><strong>growth_factor</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">1.5</span></code>) – Multiplier used to increase the step size when convergence is fast.</p></li>
+<li><p><strong>cutback_factor</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0.5</span></code>) – Multiplier used to reduce the step size when convergence is slow
+or fails (cut-back).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.homogenization.plot_homogenization_summary">
+<span class="sig-prename descclassname"><span class="pre">homicsx.homogenization.</span></span><span class="sig-name descname"><span class="pre">plot_homogenization_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'summary'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/homogenization/nlhelpers.html#plot_homogenization_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.homogenization.plot_homogenization_summary" title="Link to this definition"></a></dt>
+<dd><p>Plot comprehensive nonlinear homogenization curves for 2D and 3D based on the provided summary.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.homogenization.plot_each_load_case">
+<span class="sig-prename descclassname"><span class="pre">homicsx.homogenization.</span></span><span class="sig-name descname"><span class="pre">plot_each_load_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'load_case'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/homogenization/nlhelpers.html#plot_each_load_case"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.homogenization.plot_each_load_case" title="Link to this definition"></a></dt>
+<dd><p>Plot comprehensive nonlinear homogenization curves per load case for 2D and 3D based on the provided summary.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.homogenization.solve_nonlinear_homogenization">
+<span class="sig-prename descclassname"><span class="pre">homicsx.homogenization.</span></span><span class="sig-name descname"><span class="pre">solve_nonlinear_homogenization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facet_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_phase_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tangent_every</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tangent_delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rve'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_strain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loading_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptive_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xdmf_opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/homogenization/nonlinear.html#solve_nonlinear_homogenization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.homogenization.solve_nonlinear_homogenization" title="Link to this definition"></a></dt>
+<dd><p>Solves the nonlinear homogenization problem for an RVE under large deformations.</p>
+<p>This function sets up a variational problem based on the total potential energy
+Pi. It accounts for multiple material phases with different hyperelastic
+constitutive laws. The periodic boundary conditions are enforced through a
+MultiPointConstraint (MPC) compatible with nonlinear solvers.</p>
+<p>The solver computes the evolution of the homogenized stress tensor (First
+Piola-Kirchhoff) and the consistent tangent moduli across various loading paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh_obj</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.mesh.Mesh</span></code>) – The computational RVE mesh.</p></li>
+<li><p><strong>assignment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialAssignment</span></code>) – A mapping where each phase provides its ‘psi_form(F)’ (strain energy density).</p></li>
+<li><p><strong>tangent_every</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">1</span></code>) – Frequency of consistent tangent operator computation (at every N-th step).</p></li>
+<li><p><strong>tangent_delta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">1e-6</span></code>) – Perturbation size for numerical tangent calculation (if used).</p></li>
+<li><p><strong>max_strain</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0.2</span></code>) – The final magnitude of applied macro-deformation (e.g., 20% strain).</p></li>
+<li><p><strong>loading_modes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – Cases of loading to apply.
+2D modes must be a selection from [“uniaxial_x”, “uniaxial_y”, “biaxial”, “shear_xy”, “iso_stretch”]. Defaults to all.
+3D modes must be a selection from [“uniaxial_x”, “uniaxial_y”, “uniaxial_z”, “biaxial”, “triaxial”, “shear_xy”, “shear_xz”, “shear_yz”, “iso_stretch”]. Defaults to all.</p></li>
+<li><p><strong>adaptive_settings</strong> (<a class="reference internal" href="#homicsx.homogenization.AdaptiveSettings" title="homicsx.homogenization.AdaptiveSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptiveSettings</span></code></a>, <em>optional</em>) – Parameters for the adaptive time-stepping algorithm.</p></li>
+<li><p><strong>xdmf_opt</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code>) – If True, saves displacement and stress fields for visualization in ParaView.</p></li>
+<li><p><strong>csv_opt</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code>) – Option to save history to CSV.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A summary object containing stress-strain histories and tangent moduli
+for all load cases.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Variational Formulation: Uses UFL’s automatic differentiation (<cite>ufl.derivative</cite>)
+to compute the Residual (Internal Forces) and Jacobian (Tangent Stiffness).</p></li>
+<li><p>Solver: Defaults to a Newton-Raphson scheme with MUMPS as the linear
+sub-solver for robustness in high-contrast or complex RVEs.</p></li>
+</ul>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="homicsx.fem.html" class="btn btn-neutral float-left" title="homicsx.fem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="homicsx.stochastic.html" class="btn btn-neutral float-right" title="homicsx.stochastic" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

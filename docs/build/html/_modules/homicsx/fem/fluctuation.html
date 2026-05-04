@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.fem.fluctuation &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/homicsx.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">homicsx.fem.fluctuation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for homicsx.fem.fluctuation</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx</span><span class="w"> </span><span class="kn">import</span> <span class="n">fem</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">petsc4py.PETSc</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">PETSc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.core.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicalTags</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.core.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearProblemDefinition</span><span class="p">,</span> <span class="n">ProblemSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.core.material</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearElasticIsotropic</span><span class="p">,</span> <span class="n">MaterialAssignment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.materials.assignment</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_material_assignment</span><span class="p">,</span> <span class="n">problem_is_nonlinear</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.materials.coefficients</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_linear_elastic_coefficients</span><span class="p">,</span> <span class="n">build_hyperelastic_coefficients</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.assembly</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_displacement_space</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constraints</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_anchor_and_periodic_constraints</span><span class="p">,</span> <span class="n">build_constraints_nonlinear</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">small_strain</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constitutive</span><span class="w"> </span><span class="kn">import</span> <span class="n">linear_homogenization_stress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.nonlinear_problem</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonlinearProblemMPC</span>
+
+
+<div class="viewcode-block" id="LinearFluctuationProblemContext">
+<a class="viewcode-back" href="../../../api/generated/homicsx.fem.html#homicsx.fem.LinearFluctuationProblemContext">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LinearFluctuationProblemContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extra context returned alongside a linear periodic fluctuation problem.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    macro_strain:</span>
+<span class="sd">        Constant macroscopic strain tensor used in the fluctuation problem.</span>
+<span class="sd">    fluctuation_field:</span>
+<span class="sd">        Unknown periodic fluctuation field to be solved for.</span>
+<span class="sd">    stress_expression:</span>
+<span class="sd">        UFL stress tensor expression based on the solved fluctuation field.</span>
+<span class="sd">    coefficients:</span>
+<span class="sd">        Linear-elastic DG0 coefficient bundle.</span>
+<span class="sd">    metadata:</span>
+<span class="sd">        Optional bookkeeping dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">macro_strain</span><span class="p">:</span> <span class="n">fem</span><span class="o">.</span><span class="n">Constant</span>
+    <span class="n">fluctuation_field</span><span class="p">:</span> <span class="n">fem</span><span class="o">.</span><span class="n">Function</span>
+    <span class="n">stress_expression</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="n">coefficients</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NonlinearFluctuationProblemContext</span><span class="p">:</span>
+    <span class="n">F_macro</span><span class="p">:</span> <span class="n">fem</span><span class="o">.</span><span class="n">Constant</span>
+    <span class="n">fluctuation_field</span><span class="p">:</span> <span class="n">fem</span><span class="o">.</span><span class="n">Function</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_linear_fluctuation_inputs</span><span class="p">(</span>
+    <span class="n">mesh_obj</span><span class="p">,</span>
+    <span class="n">assignment</span><span class="p">:</span> <span class="n">MaterialAssignment</span><span class="p">,</span>
+    <span class="n">settings</span><span class="p">:</span> <span class="n">ProblemSettings</span><span class="p">,</span>
+    <span class="n">macro_strain</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate inputs for a linear periodic fluctuation problem.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">validate_material_assignment</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">problem_is_nonlinear</span><span class="p">(</span><span class="n">assignment</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;Linear periodic fluctuation problems currently support only &quot;</span>
+            <span class="s2">&quot;LinearElasticIsotropic materials.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mesh_obj</span><span class="p">,</span> <span class="s2">&quot;topology&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">&quot;Expected `mesh_obj` to be a DOLFINx mesh object with a `.topology` attribute, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;but got object of type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mesh_obj</span><span class="p">)</span><span class="si">!r}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">dim</span> <span class="o">!=</span> <span class="n">mesh_obj</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;ProblemSettings.dim = </span><span class="si">{</span><span class="n">settings</span><span class="o">.</span><span class="n">dim</span><span class="si">}</span><span class="s2">, but mesh dimension is </span><span class="si">{</span><span class="n">mesh_obj</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">macro_strain</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">dim</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;macro_strain must have shape </span><span class="si">{</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span><span class="w"> </span><span class="n">settings</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">macro_strain</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="n">assignment</span><span class="o">.</span><span class="n">materials_by_phase</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">material</span><span class="p">,</span> <span class="n">LinearElasticIsotropic</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Linear periodic fluctuation builder supports only LinearElasticIsotropic materials.&quot;</span>
+            <span class="p">)</span>
+
+
+<div class="viewcode-block" id="build_linear_periodic_fluctuation_problem">
+<a class="viewcode-back" href="../../../api/generated/homicsx.fem.html#homicsx.fem.build_linear_periodic_fluctuation_problem">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_linear_periodic_fluctuation_problem</span><span class="p">(</span>
+    <span class="n">mesh_obj</span><span class="p">,</span>
+    <span class="n">cell_tags</span><span class="p">,</span>
+    <span class="n">facet_tags</span><span class="p">,</span>
+    <span class="n">assignment</span><span class="p">:</span> <span class="n">MaterialAssignment</span><span class="p">,</span>
+    <span class="n">settings</span><span class="p">:</span> <span class="n">ProblemSettings</span><span class="p">,</span>
+    <span class="n">physical_tags</span><span class="p">,</span>
+    <span class="n">domain_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">macro_strain</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">matrix_phase_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">anchor_point</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build a linear periodic fluctuation problem for a prescribed macroscopic strain.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_obj:</span>
+<span class="sd">        DOLFINx mesh object.</span>
+<span class="sd">    cell_tags:</span>
+<span class="sd">        Cell MeshTags.</span>
+<span class="sd">    facet_tags:</span>
+<span class="sd">        Facet MeshTags.</span>
+<span class="sd">    assignment:</span>
+<span class="sd">        Phase-wise material assignment.</span>
+<span class="sd">    settings:</span>
+<span class="sd">        FEM problem settings.</span>
+<span class="sd">    physical_tags:</span>
+<span class="sd">        PhysicalTags convention object.</span>
+<span class="sd">    domain_size:</span>
+<span class="sd">        Domain side lengths.</span>
+<span class="sd">    macro_strain:</span>
+<span class="sd">        Prescribed macroscopic strain tensor.</span>
+<span class="sd">    matrix_phase_id:</span>
+<span class="sd">        Phase id corresponding to the matrix phase.</span>
+<span class="sd">    anchor_point:</span>
+<span class="sd">        Point used for the anchor Dirichlet condition.</span>
+<span class="sd">    atol:</span>
+<span class="sd">        Tolerance used when locating the anchor point.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[LinearProblemDefinition, LinearFluctuationProblemContext]</span>
+<span class="sd">        Linear problem definition plus useful homogenization context.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function belongs to the FEM layer because it defines a specific</span>
+<span class="sd">    variational boundary value problem. The homogenization layer should only</span>
+<span class="sd">    orchestrate repeated calls to this builder over canonical load cases.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_validate_linear_fluctuation_inputs</span><span class="p">(</span>
+        <span class="n">mesh_obj</span><span class="o">=</span><span class="n">mesh_obj</span><span class="p">,</span>
+        <span class="n">assignment</span><span class="o">=</span><span class="n">assignment</span><span class="p">,</span>
+        <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">,</span>
+        <span class="n">macro_strain</span><span class="o">=</span><span class="n">macro_strain</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">linear_coeffs</span> <span class="o">=</span> <span class="n">build_linear_elastic_coefficients</span><span class="p">(</span>
+        <span class="n">mesh</span><span class="o">=</span><span class="n">mesh_obj</span><span class="p">,</span>
+        <span class="n">cell_tags</span><span class="o">=</span><span class="n">cell_tags</span><span class="p">,</span>
+        <span class="n">assignment</span><span class="o">=</span><span class="n">assignment</span><span class="p">,</span>
+        <span class="n">physical_tags</span><span class="o">=</span><span class="n">physical_tags</span><span class="p">,</span>
+        <span class="n">matrix_phase_id</span><span class="o">=</span><span class="n">matrix_phase_id</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">V</span> <span class="o">=</span> <span class="n">build_displacement_space</span><span class="p">(</span><span class="n">mesh_obj</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+
+    <span class="n">bcs</span><span class="p">,</span> <span class="n">mpc</span> <span class="o">=</span> <span class="n">build_anchor_and_periodic_constraints</span><span class="p">(</span>
+        <span class="n">mesh</span><span class="o">=</span><span class="n">mesh_obj</span><span class="p">,</span>
+        <span class="n">facet_tags</span><span class="o">=</span><span class="n">facet_tags</span><span class="p">,</span>
+        <span class="n">V</span><span class="o">=</span><span class="n">V</span><span class="p">,</span>
+        <span class="n">domain_size</span><span class="o">=</span><span class="n">domain_size</span><span class="p">,</span>
+        <span class="n">physical_tags</span><span class="o">=</span><span class="n">physical_tags</span><span class="p">,</span>
+        <span class="n">anchor_point</span><span class="o">=</span><span class="n">anchor_point</span><span class="p">,</span>
+        <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">Eps</span> <span class="o">=</span> <span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh_obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">macro_strain</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+
+    <span class="n">du</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+    <span class="n">u_</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+
+    <span class="c1"># a_form = ufl.inner(</span>
+    <span class="c1">#     linear_homogenization_stress(</span>
+    <span class="c1">#         du,</span>
+    <span class="c1">#         Eps,</span>
+    <span class="c1">#         linear_coeffs.lambda_,</span>
+    <span class="c1">#         linear_coeffs.mu,</span>
+    <span class="c1">#     ),</span>
+    <span class="c1">#     small_strain(u_),</span>
+    <span class="c1"># ) * ufl.dx(domain=mesh_obj)</span>
+
+    <span class="c1"># # Important:</span>
+    <span class="c1"># # Use a zero Function, not a zero Constant, so dolfinx_mpc does not receive</span>
+    <span class="c1"># # an empty RHS form.</span>
+    <span class="c1"># zero_rhs = fem.Function(V, name=&quot;zero_rhs&quot;)</span>
+    <span class="c1"># zero_rhs.x.array[:] = 0.0</span>
+    <span class="c1"># zero_rhs.x.scatter_forward()</span>
+    <span class="c1"># L_form = ufl.inner(zero_rhs, u_) * ufl.dx(domain=mesh_obj)</span>
+
+    <span class="n">weak_form</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span>
+        <span class="n">linear_homogenization_stress</span><span class="p">(</span>
+            <span class="n">du</span><span class="p">,</span>
+            <span class="n">Eps</span><span class="p">,</span>
+            <span class="n">linear_coeffs</span><span class="o">.</span><span class="n">lambda_</span><span class="p">,</span>
+            <span class="n">linear_coeffs</span><span class="o">.</span><span class="n">mu</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">small_strain</span><span class="p">(</span><span class="n">u_</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">mesh_obj</span><span class="p">)</span>
+
+    <span class="n">a_form</span><span class="p">,</span> <span class="n">L_form</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">weak_form</span><span class="p">)</span>
+
+    <span class="n">solution_space</span> <span class="o">=</span> <span class="n">mpc</span><span class="o">.</span><span class="n">function_space</span> <span class="k">if</span> <span class="n">mpc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">V</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">solution_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PeriodicFluctuation&quot;</span><span class="p">)</span>
+
+    <span class="n">problem</span> <span class="o">=</span> <span class="n">LinearProblemDefinition</span><span class="p">(</span>
+        <span class="n">function_space</span><span class="o">=</span><span class="n">V</span><span class="p">,</span>
+        <span class="n">trial_function</span><span class="o">=</span><span class="n">du</span><span class="p">,</span>
+        <span class="n">test_function</span><span class="o">=</span><span class="n">u_</span><span class="p">,</span>
+        <span class="n">bilinear_form</span><span class="o">=</span><span class="n">a_form</span><span class="p">,</span>
+        <span class="n">linear_form</span><span class="o">=</span><span class="n">L_form</span><span class="p">,</span>
+        <span class="n">bcs</span><span class="o">=</span><span class="n">bcs</span><span class="p">,</span>
+        <span class="n">mpc</span><span class="o">=</span><span class="n">mpc</span><span class="p">,</span>
+        <span class="n">solution</span><span class="o">=</span><span class="n">v</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;problem_type&quot;</span><span class="p">:</span> <span class="s2">&quot;linear_fluctuation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dim&quot;</span><span class="p">:</span> <span class="n">settings</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">stress_expr</span> <span class="o">=</span> <span class="n">linear_homogenization_stress</span><span class="p">(</span>
+        <span class="n">v</span><span class="p">,</span>
+        <span class="n">Eps</span><span class="p">,</span>
+        <span class="n">linear_coeffs</span><span class="o">.</span><span class="n">lambda_</span><span class="p">,</span>
+        <span class="n">linear_coeffs</span><span class="o">.</span><span class="n">mu</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="n">LinearFluctuationProblemContext</span><span class="p">(</span>
+        <span class="n">macro_strain</span><span class="o">=</span><span class="n">Eps</span><span class="p">,</span>
+        <span class="n">fluctuation_field</span><span class="o">=</span><span class="n">v</span><span class="p">,</span>
+        <span class="n">stress_expression</span><span class="o">=</span><span class="n">stress_expr</span><span class="p">,</span>
+        <span class="n">coefficients</span><span class="o">=</span><span class="n">linear_coeffs</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;dim&quot;</span><span class="p">:</span> <span class="n">settings</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span>
+            <span class="s2">&quot;domain_size&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">domain_size</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">problem</span><span class="p">,</span> <span class="n">context</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_nonlinear_periodic_fluctuation_peoblem</span><span class="p">(</span>
+    <span class="n">mesh_obj</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">Mesh</span><span class="p">,</span>
+    <span class="n">cell_tags</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">MeshTags</span><span class="p">,</span>
+    <span class="n">facet_tags</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">MeshTags</span><span class="p">,</span>
+    <span class="n">assignment</span><span class="p">:</span> <span class="n">MaterialAssignment</span><span class="p">,</span>
+    <span class="n">settings</span><span class="p">:</span> <span class="n">ProblemSettings</span><span class="p">,</span>
+    <span class="n">physical_tags</span><span class="p">:</span> <span class="n">PhysicalTags</span><span class="p">,</span>
+    <span class="n">domain_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">matrix_phase_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">build_displacement_space</span><span class="p">(</span><span class="n">mesh_obj</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+
+    <span class="n">bcs</span><span class="p">,</span> <span class="n">mpc</span> <span class="o">=</span> <span class="n">build_constraints_nonlinear</span><span class="p">(</span>
+        <span class="n">mesh</span><span class="o">=</span><span class="n">mesh_obj</span><span class="p">,</span>
+        <span class="n">facet_tags</span><span class="o">=</span><span class="n">facet_tags</span><span class="p">,</span>
+        <span class="n">V</span><span class="o">=</span><span class="n">V</span><span class="p">,</span>
+        <span class="n">domain_size</span><span class="o">=</span><span class="n">domain_size</span><span class="p">,</span>
+        <span class="n">physical_tags</span><span class="o">=</span><span class="n">physical_tags</span><span class="p">,</span>
+        <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Nonlinear weak from formulation</span>
+    <span class="n">V_mpc</span> <span class="o">=</span> <span class="n">mpc</span><span class="o">.</span><span class="n">function_space</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_mpc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Fluctuation&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">dim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+        <span class="n">F_macro_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> 
+             <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+             <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]],</span> 
+            <span class="n">dtype</span><span class="o">=</span><span class="n">PETSc</span><span class="o">.</span><span class="n">ScalarType</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">settings</span><span class="o">.</span><span class="n">dim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>    
+        <span class="n">F_macro_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> 
+             <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]],</span> 
+            <span class="n">dtype</span><span class="o">=</span><span class="n">PETSc</span><span class="o">.</span><span class="n">ScalarType</span>
+        <span class="p">)</span>
+    
+    <span class="n">F_macro</span> <span class="o">=</span> <span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">mesh_obj</span><span class="p">,</span> <span class="n">F_macro_data</span><span class="p">)</span>
+
+    <span class="n">Ftot</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">variable</span><span class="p">(</span><span class="n">F_macro</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">))</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Measure</span><span class="p">(</span><span class="s2">&quot;dx&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">mesh_obj</span><span class="p">,</span> <span class="n">subdomain_data</span><span class="o">=</span><span class="n">cell_tags</span><span class="p">)</span>
+
+    <span class="n">Pi</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">assignment</span><span class="o">.</span><span class="n">materials_by_phase</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">material_model</span> <span class="o">=</span> <span class="n">assignment</span><span class="o">.</span><span class="n">materials_by_phase</span><span class="p">[</span><span class="n">phase</span><span class="p">]</span>
+        <span class="n">psi</span> <span class="o">=</span> <span class="n">material_model</span><span class="o">.</span><span class="n">psi_form</span><span class="p">(</span><span class="n">Ftot</span><span class="p">)</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">physical_tags</span><span class="o">.</span><span class="n">cell_tag_for_phase</span><span class="p">(</span><span class="n">phase_id</span><span class="o">=</span><span class="n">phase</span><span class="p">,</span> <span class="n">matrix_phase_id</span><span class="o">=</span><span class="n">matrix_phase_id</span><span class="p">)</span>
+        <span class="n">Pi</span> <span class="o">+=</span> <span class="n">psi</span> <span class="o">*</span> <span class="n">dx</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+
+    <span class="n">v</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+    <span class="n">du</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+    <span class="n">Residual</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="n">Pi</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="n">Jacobian</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="n">Residual</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">du</span><span class="p">)</span>
+
+    <span class="n">problem</span> <span class="o">=</span> <span class="n">NonlinearProblemMPC</span><span class="p">(</span>
+        <span class="n">Residual</span><span class="p">,</span>
+        <span class="n">u</span><span class="p">,</span>
+        <span class="n">mpc</span><span class="p">,</span>
+        <span class="n">bcs</span><span class="o">=</span><span class="n">bcs</span><span class="p">,</span>
+        <span class="n">J</span><span class="o">=</span><span class="n">Jacobian</span><span class="p">,</span>
+        <span class="n">petsc_options</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;preonly&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;lu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pc_factor_mat_solver_type&quot;</span><span class="p">:</span> <span class="s2">&quot;mumps&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;snes_type&quot;</span><span class="p">:</span> <span class="s2">&quot;newtonls&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;snes_linesearch_type&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;snes_monitor&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;snes_rtol&quot;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span>
+            <span class="s2">&quot;snes_atol&quot;</span><span class="p">:</span> <span class="mf">1e-10</span><span class="p">,</span>
+            <span class="s2">&quot;snes_max_it&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="n">NonlinearFluctuationProblemContext</span><span class="p">(</span>
+        <span class="n">F_macro</span><span class="o">=</span><span class="n">F_macro</span><span class="p">,</span>
+        <span class="n">fluctuation_field</span><span class="o">=</span><span class="n">u</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;dim&quot;</span><span class="p">:</span> <span class="n">settings</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span>
+            <span class="s2">&quot;domain_size&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">domain_size</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">problem</span><span class="p">,</span> <span class="n">context</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># fluctuation</span>
+    <span class="s2">&quot;LinearFluctuationProblemContext&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;build_linear_periodic_fluctuation_problem&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

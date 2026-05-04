@@ -1,0 +1,975 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.homogenization.nlhelpers &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/homicsx.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">homicsx.homogenization.nlhelpers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for homicsx.homogenization.nlhelpers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx</span><span class="w"> </span><span class="kn">import</span> <span class="n">fem</span><span class="p">,</span> <span class="n">io</span><span class="p">,</span> <span class="n">mesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">XDMFFile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">petsc4py.PETSc</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">PETSc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ufl</span><span class="w"> </span><span class="kn">import</span> <span class="n">grad</span><span class="p">,</span> <span class="n">ln</span><span class="p">,</span> <span class="n">tr</span><span class="p">,</span> <span class="n">det</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">derivative</span><span class="p">,</span> <span class="n">TestFunction</span><span class="p">,</span> <span class="n">TrialFunction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx_mpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiPointConstraint</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonlinearProblemMPC</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx</span><span class="w"> </span><span class="kn">import</span><span class="p">(</span>
+    <span class="n">GeometryInput</span><span class="p">,</span> 
+    <span class="n">PhysicalTags</span><span class="p">,</span> 
+    <span class="n">MeshSettings</span><span class="p">,</span>
+    <span class="n">MaterialAssignment</span><span class="p">,</span>
+    <span class="n">NeoHookeanIsotropic</span><span class="p">,</span>
+    <span class="n">LinearElasticIsotropic</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">patriculate_geometry_generator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_mesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.visualization</span><span class="w"> </span><span class="kn">import</span> <span class="n">visualize_geometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_effective_moduli_2d_plane_strain</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx</span><span class="w"> </span><span class="kn">import</span> <span class="n">fem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">XDMFFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">petsc4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PETSc</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+
+<div class="viewcode-block" id="AdaptiveSettings">
+<a class="viewcode-back" href="../../../api/generated/homicsx.homogenization.html#homicsx.homogenization.AdaptiveSettings">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AdaptiveSettings</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration for adaptive time-stepping in nonlinear solvers.</span>
+
+<span class="sd">    This class defines the parameters used to dynamically adjust the increment </span>
+<span class="sd">    size based on the convergence behavior of the Newton-Raphson iterations.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_step_ratio : float, default 0.025</span>
+<span class="sd">        The fraction of the total simulation time for the first increment.</span>
+<span class="sd">    min_step : float, default 1e-6</span>
+<span class="sd">        The absolute minimum allowed step size before the solver terminates.</span>
+<span class="sd">    max_step_ratio : float, default 0.2</span>
+<span class="sd">        The maximum allowed step size as a fraction of total time. </span>
+<span class="sd">        Prevents the solver from taking too large jumps that miss physics.</span>
+<span class="sd">    target_iters_min : int, default 4</span>
+<span class="sd">        Lower bound for Newton iterations. If converged in fewer steps, </span>
+<span class="sd">        the next increment will be increased.</span>
+<span class="sd">    target_iters_max : int, default 8</span>
+<span class="sd">        Upper bound for Newton iterations. If convergence takes more steps, </span>
+<span class="sd">        the next increment will be reduced.</span>
+<span class="sd">    growth_factor : float, default 1.5</span>
+<span class="sd">        Multiplier used to increase the step size when convergence is fast.</span>
+<span class="sd">    cutback_factor : float, default 0.5</span>
+<span class="sd">        Multiplier used to reduce the step size when convergence is slow </span>
+<span class="sd">        or fails (cut-back).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">initial_step_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.025</span>
+    <span class="n">min_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span>
+    <span class="n">max_step_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">target_iters_min</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">target_iters_max</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">growth_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span>
+    <span class="n">cutback_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Kinematics and Utilities</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_Fbar</span><span class="p">(</span><span class="n">load_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build macroscopic deformation gradient for common load paths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">identity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">PETSc</span><span class="o">.</span><span class="n">ScalarType</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;uniaxial_x&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;uniaxial_y&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;uniaxial_z&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;biaxial&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;triaxial&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;shear_xy&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;shear_xz&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;shear_yz&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;iso_stretch&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">a</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">a</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">a</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown load_type for 3D: </span><span class="si">{</span><span class="n">load_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># dim == 2</span>
+        <span class="n">identity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">PETSc</span><span class="o">.</span><span class="n">ScalarType</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;uniaxial_x&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;uniaxial_y&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;biaxial&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;shear_xy&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;iso_stretch&quot;</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">identity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">a</span>
+            <span class="n">F</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">a</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown load_type for 2D: </span><span class="si">{</span><span class="n">load_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">F</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">flatten_tensor</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flatten a 2D tensor to 1D array (row-major).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">A</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">perturb_F</span><span class="p">(</span><span class="n">Fbar</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perturb a component of the deformation gradient.&quot;&quot;&quot;</span>
+    <span class="n">Fp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Fbar</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="n">Fp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+    <span class="n">Fp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">delta</span>
+    <span class="k">return</span> <span class="n">Fp</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># History Management</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">init_history</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize history dictionary for storing simulation results.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;load_param&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;load_type&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;Fbar&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;Pbar&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;Wbar&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;Jbar&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;converged&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;iters&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;Ceff&quot;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_record_history</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">load_type</span><span class="p">,</span> <span class="n">Fbar</span><span class="p">,</span> <span class="n">Pbar</span><span class="p">,</span> <span class="n">Wbar</span><span class="p">,</span> <span class="n">Jbar</span><span class="p">,</span> <span class="n">converged</span><span class="p">,</span> <span class="n">iters</span><span class="p">,</span> <span class="n">Ceff</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Internal helper to keep the main loop clean.&quot;&quot;&quot;</span>
+    <span class="n">history</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step_idx</span><span class="p">)</span>
+    <span class="n">history</span><span class="p">[</span><span class="s2">&quot;load_param&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+    <span class="n">history</span><span class="p">[</span><span class="s2">&quot;load_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">load_type</span><span class="p">)</span>
+    <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Fbar&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Fbar</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Pbar&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Pbar</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Wbar&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">Wbar</span><span class="p">))</span>
+    <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Jbar&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">Jbar</span><span class="p">))</span>
+    <span class="n">history</span><span class="p">[</span><span class="s2">&quot;converged&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">converged</span><span class="p">))</span>
+    <span class="n">history</span><span class="p">[</span><span class="s2">&quot;iters&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">iters</span><span class="p">))</span>
+    <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span> <span class="k">if</span> <span class="n">Ceff</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Ceff</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">save_history_csv</span><span class="p">(</span><span class="n">history</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save history to CSV file.&quot;&quot;&quot;</span>
+    <span class="c1"># Header</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="s2">&quot;load_type&quot;</span><span class="p">,</span> <span class="s2">&quot;load_param&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+            <span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;F</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}{</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+            <span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}{</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">header</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;Wbar&quot;</span><span class="p">,</span> <span class="s2">&quot;Jbar&quot;</span><span class="p">,</span> <span class="s2">&quot;converged&quot;</span><span class="p">,</span> <span class="s2">&quot;iters&quot;</span><span class="p">])</span>
+    
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">history</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">])):</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Fbar&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Pbar&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+            
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">history</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">],</span>
+                <span class="n">history</span><span class="p">[</span><span class="s2">&quot;load_type&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">],</span>
+                <span class="n">history</span><span class="p">[</span><span class="s2">&quot;load_param&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+            <span class="p">]</span>
+            
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">F</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+            
+            <span class="n">row</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+                <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Wbar&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">],</span>
+                <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Jbar&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">],</span>
+                <span class="n">history</span><span class="p">[</span><span class="s2">&quot;converged&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">],</span>
+                <span class="n">history</span><span class="p">[</span><span class="s2">&quot;iters&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+            <span class="p">])</span>
+            
+            <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_curve</span><span class="p">(</span><span class="n">history</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract a curve from history, optionally extracting component (i,j).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">history</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    
+    <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">A</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tangent_component_curve</span><span class="p">(</span><span class="n">history</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract a specific tangent component curve from history.&quot;&quot;&quot;</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Energy and Stress Computation (Material-Aware)</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_phase_volumes</span><span class="p">(</span>
+        <span class="n">domain</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">Mesh</span><span class="p">,</span> 
+        <span class="n">cell_tags</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">MeshTags</span><span class="p">,</span> 
+        <span class="n">material_assignment</span><span class="p">:</span> <span class="n">MaterialAssignment</span><span class="p">,</span>
+        <span class="n">physical_tags</span><span class="p">:</span> <span class="n">PhysicalTags</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the volume of each phase.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        phase_volumes: dict mapping phase_id to volume</span>
+<span class="sd">        total_volume: total domain volume</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Measure</span><span class="p">(</span><span class="s2">&quot;dx&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">subdomain_data</span><span class="o">=</span><span class="n">cell_tags</span><span class="p">)</span>
+    
+    <span class="n">phase_volumes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">total_volume</span> <span class="o">=</span> <span class="mf">0.0</span>
+    
+    <span class="k">for</span> <span class="n">phase_id</span> <span class="ow">in</span> <span class="n">material_assignment</span><span class="o">.</span><span class="n">materials_by_phase</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">physical_tags</span><span class="o">.</span><span class="n">cell_tag_for_phase</span><span class="p">(</span><span class="n">phase_id</span><span class="p">)</span>
+        <span class="n">vol_local</span> <span class="o">=</span> <span class="n">fem</span><span class="o">.</span><span class="n">assemble_scalar</span><span class="p">(</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">dx</span><span class="p">(</span><span class="n">tag</span><span class="p">)))</span>
+        <span class="c1"># vol = domain.comm.allreduce(vol_local, op=MPI.SUM)</span>
+        <span class="n">phase_volumes</span><span class="p">[</span><span class="n">phase_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">vol_local</span>
+        <span class="n">total_volume</span> <span class="o">+=</span> <span class="n">vol_local</span>
+    
+    <span class="k">return</span> <span class="n">phase_volumes</span><span class="p">,</span> <span class="n">total_volume</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_average_P_and_energy</span><span class="p">(</span>
+    <span class="n">domain</span><span class="p">,</span>
+    <span class="n">u</span><span class="p">:</span> <span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">,</span>
+    <span class="n">F_macro</span><span class="p">:</span> <span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">,</span>
+    <span class="n">material_assignment</span><span class="p">:</span> <span class="n">MaterialAssignment</span><span class="p">,</span>
+    <span class="n">cell_tags</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">MeshTags</span><span class="p">,</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">physical_tags</span><span class="p">:</span> <span class="n">PhysicalTags</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute volume-averaged Piola stress, energy density, and Jacobian.</span>
+<span class="sd">    Stress is computed per-phase and then volume-averaged.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        domain: Mesh domain</span>
+<span class="sd">        u: Displacement fluctuation field</span>
+<span class="sd">        F_macro: Macroscopic deformation gradient (Constant)</span>
+<span class="sd">        material_assignment: MaterialAssignment instance</span>
+<span class="sd">        cell_tags: Cell tags for phase identification</span>
+<span class="sd">        dim: Dimension (2 or 3)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Pbar: Average first Piola stress (dim x dim array)</span>
+<span class="sd">        Wbar: Average strain energy density</span>
+<span class="sd">        Jbar: Average determinant of deformation gradient</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">physical_tags</span><span class="o">==</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">physical_tags</span> <span class="o">=</span> <span class="n">PhysicalTags</span><span class="p">()</span>
+
+    <span class="c1"># Total deformation gradient: F = F_macro + grad(u)</span>
+    <span class="n">Ftot</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">variable</span><span class="p">(</span><span class="n">F_macro</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">))</span>
+    
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Measure</span><span class="p">(</span><span class="s2">&quot;dx&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">subdomain_data</span><span class="o">=</span><span class="n">cell_tags</span><span class="p">)</span>
+    
+    <span class="c1"># Compute phase volumes</span>
+    <span class="n">phase_volumes</span><span class="p">,</span> <span class="n">total_volume</span> <span class="o">=</span> <span class="n">compute_phase_volumes</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">cell_tags</span><span class="p">,</span> <span class="n">material_assignment</span><span class="p">,</span> <span class="n">physical_tags</span><span class="o">=</span><span class="n">physical_tags</span><span class="p">)</span>
+    
+    <span class="c1"># Initialize averaged quantities</span>
+    <span class="n">Wbar</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">Pbar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">Jbar</span> <span class="o">=</span> <span class="mf">0.0</span>
+    
+    <span class="c1"># Compute per-phase and volume-average</span>
+    <span class="k">for</span> <span class="n">phase_id</span><span class="p">,</span> <span class="n">material</span> <span class="ow">in</span> <span class="n">material_assignment</span><span class="o">.</span><span class="n">materials_by_phase</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">physical_tags</span><span class="o">.</span><span class="n">cell_tag_for_phase</span><span class="p">(</span><span class="n">phase_id</span><span class="p">)</span>
+        <span class="n">phase_vol</span> <span class="o">=</span> <span class="n">phase_volumes</span><span class="p">[</span><span class="n">phase_id</span><span class="p">]</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="n">phase_vol</span> <span class="o">/</span> <span class="n">total_volume</span>
+        
+        <span class="c1"># Phase-specific energy density</span>
+        <span class="n">psi_phase</span> <span class="o">=</span> <span class="n">material</span><span class="o">.</span><span class="n">psi_form</span><span class="p">(</span><span class="n">Ftot</span><span class="p">)</span>
+        
+        <span class="c1"># Phase-specific Piola stress</span>
+        <span class="n">P_phase</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">psi_phase</span><span class="p">,</span> <span class="n">Ftot</span><span class="p">)</span>
+        
+        <span class="c1"># Average energy density for this phase</span>
+        <span class="n">W_local</span> <span class="o">=</span> <span class="n">fem</span><span class="o">.</span><span class="n">assemble_scalar</span><span class="p">(</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">psi_phase</span> <span class="o">*</span> <span class="n">dx</span><span class="p">(</span><span class="n">tag</span><span class="p">)))</span>
+        <span class="n">W_phase</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="n">W_local</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
+        <span class="n">Wbar</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">W_phase</span> <span class="o">/</span> <span class="n">phase_vol</span><span class="p">)</span>
+        
+        <span class="c1"># Average Piola stress for this phase</span>
+        <span class="n">Pbar_phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+                <span class="n">val_local</span> <span class="o">=</span> <span class="n">fem</span><span class="o">.</span><span class="n">assemble_scalar</span><span class="p">(</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">P_phase</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">dx</span><span class="p">(</span><span class="n">tag</span><span class="p">)))</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="n">val_local</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
+                <span class="n">Pbar_phase</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span> <span class="o">/</span> <span class="n">phase_vol</span>
+        
+        <span class="c1"># Volume-weighted contribution to total stress</span>
+        <span class="n">Pbar</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">Pbar_phase</span>
+        
+        <span class="c1"># Average Jacobian for this phase</span>
+        <span class="n">J_local</span> <span class="o">=</span> <span class="n">fem</span><span class="o">.</span><span class="n">assemble_scalar</span><span class="p">(</span><span class="n">fem</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">Ftot</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span><span class="p">(</span><span class="n">tag</span><span class="p">)))</span>
+        <span class="n">J_phase</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="n">J_local</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
+        <span class="n">Jbar</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">J_phase</span> <span class="o">/</span> <span class="n">phase_vol</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">Pbar</span><span class="p">,</span> <span class="n">Wbar</span><span class="p">,</span> <span class="n">Jbar</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Solver Utilities</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_once</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">,</span> <span class="n">F_macro</span><span class="p">:</span> <span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">,</span> <span class="n">Fbar</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Solve the nonlinear problem with given macroscopic deformation.&quot;&quot;&quot;</span>
+    <span class="c1"># Update macroscopic deformation gradient</span>
+    <span class="n">F_macro</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">Fbar</span>
+    
+    <span class="c1"># Reset fluctuation field</span>
+    <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">scatter_forward</span><span class="p">()</span>
+    
+    <span class="c1"># Solve</span>
+    <span class="n">u_sol</span><span class="p">,</span> <span class="n">converged</span><span class="p">,</span> <span class="n">iters</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+    <span class="n">u_sol</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">scatter_forward</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">u_sol</span><span class="p">,</span> <span class="n">converged</span><span class="p">,</span> <span class="n">iters</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_Ceff_fd</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">u</span><span class="p">:</span> <span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">,</span>
+    <span class="n">F_macro</span><span class="p">:</span> <span class="n">fem</span><span class="o">.</span><span class="n">Constant</span><span class="p">,</span>
+    <span class="n">domain</span><span class="p">,</span>
+    <span class="n">material_assignment</span><span class="p">,</span>
+    <span class="n">cell_tags</span><span class="p">,</span>
+    <span class="n">Fbar</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute effective tangent stiffness via finite differences.</span>
+<span class="sd">    Uses MaterialAssignment for multi-material support.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dim2</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">*</span> <span class="n">dim</span>
+
+    <span class="c1"># save base state</span>
+    <span class="n">u_base_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">)</span>
+    
+    <span class="c1"># Get base state quantities</span>
+    <span class="n">P0</span><span class="p">,</span> <span class="n">W0</span><span class="p">,</span> <span class="n">J0</span> <span class="o">=</span> <span class="n">compute_average_P_and_energy</span><span class="p">(</span>
+        <span class="n">domain</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">F_macro</span><span class="p">,</span> <span class="n">material_assignment</span><span class="p">,</span> <span class="n">cell_tags</span><span class="p">,</span> <span class="n">dim</span>
+    <span class="p">)</span>
+    <span class="n">P0_vec</span> <span class="o">=</span> <span class="n">flatten_tensor</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+    
+    <span class="c1"># Initialize tangent</span>
+    <span class="n">Ceff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim2</span><span class="p">,</span> <span class="n">dim2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    
+    <span class="c1"># Perturb each component</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim2</span><span class="p">):</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u_base_state</span><span class="p">[:]</span>
+
+        <span class="n">Fp</span> <span class="o">=</span> <span class="n">perturb_F</span><span class="p">(</span><span class="n">Fbar</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">converged</span><span class="p">,</span> <span class="n">iters</span> <span class="o">=</span> <span class="n">solve_once</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">F_macro</span><span class="p">,</span> <span class="n">Fp</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">converged</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;        Perturbed solve completed at col </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">: reason=</span><span class="si">{</span><span class="n">converged</span><span class="si">}</span><span class="s2">, iters=</span><span class="si">{</span><span class="n">iters</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">converged</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;       Perturbed solve failed at col </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">: reason=</span><span class="si">{</span><span class="n">converged</span><span class="si">}</span><span class="s2">, iters=</span><span class="si">{</span><span class="n">iters</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="n">Pp</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">compute_average_P_and_energy</span><span class="p">(</span>
+            <span class="n">domain</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">F_macro</span><span class="p">,</span> <span class="n">material_assignment</span><span class="p">,</span> <span class="n">cell_tags</span><span class="p">,</span> <span class="n">dim</span>
+        <span class="p">)</span>
+        <span class="n">Pp_vec</span> <span class="o">=</span> <span class="n">flatten_tensor</span><span class="p">(</span><span class="n">Pp</span><span class="p">)</span>
+        <span class="n">Ceff</span><span class="p">[:,</span> <span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pp_vec</span> <span class="o">-</span> <span class="n">P0_vec</span><span class="p">)</span> <span class="o">/</span> <span class="n">delta</span>
+    
+    <span class="c1"># Restore base state</span>
+    <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u_base_state</span><span class="p">[:]</span>
+    <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">scatter_forward</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">Ceff</span><span class="p">,</span> <span class="n">P0</span><span class="p">,</span> <span class="n">W0</span><span class="p">,</span> <span class="n">J0</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Load Case Execution</span>
+<span class="c1"># =============================================================================</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_one_load_case</span><span class="p">(</span>
+    <span class="n">domain</span><span class="p">,</span> <span class="n">problem</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">F_macro</span><span class="p">,</span> <span class="n">material_assignment</span><span class="p">,</span> <span class="n">cell_tags</span><span class="p">,</span>
+    <span class="n">load_type</span><span class="p">,</span> <span class="n">load_values</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">xdmf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">tangent_every</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">tangent_delta</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">adaptive_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a single load case with Enhanced Logging and Adaptive Stepping.&quot;&quot;&quot;</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="n">init_history</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">adaptive_settings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">adaptive_settings</span> <span class="o">=</span> <span class="n">AdaptiveSettings</span><span class="p">()</span>
+
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">adaptive_settings</span>
+    <span class="n">target_val</span> <span class="o">=</span> <span class="n">load_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">current_a</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">target_val</span> <span class="o">*</span> <span class="n">settings</span><span class="o">.</span><span class="n">initial_step_ratio</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">min_step</span><span class="p">)</span>
+    <span class="n">da_min</span><span class="p">,</span> <span class="n">da_max</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">min_step</span><span class="p">,</span> <span class="n">target_val</span> <span class="o">*</span> <span class="n">settings</span><span class="o">.</span><span class="n">max_step_ratio</span>
+
+    <span class="n">step_idx</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">u_prev</span> <span class="o">=</span> <span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">function_space</span><span class="p">)</span>
+    <span class="n">u_prev</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;STARTING LOAD CASE: </span><span class="si">{</span><span class="n">load_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Target Load: </span><span class="si">{</span><span class="n">target_val</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | Initial da: </span><span class="si">{</span><span class="n">da</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="n">current_a</span> <span class="o">&lt;</span> <span class="n">target_val</span><span class="p">:</span>
+        <span class="n">next_a</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">current_a</span> <span class="o">+</span> <span class="n">da</span><span class="p">,</span> <span class="n">target_val</span><span class="p">)</span>
+        <span class="n">Fbar</span> <span class="o">=</span> <span class="n">make_Fbar</span><span class="p">(</span><span class="n">load_type</span><span class="p">,</span> <span class="n">next_a</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+
+        <span class="n">progress</span> <span class="o">=</span> <span class="p">(</span><span class="n">next_a</span> <span class="o">/</span> <span class="n">target_val</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Step </span><span class="si">{</span><span class="n">step_idx</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2"> | Progress: </span><span class="si">{</span><span class="n">progress</span><span class="si">:</span><span class="s2">6.2f</span><span class="si">}</span><span class="s2">% | Loading: </span><span class="si">{</span><span class="n">next_a</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Attempting da: </span><span class="si">{</span><span class="n">da</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u_prev</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> 
+            <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">scatter_forward</span><span class="p">()</span>
+
+            <span class="n">u</span><span class="p">,</span> <span class="n">converged</span><span class="p">,</span> <span class="n">iters</span> <span class="o">=</span> <span class="n">solve_once</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">F_macro</span><span class="p">,</span> <span class="n">Fbar</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">converged</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   SOLVER FAILED: Reason code </span><span class="si">{</span><span class="n">converged</span><span class="si">}</span><span class="s2"> after </span><span class="si">{</span><span class="n">iters</span><span class="si">}</span><span class="s2"> iterations.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Base solve failed&quot;</span><span class="p">)</span>
+
+            <span class="n">Pbar</span><span class="p">,</span> <span class="n">Wbar</span><span class="p">,</span> <span class="n">Jbar</span> <span class="o">=</span> <span class="n">compute_average_P_and_energy</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">F_macro</span><span class="p">,</span> <span class="n">material_assignment</span><span class="p">,</span> <span class="n">cell_tags</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">Wbar</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">Pbar</span><span class="p">))</span> <span class="ow">or</span> <span class="n">Jbar</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   PHYSICAL INSTABILITY: Wbar=</span><span class="si">{</span><span class="n">Wbar</span><span class="si">}</span><span class="s2">, Jbar=</span><span class="si">{</span><span class="n">Jbar</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">. Result contains NaNs.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Physical Unstability&quot;</span><span class="p">)</span> 
+
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   SUCCESS: Converged in </span><span class="si">{</span><span class="n">iters</span><span class="si">}</span><span class="s2"> iterations.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Stats: Wbar=</span><span class="si">{</span><span class="n">Wbar</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2"> | Jbar=</span><span class="si">{</span><span class="n">Jbar</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | P_max=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Pbar</span><span class="p">))</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">current_a</span> <span class="o">=</span> <span class="n">next_a</span>
+            <span class="n">u_prev</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+
+            <span class="n">Ceff</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">step_idx</span> <span class="o">%</span> <span class="n">tangent_every</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Computing Tangent stiffness...&quot;</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">Ceff</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">compute_Ceff_fd</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">F_macro</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">material_assignment</span><span class="p">,</span> <span class="n">cell_tags</span><span class="p">,</span> <span class="n">Fbar</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">tangent_delta</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Failed! (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+
+            <span class="n">_record_history</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">current_a</span><span class="p">,</span> <span class="n">load_type</span><span class="p">,</span> <span class="n">Fbar</span><span class="p">,</span> <span class="n">Pbar</span><span class="p">,</span> <span class="n">Wbar</span><span class="p">,</span> <span class="n">Jbar</span><span class="p">,</span> <span class="n">converged</span><span class="p">,</span> <span class="n">iters</span><span class="p">,</span> <span class="n">Ceff</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">xdmf</span><span class="p">:</span>
+                <span class="n">xdmf</span><span class="o">.</span><span class="n">write_function</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">)</span>
+
+            <span class="n">step_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">old_da</span> <span class="o">=</span> <span class="n">da</span>
+            <span class="k">if</span> <span class="n">iters</span> <span class="o">&lt;=</span> <span class="n">settings</span><span class="o">.</span><span class="n">target_iters_min</span><span class="p">:</span>
+                <span class="n">da</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">da</span> <span class="o">*</span> <span class="n">settings</span><span class="o">.</span><span class="n">growth_factor</span><span class="p">,</span> <span class="n">da_max</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">da</span> <span class="o">&gt;</span> <span class="n">old_da</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Increasing step size: </span><span class="si">{</span><span class="n">old_da</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">da</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">iters</span> <span class="o">&gt;=</span> <span class="n">settings</span><span class="o">.</span><span class="n">target_iters_max</span><span class="p">:</span>
+                <span class="n">da</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">da</span> <span class="o">*</span> <span class="n">settings</span><span class="o">.</span><span class="n">cutback_factor</span><span class="p">,</span> <span class="n">da_min</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">da</span> <span class="o">&lt;</span> <span class="n">old_da</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Decreasing step size: </span><span class="si">{</span><span class="n">old_da</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">da</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   RETRYING: Reducing step size...&quot;</span><span class="p">)</span>
+            <span class="n">da</span> <span class="o">*=</span> <span class="n">settings</span><span class="o">.</span><span class="n">cutback_factor</span>
+
+            <span class="k">if</span> <span class="n">da</span> <span class="o">&lt;</span> <span class="n">da_min</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;!&quot;</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FATAL ERROR: Could not converge at load </span><span class="si">{</span><span class="n">next_a</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Step size </span><span class="si">{</span><span class="n">da</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2"> is below minimum </span><span class="si">{</span><span class="n">da_min</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   Suggestion: Check mesh quality or material stability at this strain.&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="o">*</span><span class="mi">60</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">history</span> 
+
+            <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u_prev</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">scatter_forward</span><span class="p">()</span>
+            <span class="k">continue</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">LOAD CASE &#39;</span><span class="si">{</span><span class="n">load_type</span><span class="si">}</span><span class="s2">&#39; COMPLETED SUCCESSFULLY.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">history</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_all_load_cases</span><span class="p">(</span>
+    <span class="n">domain</span><span class="p">,</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">u</span><span class="p">,</span>
+    <span class="n">F_macro</span><span class="p">,</span>
+    <span class="n">material_assignment</span><span class="p">,</span>
+    <span class="n">cell_tags</span><span class="p">,</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">tangent_every</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">tangent_delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">output_prefix</span><span class="o">=</span><span class="s2">&quot;rve&quot;</span><span class="p">,</span>
+    <span class="n">max_strain</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">loading_modes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">adaptive_settings</span><span class="p">:</span> <span class="n">AdaptiveSettings</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">xdmf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run all standard load cases for homogenization.&quot;&quot;&quot;</span>
+    <span class="c1"># Define load cases based on dimension</span>
+    <span class="k">if</span> <span class="n">loading_modes</span><span class="o">==</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">load_cases</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;uniaxial_x&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;uniaxial_y&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;uniaxial_z&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;biaxial&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;triaxial&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;shear_xy&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;shear_xz&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;shear_yz&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;iso_stretch&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># dim == 2</span>
+            <span class="n">load_cases</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;uniaxial_x&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;uniaxial_y&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;biaxial&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;shear_xy&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+                <span class="s2">&quot;iso_stretch&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">]),</span>
+            <span class="p">}</span>
+    <span class="k">elif</span> <span class="n">loading_modes</span><span class="o">!=</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">load_cases</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">loading_modes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;uniaxial_x&quot;</span><span class="p">,</span> <span class="s2">&quot;uniaxial_y&quot;</span><span class="p">,</span> <span class="s2">&quot;uniaxial_z&quot;</span><span class="p">,</span> <span class="s2">&quot;biaxial&quot;</span><span class="p">,</span> <span class="s2">&quot;triaxial&quot;</span><span class="p">,</span> <span class="s2">&quot;shear_xy&quot;</span><span class="p">,</span> <span class="s2">&quot;shear_xz&quot;</span><span class="p">,</span> <span class="s2">&quot;shear_yz&quot;</span><span class="p">,</span> <span class="s2">&quot;iso_stretch&quot;</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;3D modes must be of either &quot;uniaxial_x&quot;, &quot;uniaxial_y&quot;, &quot;uniaxial_z&quot;, &quot;biaxial&quot;, &quot;triaxial&quot;, &quot;shear_xy&quot;, &quot;shear_xz&quot;, &quot;shear_yz&quot;, or &quot;iso_stretch&quot;. recieved </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+                <span class="n">load_cases</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">dim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;uniaxial_x&quot;</span><span class="p">,</span> <span class="s2">&quot;uniaxial_y&quot;</span><span class="p">,</span> <span class="s2">&quot;biaxial&quot;</span><span class="p">,</span> <span class="s2">&quot;shear_xy&quot;</span><span class="p">,</span> <span class="s2">&quot;iso_stretch&quot;</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;2D modes must be of either &quot;uniaxial_x&quot;, &quot;uniaxial_y&quot;, &quot;biaxial&quot;, &quot;shear_xy&quot;, or &quot;iso_stretch&quot;. recieved </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+                <span class="n">load_cases</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_strain</span><span class="p">])</span>
+    
+    <span class="n">all_histories</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">for</span> <span class="n">load_type</span><span class="p">,</span> <span class="n">load_values</span> <span class="ow">in</span> <span class="n">load_cases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Reset solution</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">scatter_forward</span><span class="p">()</span>
+        
+        <span class="c1"># Setup output files</span>
+        <span class="k">if</span> <span class="n">xdmf</span><span class="p">:</span>
+            <span class="n">xdmf_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">load_type</span><span class="si">}</span><span class="s2">.xdmf&quot;</span>
+            <span class="k">with</span> <span class="n">XDMFFile</span><span class="p">(</span><span class="n">domain</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">xdmf_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">xdmff</span><span class="p">:</span>
+                <span class="n">xdmff</span><span class="o">.</span><span class="n">write_mesh</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>
+            
+        <span class="n">history</span> <span class="o">=</span> <span class="n">run_one_load_case</span><span class="p">(</span>
+            <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+            <span class="n">problem</span><span class="o">=</span><span class="n">problem</span><span class="p">,</span>
+            <span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span>
+            <span class="n">F_macro</span><span class="o">=</span><span class="n">F_macro</span><span class="p">,</span>
+            <span class="n">material_assignment</span><span class="o">=</span><span class="n">material_assignment</span><span class="p">,</span>
+            <span class="n">cell_tags</span><span class="o">=</span><span class="n">cell_tags</span><span class="p">,</span>
+            <span class="n">load_type</span><span class="o">=</span><span class="n">load_type</span><span class="p">,</span>
+            <span class="n">load_values</span><span class="o">=</span><span class="n">load_values</span><span class="p">,</span>
+            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+            <span class="n">xdmf</span><span class="o">=</span><span class="n">xdmf</span><span class="p">,</span>
+            <span class="n">tangent_every</span><span class="o">=</span><span class="n">tangent_every</span><span class="p">,</span>
+            <span class="n">tangent_delta</span><span class="o">=</span><span class="n">tangent_delta</span><span class="p">,</span>
+            <span class="n">adaptive_settings</span><span class="o">=</span><span class="n">adaptive_settings</span><span class="p">,</span>
+        <span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">csv</span><span class="p">:</span>
+            <span class="n">csv_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">load_type</span><span class="si">}</span><span class="s2">.csv&quot;</span>
+            <span class="n">save_history_csv</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">csv_name</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+        <span class="n">all_histories</span><span class="p">[</span><span class="n">load_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">history</span>
+    
+    <span class="k">return</span> <span class="n">all_histories</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Post-Processing and Plotting</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">summarize_histories</span><span class="p">(</span><span class="n">all_histories</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Summarize histories into structured data for plotting.&quot;&quot;&quot;</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">for</span> <span class="n">load_type</span><span class="p">,</span> <span class="n">history</span> <span class="ow">in</span> <span class="n">all_histories</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;load&quot;</span><span class="p">:</span> <span class="n">get_curve</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;load_param&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;P11&quot;</span><span class="p">:</span> <span class="n">get_curve</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;Pbar&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="s2">&quot;P22&quot;</span><span class="p">:</span> <span class="n">get_curve</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;Pbar&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;Wbar&quot;</span><span class="p">:</span> <span class="n">get_curve</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;Wbar&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;Jbar&quot;</span><span class="p">:</span> <span class="n">get_curve</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;Jbar&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+        
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;P12&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_curve</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;Pbar&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;P21&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_curve</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;Pbar&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;P33&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_curve</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;Pbar&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;P13&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_curve</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;Pbar&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;P23&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_curve</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;Pbar&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># Tangent components</span>
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C11&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C22&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C12&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C21&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C33&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C11&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C22&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C33&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C12_12&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C13_13&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C23_23&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C11_22&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C11_33&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C22_33&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">C</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">C</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span> <span class="k">for</span> <span class="n">C</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s2">&quot;Ceff&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">summary</span><span class="p">[</span><span class="n">load_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+    
+    <span class="k">return</span> <span class="n">summary</span>
+
+
+<div class="viewcode-block" id="plot_homogenization_summary">
+<a class="viewcode-back" href="../../../api/generated/homicsx.homogenization.html#homicsx.homogenization.plot_homogenization_summary">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_homogenization_summary</span><span class="p">(</span>
+    <span class="n">summary</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">save_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;summary&quot;</span><span class="p">,</span>
+    <span class="n">show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot comprehensive nonlinear homogenization curves for 2D and 3D based on the provided summary.&quot;&quot;&quot;</span>
+
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;uniaxial_x&quot;</span><span class="p">:</span> <span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;uniaxial_y&quot;</span><span class="p">:</span> <span class="s2">&quot;tab:orange&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;uniaxial_z&quot;</span><span class="p">:</span> <span class="s2">&quot;tab:cyan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;biaxial&quot;</span><span class="p">:</span> <span class="s2">&quot;tab:green&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;triaxial&quot;</span><span class="p">:</span> <span class="s2">&quot;tab:brown&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shear_xy&quot;</span><span class="p">:</span> <span class="s2">&quot;tab:red&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shear_xz&quot;</span><span class="p">:</span> <span class="s2">&quot;tab:purple&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shear_yz&quot;</span><span class="p">:</span> <span class="s2">&quot;tab:pink&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;iso_stretch&quot;</span><span class="p">:</span> <span class="s2">&quot;tab:gray&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># --- 1. Stress Curves ---</span>
+    <span class="n">n_stress</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="mi">6</span>
+    <span class="n">fig1</span><span class="p">,</span> <span class="n">axs1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_stress</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">n_stress</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
+    <span class="n">fig1</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Macroscopic Stress Responses (First Piola-Kirchhoff)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.02</span><span class="p">)</span>
+
+    <span class="n">stress_comps</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;P11&quot;</span><span class="p">,</span> <span class="s2">&quot;P22&quot;</span><span class="p">,</span> <span class="s2">&quot;P12&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">stress_comps</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;P11&quot;</span><span class="p">,</span> <span class="s2">&quot;P22&quot;</span><span class="p">,</span> <span class="s2">&quot;P33&quot;</span><span class="p">,</span> <span class="s2">&quot;P12&quot;</span><span class="p">,</span> <span class="s2">&quot;P13&quot;</span><span class="p">,</span> <span class="s2">&quot;P23&quot;</span><span class="p">]</span>
+
+    <span class="n">axs1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">axs1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axs1</span><span class="p">,</span> <span class="n">stress_comps</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">lt</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="n">comp</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> 
+                        <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lt</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">lt</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Avg </span><span class="si">{</span><span class="n">comp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Load Parameter&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Stress&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+    <span class="n">fig1</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">fig1</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">save_prefix</span><span class="si">}</span><span class="s2">_stresses.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+
+    <span class="c1"># --- 2. Energy &amp; Jacobian ---</span>
+    <span class="n">fig2</span><span class="p">,</span> <span class="n">axs2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
+    <span class="n">fig2</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Energy &amp; Volumetric Response&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.02</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">lt</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lt</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">)</span>
+        <span class="n">axs2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Wbar&quot;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">lt</span><span class="p">)</span>
+        <span class="n">axs2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Jbar&quot;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">lt</span><span class="p">)</span>
+
+    <span class="n">axs2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Avg Energy Density (W̄)&quot;</span><span class="p">)</span>
+    <span class="n">axs2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Avg Jacobian (J̄)&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs2</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Load Parameter&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+    <span class="n">fig2</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">fig2</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">save_prefix</span><span class="si">}</span><span class="s2">_energy.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+
+    <span class="c1"># --- 3. Tangent Stiffness Components ---</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">tangent_comps</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;C11&quot;</span><span class="p">,</span> <span class="s2">&quot;C22&quot;</span><span class="p">,</span> <span class="s2">&quot;C12&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tangent_comps</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;C11&quot;</span><span class="p">,</span> <span class="s2">&quot;C22&quot;</span><span class="p">,</span> <span class="s2">&quot;C33&quot;</span><span class="p">,</span> <span class="s2">&quot;C12_12&quot;</span><span class="p">,</span> <span class="s2">&quot;C13_13&quot;</span><span class="p">,</span> <span class="s2">&quot;C23_23&quot;</span><span class="p">,</span> <span class="s2">&quot;C11_22&quot;</span><span class="p">]</span>
+
+    <span class="n">n_tangent</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tangent_comps</span><span class="p">)</span>
+    <span class="n">n_cols</span> <span class="o">=</span> <span class="mi">4</span> <span class="k">if</span> <span class="n">n_tangent</span> <span class="o">&gt;</span> <span class="mi">4</span> <span class="k">else</span> <span class="n">n_tangent</span>
+    <span class="n">n_rows</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_tangent</span> <span class="o">+</span> <span class="n">n_cols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">n_cols</span>
+
+    <span class="n">fig3</span><span class="p">,</span> <span class="n">axs3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">n_cols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">n_cols</span><span class="p">,</span> <span class="mf">4.5</span><span class="o">*</span><span class="n">n_rows</span><span class="p">))</span>
+    <span class="n">fig3</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Effective Tangent Moduli (C_eff)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.02</span><span class="p">)</span>
+
+    <span class="n">axs3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">axs3</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tangent_comps</span><span class="p">):</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">axs3</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">lt</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">])</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;^&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> 
+                            <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lt</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">lt</span><span class="p">)</span>
+        
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Component: </span><span class="si">{</span><span class="n">comp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Load Parameter&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Modulus Value&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">axs3</span><span class="p">)):</span>
+        <span class="n">fig3</span><span class="o">.</span><span class="n">delaxes</span><span class="p">(</span><span class="n">axs3</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+
+    <span class="n">fig3</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">fig3</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">save_prefix</span><span class="si">}</span><span class="s2">_tangents.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="plot_each_load_case">
+<a class="viewcode-back" href="../../../api/generated/homicsx.homogenization.html#homicsx.homogenization.plot_each_load_case">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_each_load_case</span><span class="p">(</span><span class="n">summary</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">save_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;load_case&quot;</span><span class="p">,</span> <span class="n">show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot comprehensive nonlinear homogenization curves per load case for 2D and 3D based on the provided summary.&quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">load_type</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="s2">&quot;tab:blue&quot;</span>
+        <span class="n">load</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">])</span>
+        
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Analysis: </span><span class="si">{</span><span class="n">load_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">stress_comps</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;P11&quot;</span><span class="p">,</span> <span class="s2">&quot;P22&quot;</span><span class="p">,</span> <span class="s2">&quot;P12&quot;</span><span class="p">]</span>
+            <span class="n">tangent_pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;C11&quot;</span><span class="p">,</span> <span class="s2">&quot;C22&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;C12&quot;</span><span class="p">,</span> <span class="s2">&quot;C21&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;C33&quot;</span><span class="p">,</span> <span class="s2">&quot;C33&quot;</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stress_comps</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;P11&quot;</span><span class="p">,</span> <span class="s2">&quot;P22&quot;</span><span class="p">,</span> <span class="s2">&quot;P33&quot;</span><span class="p">,</span> <span class="s2">&quot;P12&quot;</span><span class="p">,</span> <span class="s2">&quot;P13&quot;</span><span class="p">,</span> <span class="s2">&quot;P23&quot;</span><span class="p">]</span>
+            <span class="n">tangent_pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;C11&quot;</span><span class="p">,</span> <span class="s2">&quot;C22&quot;</span><span class="p">,</span> <span class="s2">&quot;C33&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;C12_12&quot;</span><span class="p">,</span> <span class="s2">&quot;C13_13&quot;</span><span class="p">,</span> <span class="s2">&quot;C23_23&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;C11_22&quot;</span><span class="p">,</span> <span class="s2">&quot;C11_33&quot;</span><span class="p">,</span> <span class="s2">&quot;C22_33&quot;</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stress_comps</span><span class="p">):</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">stress_comps</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="p">[]))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">load</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="s1">&#39;o-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+        <span class="n">ax_w</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Wbar&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+            <span class="n">ax_w</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">load</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">w</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="s1">&#39;s-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+        <span class="n">ax_w</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Energy (Wbar)&quot;</span><span class="p">)</span>
+        <span class="n">ax_w</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        
+        <span class="n">ax_j</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Jbar&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+            <span class="n">ax_j</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">load</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">j</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="s1">&#39;d-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+            <span class="c1"># ax_j.axhline(y=1.0, color=&#39;k&#39;, linestyle=&#39;--&#39;, alpha=0.5)</span>
+        <span class="n">ax_j</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Jacobian (Jbar)&quot;</span><span class="p">)</span>
+        <span class="n">ax_j</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">comps</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tangent_pairs</span><span class="p">):</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">comps</span><span class="p">:</span>
+                <span class="n">y_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="p">[]))</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_t</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y_t</span><span class="p">)</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">load</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">y_t</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="s1">&#39;^-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">comp</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stiffness Group </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+        <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">save_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">load_type</span><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span></div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># nlhelpers</span>
+    <span class="s2">&quot;AdaptiveSettings&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_homogenization_summary&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_each_load_case&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,681 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.fem &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="homicsx.homogenization" href="homicsx.homogenization.html" />
+    <link rel="prev" title="homicsx.mesh" href="homicsx.mesh.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../homicsx.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="homicsx.html">homicsx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.core.html">homicsx.core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.geometry.html">homicsx.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.mesh.html">homicsx.mesh</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">homicsx.fem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.small_strain"><code class="docutils literal notranslate"><span class="pre">small_strain()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.volumetric_strain"><code class="docutils literal notranslate"><span class="pre">volumetric_strain()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.deviatoric_strain"><code class="docutils literal notranslate"><span class="pre">deviatoric_strain()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.deformation_gradient"><code class="docutils literal notranslate"><span class="pre">deformation_gradient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.linear_isotropic_stress"><code class="docutils literal notranslate"><span class="pre">linear_isotropic_stress()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.linear_deviatoric_stress"><code class="docutils literal notranslate"><span class="pre">linear_deviatoric_stress()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.pressure_stress"><code class="docutils literal notranslate"><span class="pre">pressure_stress()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.linear_elastic_energy_density"><code class="docutils literal notranslate"><span class="pre">linear_elastic_energy_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.neo_hookean_energy_density"><code class="docutils literal notranslate"><span class="pre">neo_hookean_energy_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.build_anchor_bc"><code class="docutils literal notranslate"><span class="pre">build_anchor_bc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.build_periodic_mpc"><code class="docutils literal notranslate"><span class="pre">build_periodic_mpc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.build_anchor_and_periodic_constraints"><code class="docutils literal notranslate"><span class="pre">build_anchor_and_periodic_constraints()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.build_constraints_nonlinear"><code class="docutils literal notranslate"><span class="pre">build_constraints_nonlinear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.build_displacement_space"><code class="docutils literal notranslate"><span class="pre">build_displacement_space()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.LinearFluctuationProblemContext"><code class="docutils literal notranslate"><span class="pre">LinearFluctuationProblemContext</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.build_linear_periodic_fluctuation_problem"><code class="docutils literal notranslate"><span class="pre">build_linear_periodic_fluctuation_problem()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.solve_linear_problem"><code class="docutils literal notranslate"><span class="pre">solve_linear_problem()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.assemble_jacobian_mpc"><code class="docutils literal notranslate"><span class="pre">assemble_jacobian_mpc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.assemble_residual_mpc"><code class="docutils literal notranslate"><span class="pre">assemble_residual_mpc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.fem.NonlinearProblemMPC"><code class="docutils literal notranslate"><span class="pre">NonlinearProblemMPC</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#homicsx.fem.NonlinearProblemMPC.solve"><code class="docutils literal notranslate"><span class="pre">NonlinearProblemMPC.solve()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.homogenization.html">homicsx.homogenization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.stochastic.html">homicsx.stochastic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.visualization.html">homicsx.visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.utils.html">homicsx.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../homicsx.html">API reference</a></li>
+      <li class="breadcrumb-item active">homicsx.fem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/generated/homicsx.fem.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-homicsx.fem">
+<span id="homicsx-fem"></span><h1>homicsx.fem<a class="headerlink" href="#module-homicsx.fem" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.small_strain">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">small_strain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/kinematics.html#small_strain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.small_strain" title="Link to this definition"></a></dt>
+<dd><p>Return the infinitesimal strain tensor sym(grad(u)).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – Displacement field.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Symmetric small-strain tensor.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Expr</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.volumetric_strain">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">volumetric_strain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/kinematics.html#volumetric_strain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.volumetric_strain" title="Link to this definition"></a></dt>
+<dd><p>Return the volumetric small-strain measure div(u).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – Displacement field.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scalar volumetric strain.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Expr</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.deviatoric_strain">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">deviatoric_strain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/kinematics.html#deviatoric_strain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.deviatoric_strain" title="Link to this definition"></a></dt>
+<dd><p>Return the deviatoric part of the small-strain tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> – Displacement field.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Deviatoric small-strain tensor.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Expr</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This helper is useful for mixed and nearly incompressible formulations,
+where volumetric and deviatoric parts are often treated separately.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.deformation_gradient">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">deformation_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/kinematics.html#deformation_gradient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.deformation_gradient" title="Link to this definition"></a></dt>
+<dd><p>Return the deformation gradient F = I + grad(u).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> – Displacement field.</p></li>
+<li><p><strong>dim</strong> – Geometric dimension, either 2 or 3.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Deformation gradient tensor.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Expr</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.linear_isotropic_stress">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">linear_isotropic_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/constitutive.html#linear_isotropic_stress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.linear_isotropic_stress" title="Link to this definition"></a></dt>
+<dd><p>Small-strain isotropic linear-elastic stress tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> – Displacement field.</p></li>
+<li><p><strong>lambda_</strong> – First Lamé parameter.</p></li>
+<li><p><strong>mu</strong> – Shear modulus.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Stress tensor.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Expr</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.linear_deviatoric_stress">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">linear_deviatoric_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/constitutive.html#linear_deviatoric_stress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.linear_deviatoric_stress" title="Link to this definition"></a></dt>
+<dd><p>Deviatoric stress contribution for a linear mixed/hybrid formulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> – Displacement field.</p></li>
+<li><p><strong>mu</strong> – Shear modulus.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Deviatoric stress tensor.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Expr</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This helper is useful for displacement-pressure formulations where the
+pressure carries the volumetric response separately.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.pressure_stress">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">pressure_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/constitutive.html#pressure_stress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.pressure_stress" title="Link to this definition"></a></dt>
+<dd><p>Pressure contribution to the stress tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> – Pressure field.</p></li>
+<li><p><strong>dim</strong> – Problem dimension.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pressure stress tensor, equal to -p I.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Expr</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.linear_elastic_energy_density">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">linear_elastic_energy_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/constitutive.html#linear_elastic_energy_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.linear_elastic_energy_density" title="Link to this definition"></a></dt>
+<dd><p>Small-strain linear-elastic strain energy density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> – Displacement field.</p></li>
+<li><p><strong>lambda_</strong> – First Lamé parameter.</p></li>
+<li><p><strong>mu</strong> – Shear modulus.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scalar energy density.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Expr</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.neo_hookean_energy_density">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">neo_hookean_energy_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/constitutive.html#neo_hookean_energy_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.neo_hookean_energy_density" title="Link to this definition"></a></dt>
+<dd><p>Compressible Neo-Hookean strain-energy density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> – Displacement field.</p></li>
+<li><p><strong>lambda_</strong> – First Lamé parameter.</p></li>
+<li><p><strong>mu</strong> – Shear modulus.</p></li>
+<li><p><strong>dim</strong> – Geometric dimension (2 or 3).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scalar energy density.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.Expr</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.build_anchor_bc">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">build_anchor_bc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor_point</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/constraints.html#build_anchor_bc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.build_anchor_bc" title="Link to this definition"></a></dt>
+<dd><p>Build a single-point Dirichlet boundary condition that fixes all displacement
+components at one point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>V</strong> – Vector-valued displacement function space.</p></li>
+<li><p><strong>dim</strong> – Geometric dimension of the problem.</p></li>
+<li><p><strong>anchor_point</strong> – Coordinates of the point to pin. If omitted, the origin is used.</p></li>
+<li><p><strong>atol</strong> – Absolute tolerance for point matching.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dirichlet boundary condition fixing all displacement components at the
+chosen anchor point.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">fem.DirichletBC</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This plays the same role as the point constraint in your current FEM code,
+where the origin is fixed before applying periodic constraints.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.build_periodic_mpc">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">build_periodic_mpc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facet_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bcs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/constraints.html#build_periodic_mpc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.build_periodic_mpc" title="Link to this definition"></a></dt>
+<dd><p>Build periodic multi-point constraints using the package boundary-tag convention.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> – DOLFINx mesh.</p></li>
+<li><p><strong>facet_tags</strong> – Facet MeshTags object.</p></li>
+<li><p><strong>V</strong> – Vector-valued displacement function space.</p></li>
+<li><p><strong>domain_size</strong> – Domain lengths in each coordinate direction. Must have length equal to
+the mesh dimension.</p></li>
+<li><p><strong>physical_tags</strong> – PhysicalTags object defining the boundary-tag convention.</p></li>
+<li><p><strong>bcs</strong> – Optional list of existing Dirichlet BCs that should be respected while
+constructing the periodic constraints.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Finalized periodic MPC object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx_mpc.MultiPointConstraint</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Boundary pairing follows the fixed tagging logic:</p>
+<dl class="simple">
+<dt>2D</dt><dd><p>right  -&gt; left
+top    -&gt; bottom</p>
+</dd>
+<dt>3D</dt><dd><p>right  -&gt; left
+top    -&gt; bottom
+far    -&gt; near</p>
+</dd>
+</dl>
+<p>This mirrors the relation-map logic from your earlier code, while using the
+boundary tags defined by <cite>PhysicalTags</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.build_anchor_and_periodic_constraints">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">build_anchor_and_periodic_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facet_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor_point</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/constraints.html#build_anchor_and_periodic_constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.build_anchor_and_periodic_constraints" title="Link to this definition"></a></dt>
+<dd><p>Convenience helper that builds both the anchor BC and the periodic MPC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> – DOLFINx mesh.</p></li>
+<li><p><strong>facet_tags</strong> – Facet MeshTags object.</p></li>
+<li><p><strong>V</strong> – Vector-valued displacement function space.</p></li>
+<li><p><strong>domain_size</strong> – Domain lengths in each coordinate direction.</p></li>
+<li><p><strong>physical_tags</strong> – PhysicalTags object defining the boundary-tag convention.</p></li>
+<li><p><strong>anchor_point</strong> – Coordinates of the point to pin. If omitted, the origin is used.</p></li>
+<li><p><strong>atol</strong> – Absolute tolerance for locating the anchor point.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Pair consisting of:</dt><dd><ul class="simple">
+<li><p>list of Dirichlet BCs</p></li>
+<li><p>periodic MPC object</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx_mpc.MultiPointConstraint]</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This helper matches the most common RVE workflow:
+- pin one point
+- apply periodic constraints on opposing boundaries</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.build_constraints_nonlinear">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">build_constraints_nonlinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facet_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/constraints.html#build_constraints_nonlinear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.build_constraints_nonlinear" title="Link to this definition"></a></dt>
+<dd><p>Constructs periodic constraints and anchor Dirichlet BCs for nonlinear RVE analysis.</p>
+<p>This function sets up Multi-Point Constraints (MPC) for periodic boundary
+conditions and applies Dirichlet boundary conditions to the corners (anchor points)
+to prevent rigid body translations during the nonlinear solve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.mesh.Mesh</span></code>) – The computational mesh.</p></li>
+<li><p><strong>facet_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.mesh.MeshTags</span></code>) – Tags identifying the boundaries (facets) of the mesh.</p></li>
+<li><p><strong>V</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.fem.FunctionSpace</span></code>) – The function space for the displacement field.</p></li>
+<li><p><strong>domain_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Dimensions of the RVE (used for periodic mapping).</p></li>
+<li><p><strong>physical_tags</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Any</span></code>) – Physical labels from the mesh (e.g., from Gmsh).</p></li>
+<li><p><strong>atol</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">1e-12</span></code>) – Absolute tolerance for geometric point location.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>bcs: A list of Dirichlet boundary conditions (corner anchors).</p></li>
+<li><p>mpc: The initialized and finalized MultiPointConstraint object.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx_mpc.MultiPointConstraint]</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Anchor Strategy: In 2D, all 4 corners are fixed to zero. In 3D,
+8 corners are anchored using a helper function <cite>build_anchor_bc</cite>, In contrast
+to the linear anchoring strategy where only the node at origin is anchored.
+This strategy has shown to be more effective for nonlinear convergence.</p></li>
+<li><p>Face-only MPC: Periodic relations are applied strictly to the
+internal parts of the faces, excluding edges and corners to avoid
+over-constraining the degrees of freedom (DOFs).</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.build_displacement_space">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">build_displacement_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/assembly.html#build_displacement_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.build_displacement_space" title="Link to this definition"></a></dt>
+<dd><p>Build the vector-valued displacement function space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> – DOLFINx mesh.</p></li>
+<li><p><strong>settings</strong> – FEM problem settings.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Vector-valued displacement space.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">fem.FunctionSpace</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This follows the same basic pattern as your current FEM code:
+a standard vector Lagrange space for displacement.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.fem.LinearFluctuationProblemContext">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">LinearFluctuationProblemContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macro_strain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fluctuation_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stress_expression</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/fluctuation.html#LinearFluctuationProblemContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.LinearFluctuationProblemContext" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Extra context returned alongside a linear periodic fluctuation problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>macro_strain</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.fem.Constant</span></code>) – Constant macroscopic strain tensor used in the fluctuation problem.</p></li>
+<li><p><strong>fluctuation_field</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dolfinx.fem.Function</span></code>) – Unknown periodic fluctuation field to be solved for.</p></li>
+<li><p><strong>stress_expression</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Any</span></code>) – UFL stress tensor expression based on the solved fluctuation field.</p></li>
+<li><p><strong>coefficients</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Any</span></code>) – Linear-elastic DG0 coefficient bundle.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any]</span></code>) – Optional bookkeeping dictionary.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.build_linear_periodic_fluctuation_problem">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">build_linear_periodic_fluctuation_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facet_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_strain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_phase_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor_point</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/fluctuation.html#build_linear_periodic_fluctuation_problem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.build_linear_periodic_fluctuation_problem" title="Link to this definition"></a></dt>
+<dd><p>Build a linear periodic fluctuation problem for a prescribed macroscopic strain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh_obj</strong> – DOLFINx mesh object.</p></li>
+<li><p><strong>cell_tags</strong> – Cell MeshTags.</p></li>
+<li><p><strong>facet_tags</strong> – Facet MeshTags.</p></li>
+<li><p><strong>assignment</strong> – Phase-wise material assignment.</p></li>
+<li><p><strong>settings</strong> – FEM problem settings.</p></li>
+<li><p><strong>physical_tags</strong> – PhysicalTags convention object.</p></li>
+<li><p><strong>domain_size</strong> – Domain side lengths.</p></li>
+<li><p><strong>macro_strain</strong> – Prescribed macroscopic strain tensor.</p></li>
+<li><p><strong>matrix_phase_id</strong> – Phase id corresponding to the matrix phase.</p></li>
+<li><p><strong>anchor_point</strong> – Point used for the anchor Dirichlet condition.</p></li>
+<li><p><strong>atol</strong> – Tolerance used when locating the anchor point.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Linear problem definition plus useful homogenization context.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[LinearProblemDefinition</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">LinearFluctuationProblemContext]</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function belongs to the FEM layer because it defines a specific
+variational boundary value problem. The homogenization layer should only
+orchestrate repeated calls to this builder over canonical load cases.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.solve_linear_problem">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">solve_linear_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">petsc_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/solve.html#solve_linear_problem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.solve_linear_problem" title="Link to this definition"></a></dt>
+<dd><p>Solve a linear variational problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>problem</strong> – Linear problem definition returned by the assembly layer.</p></li>
+<li><p><strong>petsc_options</strong> – Optional PETSc options dictionary. If omitted, default linear solver
+options are used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result object containing the solved displacement field and basic status
+information.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">SolveResult</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If an MPC object is present, the dolfinx_mpc linear problem wrapper is used.</p></li>
+<li><p>Otherwise, a standard DOLFINx linear problem is used.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.assemble_jacobian_mpc">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">assemble_jacobian_mpc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jacobian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preconditioner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bcs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_snes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">J</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/nonlinear_problem.html#assemble_jacobian_mpc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.assemble_jacobian_mpc" title="Link to this definition"></a></dt>
+<dd><p>Assemble the Jacobian matrix and preconditioner.</p>
+<p>A function conforming to the interface expected by SNES.setJacobian can
+be created by fixing the first four arguments:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>functools.partial(assemble_jacobian, u, jacobian, preconditioner,</dt><dd><p>bcs)</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> – Function tied to the solution vector within the residual and
+jacobian</p></li>
+<li><p><strong>jacobian</strong> – Form of the Jacobian</p></li>
+<li><p><strong>preconditioner</strong> – Form of the preconditioner</p></li>
+<li><p><strong>bcs</strong> – List of Dirichlet boundary conditions</p></li>
+<li><p><strong>mpc</strong> – The multi point constraint or a sequence of multi point</p></li>
+<li><p><strong>_snes</strong> – The solver instance</p></li>
+<li><p><strong>x</strong> – The vector containing the point to evaluate at</p></li>
+<li><p><strong>J</strong> – Matrix to assemble the Jacobian into</p></li>
+<li><p><strong>P</strong> – Matrix to assemble the preconditioner into</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.fem.assemble_residual_mpc">
+<span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">assemble_residual_mpc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jacobian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bcs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_snes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/nonlinear_problem.html#assemble_residual_mpc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.assemble_residual_mpc" title="Link to this definition"></a></dt>
+<dd><p>Assemble the residual into the vector F.</p>
+<p>A function conforming to the interface expected by SNES.setResidual can
+be created by fixing the first four arguments:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>functools.partial(assemble_residual, u, jacobian, preconditioner,</dt><dd><p>bcs)</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> – Function(s) tied to the solution vector within the residual and
+Jacobian.</p></li>
+<li><p><strong>residual</strong> – Form of the residual. It can be a sequence of forms.</p></li>
+<li><p><strong>jacobian</strong> – Form of the Jacobian. It can be a nested sequence of
+forms.</p></li>
+<li><p><strong>bcs</strong> – List of Dirichlet boundary conditions.</p></li>
+<li><p><strong>_snes</strong> – The solver instance.</p></li>
+<li><p><strong>x</strong> – The vector containing the point to evaluate the residual at.</p></li>
+<li><p><strong>F</strong> – Vector to assemble the residual into.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="homicsx.fem.NonlinearProblemMPC">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">homicsx.fem.</span></span><span class="sig-name descname"><span class="pre">NonlinearProblemMPC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/nonlinear_problem.html#NonlinearProblemMPC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.NonlinearProblemMPC" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearProblem</span></code></p>
+<p>Class for solving nonlinear problems with SNES.</p>
+<p>Solves problems of the form
+::math:F_i(u, v) = 0, i=0,…Nforall v in V where
+::math:u=(u_0,…,u_N), v=(v_0,…,v_N) using PETSc SNES as the
+non-linear solver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>F</strong> – UFL form(s) of residual :math:F_i.</p></li>
+<li><p><strong>u</strong> – Function used to define the residual and Jacobian.</p></li>
+<li><p><strong>bcs</strong> – Dirichlet boundary conditions.</p></li>
+<li><p><strong>J</strong> – UFL form(s) representing the Jacobian
+:math:J_ij = dF_i/du_j.</p></li>
+<li><p><strong>P</strong> – UFL form(s) representing the preconditioner.</p></li>
+<li><p><strong>kind</strong> – The PETSc matrix type(s) for the Jacobian and
+preconditioner (<cite>MatType</cite>).
+See :func:dolfinx.fem.petsc.create_matrix for more
+information.</p></li>
+<li><p><strong>form_compiler_options</strong> – Options used in FFCx compilation of all
+forms. Run <cite>ffcx –help</cite> at the command line to see all
+available options.</p></li>
+<li><p><strong>jit_options</strong> – Options used in CFFI JIT compilation of C code
+generated by FFCx. See <cite>python/dolfinx/jit.py</cite> for all
+available options. Takes priority over all other option
+values.</p></li>
+<li><p><strong>petsc_options</strong> – Options to pass to the PETSc SNES object.</p></li>
+<li><p><strong>entity_maps</strong> – If any trial functions, test functions, or
+coefficients in the form are not defined over the same mesh
+as the integration domain, <cite>entity_maps</cite> must be
+supplied. For each key (a mesh, different to the
+integration domain mesh) a map should be provided relating
+the entities in the integration domain mesh to the entities
+in the key mesh e.g. for a key-value pair <cite>(msh, emap)</cite>
+in <cite>entity_maps, emap[i] is the entity in msh</cite>
+corresponding to entity <cite>i</cite> in the integration domain
+mesh.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="homicsx.fem.NonlinearProblemMPC.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/fem/nonlinear_problem.html#NonlinearProblemMPC.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.fem.NonlinearProblemMPC.solve" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="homicsx.mesh.html" class="btn btn-neutral float-left" title="homicsx.mesh" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="homicsx.homogenization.html" class="btn btn-neutral float-right" title="homicsx.homogenization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

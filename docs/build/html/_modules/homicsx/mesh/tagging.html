@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.mesh.tagging &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/homicsx.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">homicsx.mesh.tagging</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for homicsx.mesh.tagging</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">gmsh</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">homicsx.core.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicalTags</span>
+
+
+<div class="viewcode-block" id="classify_outer_boundaries">
+<a class="viewcode-back" href="../../../api/generated/homicsx.mesh.html#homicsx.mesh.classify_outer_boundaries">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">classify_outer_boundaries</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">domain_size</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Classify outer boundary entities of the RVE box using center-of-mass tests.</span>
+
+<span class="sd">    In 2D: classify 1D boundary curves</span>
+<span class="sd">    In 3D: classify 2D boundary surfaces</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dim: int</span>
+<span class="sd">        Spacial dimension of the domain (2 or 3).</span>
+<span class="sd">    dim_size: np.ndarray</span>
+<span class="sd">        States the size of the domain in its dimensions:</span>
+<span class="sd">        - [Lx, Ly] for 2D domains.</span>
+<span class="sd">        - [Lx, Ly, Lz] for 3D domains.</span>
+<span class="sd">    tol: float</span>
+<span class="sd">        The tolerance with respect to which the outer boundaries are being detected and calssified.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, list[int]]</span>
+<span class="sd">        Mapping from boundary names to lists of Gmsh entity tags.</span>
+
+<span class="sd">        In 2D, the keys are:</span>
+<span class="sd">        - &quot;left&quot;</span>
+<span class="sd">        - &quot;right&quot;</span>
+<span class="sd">        - &quot;bottom&quot;</span>
+<span class="sd">        - &quot;top&quot;</span>
+
+<span class="sd">        In 3D, the keys are:</span>
+<span class="sd">        - &quot;left&quot;</span>
+<span class="sd">        - &quot;right&quot;</span>
+<span class="sd">        - &quot;bottom&quot;</span>
+<span class="sd">        - &quot;top&quot;</span>
+<span class="sd">        - &quot;near&quot;</span>
+<span class="sd">        - &quot;far&quot;</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Boundary classification is based on the center of mass of each boundary</span>
+<span class="sd">    entity. This approach is well suited to the assumptions:</span>
+<span class="sd">    axis-aligned rectangular/cuboidal domains with boundaries lying on planes</span>
+<span class="sd">    of constant x, y, and z.    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">domain_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">domain_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">fdim</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="n">boundaries</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;right&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">boundaries</span><span class="p">[</span><span class="s2">&quot;near&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">boundaries</span><span class="p">[</span><span class="s2">&quot;far&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">entities</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">getEntities</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">fdim</span><span class="p">)</span>
+
+    <span class="n">Lx</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">domain_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">Ly</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">domain_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">Lz</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">domain_size</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">entities</span><span class="p">:</span>
+        <span class="n">com</span> <span class="o">=</span> <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">occ</span><span class="o">.</span><span class="n">getCenterOfMass</span><span class="p">(</span><span class="n">fdim</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">com</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">com</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="n">boundaries</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">Lx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="n">boundaries</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="n">boundaries</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">Ly</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="n">boundaries</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">com</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="n">boundaries</span><span class="p">[</span><span class="s2">&quot;near&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="n">Lz</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="n">boundaries</span><span class="p">[</span><span class="s2">&quot;far&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">boundaries</span></div>
+
+
+
+<div class="viewcode-block" id="add_cell_physical_groups">
+<a class="viewcode-back" href="../../../api/generated/homicsx.mesh.html#homicsx.mesh.add_cell_physical_groups">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_cell_physical_groups</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">matrix_entity_tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">phase_entity_tags</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">matrix_phase_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">physical_tags</span><span class="p">:</span> <span class="n">PhysicalTags</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add physical groups for the matrix region and all non-matrix material phases.</span>
+
+<span class="sd">    This function assigns Gmsh physical groups to cell regions so that they can</span>
+<span class="sd">    later be converted into DOLFINx cell tags. One physical group is created</span>
+<span class="sd">    for the matrix, and one physical group is created for each material phase</span>
+<span class="sd">    present in the clipped inclusion regions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        Geometric dimension of the regions being tagged.</span>
+<span class="sd">        Must be 2 for area regions or 3 for volume regions.</span>
+<span class="sd">    matrix_entity_tags : list[int]</span>
+<span class="sd">        Gmsh entity tags corresponding to the matrix region after all inclusion</span>
+<span class="sd">        phases have been subtracted from the outer box.</span>
+<span class="sd">    phase_entity_tags : dict[int, list[int]]</span>
+<span class="sd">        Mapping from ``phase_id`` to lists of Gmsh entity tags belonging to that</span>
+<span class="sd">        material phase.</span>
+<span class="sd">    matrix_phase_id : int, optional</span>
+<span class="sd">        Phase identifier representing the matrix material. Defaults to 0.</span>
+<span class="sd">    physical_tags : PhysicalTags or None, optional</span>
+<span class="sd">        Tagging convention used to generate physical group IDs and names.</span>
+<span class="sd">        If ``None``, a default ``PhysicalTags`` instance is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    In the default tagging convention:</span>
+<span class="sd">    - matrix phase -&gt; tag 1</span>
+<span class="sd">    - phase k -&gt; tag ``phase_tag_offset + k``</span>
+
+<span class="sd">    These physical groups later become DOLFINx ``cell_tags`` and are typically</span>
+<span class="sd">    used to assign material properties phase by phase.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">physical_tags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">physical_tags</span> <span class="o">=</span> <span class="n">PhysicalTags</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">matrix_entity_tags</span><span class="p">:</span>
+        <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">addPhysicalGroup</span><span class="p">(</span>
+            <span class="n">dim</span><span class="p">,</span>
+            <span class="n">matrix_entity_tags</span><span class="p">,</span>
+            <span class="n">physical_tags</span><span class="o">.</span><span class="n">cell_tag_for_phase</span><span class="p">(</span><span class="n">matrix_phase_id</span><span class="p">,</span> <span class="n">matrix_phase_id</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">physical_tags</span><span class="o">.</span><span class="n">cell_name_for_phase</span><span class="p">(</span><span class="n">matrix_phase_id</span><span class="p">,</span> <span class="n">matrix_phase_id</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">phase_id</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">phase_entity_tags</span><span class="p">):</span>
+        <span class="n">entity_tags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">phase_entity_tags</span><span class="p">[</span><span class="n">phase_id</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">entity_tags</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">addPhysicalGroup</span><span class="p">(</span>
+            <span class="n">dim</span><span class="p">,</span>
+            <span class="n">entity_tags</span><span class="p">,</span>
+            <span class="n">physical_tags</span><span class="o">.</span><span class="n">cell_tag_for_phase</span><span class="p">(</span><span class="n">phase_id</span><span class="p">,</span> <span class="n">matrix_phase_id</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">physical_tags</span><span class="o">.</span><span class="n">cell_name_for_phase</span><span class="p">(</span><span class="n">phase_id</span><span class="p">,</span> <span class="n">matrix_phase_id</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_boundary_physical_groups">
+<a class="viewcode-back" href="../../../api/generated/homicsx.mesh.html#homicsx.mesh.add_boundary_physical_groups">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_boundary_physical_groups</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">boundary_entities</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">physical_tags</span><span class="p">:</span> <span class="n">PhysicalTags</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add physical groups for the outer boundaries of the RVE domain.</span>
+
+<span class="sd">    This function takes the output of ``classify_outer_boundaries`` and assigns</span>
+<span class="sd">    named physical groups to the corresponding Gmsh boundary entities. These</span>
+<span class="sd">    physical groups later become DOLFINx facet tags.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        Geometric dimension of the RVE.</span>
+<span class="sd">        Must be 2 or 3.</span>
+<span class="sd">    boundary_entities : dict[str, list[int]]</span>
+<span class="sd">        Mapping from boundary names to lists of Gmsh entity tags.</span>
+<span class="sd">    physical_tags : PhysicalTags or None, optional</span>
+<span class="sd">        Tagging convention used to assign physical group IDs to boundaries.</span>
+<span class="sd">        If ``None``, a default ``PhysicalTags`` instance is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The boundary names follow the axis-aligned convention:</span>
+<span class="sd">    - 2D: left, right, bottom, top</span>
+<span class="sd">    - 3D: left, right, bottom, top, near, far</span>
+
+<span class="sd">    These physical groups are typically used later for periodic boundary</span>
+<span class="sd">    conditions or other facet-based constraints in FEniCSx.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">physical_tags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">physical_tags</span> <span class="o">=</span> <span class="n">PhysicalTags</span><span class="p">()</span>
+
+    <span class="n">fdim</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">tag_map</span> <span class="o">=</span> <span class="n">physical_tags</span><span class="o">.</span><span class="n">boundary_name_to_tag</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+
+    <span class="n">pretty_names</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="s2">&quot;Left&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;right&quot;</span><span class="p">:</span> <span class="s2">&quot;Right&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="s2">&quot;Bottom&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="s2">&quot;Top&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;near&quot;</span><span class="p">:</span> <span class="s2">&quot;Near&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;far&quot;</span><span class="p">:</span> <span class="s2">&quot;Far&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entity_tags</span> <span class="ow">in</span> <span class="n">boundary_entities</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">entity_tags</span><span class="p">:</span>
+            <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">addPhysicalGroup</span><span class="p">(</span>
+                <span class="n">fdim</span><span class="p">,</span>
+                <span class="n">entity_tags</span><span class="p">,</span>
+                <span class="n">tag_map</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">pretty_names</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+            <span class="p">)</span></div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># tagging</span>
+    <span class="s2">&quot;classify_outer_boundaries&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_cell_physical_groups&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_boundary_physical_groups&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_cell_physical_groups&quot;</span><span class="p">,</span>
+<span class="p">]</span>            
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

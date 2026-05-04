@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>homicsx.geometry &mdash; HomiCSx 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="homicsx.mesh" href="homicsx.mesh.html" />
+    <link rel="prev" title="homicsx.core" href="homicsx.core.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HomiCSx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installaion guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../homicsx.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="homicsx.html">homicsx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.core.html">homicsx.core</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">homicsx.geometry</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.as_domain_size"><code class="docutils literal notranslate"><span class="pre">as_domain_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.circle_area"><code class="docutils literal notranslate"><span class="pre">circle_area()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.sphere_volume"><code class="docutils literal notranslate"><span class="pre">sphere_volume()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.ellipse_area"><code class="docutils literal notranslate"><span class="pre">ellipse_area()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.ellipsoid_volume"><code class="docutils literal notranslate"><span class="pre">ellipsoid_volume()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.normalize_axis_ratios"><code class="docutils literal notranslate"><span class="pre">normalize_axis_ratios()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.monodisperse_circle_radius"><code class="docutils literal notranslate"><span class="pre">monodisperse_circle_radius()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.monodisperse_sphere_radius"><code class="docutils literal notranslate"><span class="pre">monodisperse_sphere_radius()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.monodisperse_ellipse_axes"><code class="docutils literal notranslate"><span class="pre">monodisperse_ellipse_axes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.monodisperse_ellipsoid_axes"><code class="docutils literal notranslate"><span class="pre">monodisperse_ellipsoid_axes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.sample_random_center"><code class="docutils literal notranslate"><span class="pre">sample_random_center()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.generate_periodic_image_centers"><code class="docutils literal notranslate"><span class="pre">generate_periodic_image_centers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homicsx.geometry.patriculate_geometry_generator"><code class="docutils literal notranslate"><span class="pre">patriculate_geometry_generator()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.mesh.html">homicsx.mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.fem.html">homicsx.fem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.homogenization.html">homicsx.homogenization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.stochastic.html">homicsx.stochastic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.visualization.html">homicsx.visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="homicsx.utils.html">homicsx.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HomiCSx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../homicsx.html">API reference</a></li>
+      <li class="breadcrumb-item active">homicsx.geometry</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/generated/homicsx.geometry.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-homicsx.geometry">
+<span id="homicsx-geometry"></span><h1>homicsx.geometry<a class="headerlink" href="#module-homicsx.geometry" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.as_domain_size">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">as_domain_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#as_domain_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.as_domain_size" title="Link to this definition"></a></dt>
+<dd><p>Standardizes the RVE domain dimensions into a NumPy array.</p>
+<p>This utility function converts various input formats (scalar, list, tuple)
+into a consistent 1D NumPy array representing the side lengths of the
+domain.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul>
+<li><p><strong>dim</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The expected spatial dimension (e.g., 2 or 3).</p></li>
+<li><p><strong>domain_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span> <span class="pre">|</span> <span class="pre">tuple</span> <span class="pre">|</span> <span class="pre">list</span> <span class="pre">|</span> <span class="pre">np.ndarray</span></code>) – The input defining the domain size.
+- If a scalar (float/int) is provided, it is interpreted as a uniform</p>
+<blockquote>
+<div><p>length for all dimensions (cubic/square domain).</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>If a sequence is provided, it must contain exactly <cite>dim</cite> elements
+representing the length along each axis.</p></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A 1D array of shape <cite>(dim,)</cite> containing the domain lengths as floats.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – <ul class="simple">
+<li><p>If the scalar value is non-positive.
+    - If the provided sequence length does not match <cite>dim</cite>.
+    - If any of the dimension values are non-positive.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_domain_size</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">domain_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="go">array([1.0, 1.0])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_domain_size</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">domain_size</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">])</span>
+<span class="go">array([1.0, 2.0, 1.5])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.circle_area">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">circle_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#circle_area"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.circle_area" title="Link to this definition"></a></dt>
+<dd><p>Calculates circle area.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.sphere_volume">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">sphere_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#sphere_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.sphere_volume" title="Link to this definition"></a></dt>
+<dd><p>Calculates sphere volume.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.ellipse_area">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">ellipse_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">semi_axes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#ellipse_area"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.ellipse_area" title="Link to this definition"></a></dt>
+<dd><p>Calculates ellipse area.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.ellipsoid_volume">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">ellipsoid_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">semi_axes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#ellipsoid_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.ellipsoid_volume" title="Link to this definition"></a></dt>
+<dd><p>Calculates ellipsoid volume.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.normalize_axis_ratios">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">normalize_axis_ratios</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis_ratios</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#normalize_axis_ratios"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.normalize_axis_ratios" title="Link to this definition"></a></dt>
+<dd><p>Standardizes axis ratio inputs into a consistent NumPy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>axis_ratios</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array_like</span></code>) – Input values for axis ratios (can be list, tuple, or array).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A flattened 1D array of ratios.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If any of the ratios are non-positive.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.monodisperse_circle_radius">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">monodisperse_circle_radius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volume_fraction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#monodisperse_circle_radius"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.monodisperse_circle_radius" title="Link to this definition"></a></dt>
+<dd><p>Calculates the radius of circles in a 2D monodisperse system.</p>
+<p>The radius <span class="math notranslate nohighlight">\(R\)</span> is derived from the target area fraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>volume_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Target area fraction [0 to 1].</p></li>
+<li><p><strong>num_particles</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Total number of circles to be placed.</p></li>
+<li><p><strong>domain_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Dimensions of the 2D domain [L_x, L_y].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated uniform radius for all circles.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.monodisperse_sphere_radius">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">monodisperse_sphere_radius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volume_fraction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#monodisperse_sphere_radius"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.monodisperse_sphere_radius" title="Link to this definition"></a></dt>
+<dd><p>Calculates the radius of spheres in a 3D monodisperse system.</p>
+<p>The radius <span class="math notranslate nohighlight">\(R\)</span> is derived from the target volume fraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>volume_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Target volume fraction (0 to 1).</p></li>
+<li><p><strong>num_particles</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Total number of spheres to be placed.</p></li>
+<li><p><strong>domain_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Dimensions of the 3D domain [L_x, L_y, L_z].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated uniform radius for all spheres.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.monodisperse_ellipse_axes">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">monodisperse_ellipse_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volume_fraction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_ratios</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#monodisperse_ellipse_axes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.monodisperse_ellipse_axes" title="Link to this definition"></a></dt>
+<dd><p>Calculates the semi-axes lengths for ellipses in a 2D monodisperse system.</p>
+<p>Given a target area fraction and relative axis ratios, this function computes
+the absolute lengths of the semi-axes (a, b) such that each ellipse has
+the same area and the system reaches the desired volume fraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>volume_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Target area fraction [0 to 1].</p></li>
+<li><p><strong>num_particles</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of ellipses to be generated.</p></li>
+<li><p><strong>domain_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Dimensions of the 2D domain [L_x, L_y].</p></li>
+<li><p><strong>axis_ratios</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array_like</span></code>) – Relative ratios of the axes (e.g., [1.0, 2.0] for an ellipse twice
+as long in one direction).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array containing the absolute lengths of the two semi-axes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.monodisperse_ellipsoid_axes">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">monodisperse_ellipsoid_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volume_fraction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_ratios</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#monodisperse_ellipsoid_axes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.monodisperse_ellipsoid_axes" title="Link to this definition"></a></dt>
+<dd><p>Calculates the semi-axes lengths for ellipsoids in a 3D monodisperse system.</p>
+<p>Computes the absolute lengths of the semi-axes (a, b, c) for 3D ellipsoids
+based on the target volume fraction and prescribed relative axis ratios.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>volume_fraction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Target volume fraction [0 to 1].</p></li>
+<li><p><strong>num_particles</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of ellipsoids to be generated.</p></li>
+<li><p><strong>domain_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Dimensions of the 3D domain [L_x, L_y, L_z].</p></li>
+<li><p><strong>axis_ratios</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array_like</span></code>) – Relative ratios of the three axes (e.g., [1.0, 1.0, 2.0] for a prolate spheroid).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array containing the absolute lengths of the three semi-axes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.sample_random_center">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">sample_random_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rng</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#sample_random_center"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.sample_random_center" title="Link to this definition"></a></dt>
+<dd><p>Generate random center within the domain bounds.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.generate_periodic_image_centers">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">generate_periodic_image_centers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extents</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/helpers.html#generate_periodic_image_centers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.generate_periodic_image_centers" title="Link to this definition"></a></dt>
+<dd><p>Generates necessary periodic image centers for a particle near domain boundaries.</p>
+<p>This function identifies if a particle (defined by its center and axis-aligned
+bounding box extents) crosses any boundary of the periodic domain. If it
+does, it calculates the centers of the ‘ghost’ images in the neighboring
+periodic cells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>center</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Coordinates of the particle’s center.</p></li>
+<li><p><strong>extents</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – The maximum reach of the particle from its center along each axis
+(e.g., radii or semi-axes). Used to check boundary intersection.</p></li>
+<li><p><strong>domain_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – Dimensions of the periodic unit cell [L_x, L_y, (L_z)].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of center coordinates for the required periodic images.
+Returns an empty list if the particle is fully contained within
+the domain (no boundary crossing).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list[np.ndarray]</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function uses a selective approach: it only generates images for
+the specific directions where the particle exceeds the domain bounds.</p></li>
+<li><p>If a particle sits in a corner, it will correctly generate images for
+all adjacent cells (including diagonal ones) using a Cartesian product
+of valid shifts.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="homicsx.geometry.patriculate_geometry_generator">
+<span class="sig-prename descclassname"><span class="pre">homicsx.geometry.</span></span><span class="sig-name descname"><span class="pre">patriculate_geometry_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/homicsx/geometry/universal_generator.html#patriculate_geometry_generator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#homicsx.geometry.patriculate_geometry_generator" title="Link to this definition"></a></dt>
+<dd><p>Main entry point for generating inclusion-based Representative Volume Element (RVE) geometries.</p>
+<p>This function acts as a dispatcher that routes the generation
+request to the appropriate specialized generator based on the spatial
+dimension (2D/3D) and the particle size distribution (mono/polydisperse).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">GeometryInput</span></code>) – A structured data object containing
+all necessary parameters including:
+- dim: Spatial dimension (2 or 3).
+- dispersion: Type of size distribution (“mono” or “poly”).
+- volume_fraction: Target packing density.
+- domain_size: RVE dimensions.
+- Other geometry-specific settings.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An object containing the generated microstructure data, typically including
+particle centers, axes, shapes, and potentially periodic images.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">RVEGeometry</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The generator follows the RSA (Random Sequential Adsorption) approach
+internally within the specialized sub-functions to ensure non-overlapping
+placements.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GeometryInput</span></code></p>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="homicsx.core.html" class="btn btn-neutral float-left" title="homicsx.core" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="homicsx.mesh.html" class="btn btn-neutral float-right" title="homicsx.mesh" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Amir Reza Tahouni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

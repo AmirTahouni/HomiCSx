@@ -1,0 +1,25 @@
+{
+    "cSpell.enabled": true,
+    "cSpell.enableFileTypes": [
+        "python"
+    ],
+    "cSpell.languageSettings": [
+        {
+            "languageId": "python",
+            "includeRegExpList": [
+                "\"\"\"[\\s\\S]*?\"\"\"",
+                "'''[\\s\\S]*?'''"
+            ],
+            "ignoreRegExpList": []
+        }
+    ],
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "*_test.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true
+}
