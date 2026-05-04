@@ -20,9 +20,9 @@ docs/build/
 Thumbs.db
 
 # mesh
-.xdmf
-.h5
-.msh
+*.xdmf
+*.h5
+*.msh
 
 # plots
-.png
+*.png
