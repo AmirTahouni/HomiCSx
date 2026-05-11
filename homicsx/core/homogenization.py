@@ -40,7 +40,7 @@ class NonlinearHomogenizationResult:
     ----------
     histories : Dict[str, Dict]
         History dictionaries for each load case.
-        Keys are load case names, values are dicts with 'load', 'P', 'W', 'J', etc.
+        Keys are load case names, values are dicts with 'step', 'load_param', 'load_type', 'Fbar', 'Pbar', 'Wbar', 'Jbar', 'converged', 'iters', and 'Ceff'.
     state_histories : Dict[str, List] or None
         Material state histories for each load case.
     summary : Dict
@@ -98,7 +98,6 @@ class PreStepData:
     Data passed to pre-step hooks before each load increment solve.
     
     Access to pre-step passed data.
-    will affect the current step's behavior.
     """
     step_idx: int
     current_load: float
@@ -179,7 +178,9 @@ class PostTangentData:
 
 @dataclass
 class PreLoadCaseData:
-    """Data passed before starting a new load case."""
+    """
+    Data passed before starting a new load case.
+    """
     load_name: str
     load_tag: str
     target_load: float
@@ -191,7 +192,9 @@ class PreLoadCaseData:
 
 @dataclass
 class PostLoadCaseData:
-    """Data passed after completing a load case."""
+    """
+    Data passed after completing a load case.
+    """
     load_name: str
     history: Dict
     state_history: Optional[List]
@@ -204,7 +207,9 @@ class PostLoadCaseData:
 
 @dataclass
 class StepFailureData:
-    """Data passed when a load step fails to converge."""
+    """
+    Data passed when a load step fails to converge.
+    """
     step_idx: int
     target_load: float
     attempted_increment: float

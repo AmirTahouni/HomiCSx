@@ -891,7 +891,7 @@ class J2Plasticity(NonlinearMaterialModel):
 class MaterialAssignment:
     """Map phase ids to material models with state management."""
     
-    materials_by_phase: Dict[int, NonlinearMaterialModel]
+    materials_by_phase: Dict[int, Any]
     metadata: Dict[str, Any] = field(default_factory=dict)
     
     def has_history_dependence(self) -> bool:
