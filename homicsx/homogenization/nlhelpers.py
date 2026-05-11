@@ -1541,7 +1541,22 @@ def plot_homogenization_summary(
     save_prefix: str = "summary",
     show: bool = True
 ):
-    """Plot comprehensive nonlinear homogenization curves for 2D and 3D based on the provided summary."""
+    """
+    Plot comprehensive nonlinear homogenization curves based on the provided summary.
+
+    Parameters
+    ----------
+    summary : dict
+        Summarized results of a nonlinear problem.
+    dim : int
+        Dimensionality of the problem.
+    save : bool, optional
+        Option to save the figures.
+    save_prefix : str, optional
+        Prefix for saved figure images.
+    show : bool, optional
+        Option to show the figures during runtime.
+    """
 
     colors = {
         "uniaxial_x": "tab:blue",
@@ -1647,7 +1662,22 @@ def plot_homogenization_summary(
 
 
 def plot_each_load_case(summary: dict, dim: int, save: bool = False, save_prefix: str = "load_case", show: bool = True):
-    """Plot comprehensive nonlinear homogenization curves per load case for 2D and 3D based on the provided summary."""
+    """
+    Plot comprehensive nonlinear homogenization curves per load case based on the provided summary.
+    
+    Parameters
+    ----------
+    summary : dict
+        Summarized results of a nonlinear problem.
+    dim : int
+        Dimensionality of the problem.
+    save : bool, optional
+        Option to save the figures.
+    save_prefix : str, optional
+        Prefix for saved figure images.
+    show : bool, optional
+        Option to show the figures during runtime.
+    """
 
     for load_type, data in summary.items():
         c = "tab:blue"
