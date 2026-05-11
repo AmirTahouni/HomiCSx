@@ -49,7 +49,9 @@ class LinearFluctuationProblemContext:
 
 @dataclass
 class NonlinearFluctuationProblemContext:
-    """Extended context with material state and quadrature evaluation."""
+    """
+    Extra context returned alongside a nonlinear periodic fluctuation problem.
+    """
     F_macro: fem.Constant
     fluctuation_field: fem.Function
     quad_evaluator: QuadraturePointEvaluator

@@ -38,25 +38,25 @@ def assemble_jacobian_mpc(
     P: PETSc.Mat,  # type: ignore
 ):
     """
-    Assemble the Jacobian matrix and preconditioner.
+    Assemble the Jacobian matrix and pre-conditioner.
 
     A function conforming to the interface expected by SNES.setJacobian can
     be created by fixing the first four arguments:
 
-        functools.partial(assemble_jacobian, u, jacobian, preconditioner,
+        functools.partial(assemble_jacobian, u, jacobian, pre-conditioner,
                           bcs)
 
     Args:
         u: Function tied to the solution vector within the residual and
             jacobian
         jacobian: Form of the Jacobian
-        preconditioner: Form of the preconditioner
+        pre-conditioner: Form of the pre-conditioner
         bcs: List of Dirichlet boundary conditions
         mpc: The multi point constraint or a sequence of multi point
         _snes: The solver instance
         x: The vector containing the point to evaluate at
         J: Matrix to assemble the Jacobian into
-        P: Matrix to assemble the preconditioner into
+        P: Matrix to assemble the pre-conditioner into
     """
     x.ghostUpdate(PETSc.InsertMode.INSERT, PETSc.ScatterMode.FORWARD)
     # dolfinx.fem.petsc.assign(x, u)
