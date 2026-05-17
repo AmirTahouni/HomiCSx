@@ -196,7 +196,7 @@ def import_mesh_with_mapping(
     Import a GMSH mesh with CUSTOM convention, remapping to HomiCSx.
     
     This is for meshes that DON'T follow HomiCSx PhysicalTags convention.
-    The mapping tells us how to convert custom GMSH groups → HomiCSx tags.
+    The mapping tells us how to convert custom GMSH groups to HomiCSx tags.
     """
     mesh, raw_ct, raw_ft = _read_gmsh_mesh(mesh_file, dim)
     

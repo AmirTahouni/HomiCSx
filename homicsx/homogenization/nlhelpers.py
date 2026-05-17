@@ -16,7 +16,7 @@ from dolfinx_mpc import MultiPointConstraint
 import dolfinx
 import pyvista as pv
 
-from homicsx.fem import NonlinearProblemMPC
+from homicsx.fem.nonlinear_problem import NonlinearProblemMPC
 
 from homicsx import(
     GeometryInput, 

@@ -1,18 +1,15 @@
-.. HomiCSx documentation master file, created by
-   sphinx-quickstart on Sun Mar 29 19:00:01 2026.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+HomiCSx documentation
+=====================
 
-Welcome to HomiCSx's documentation!
-===================================
+HomiCSx is a python homogenization framework based on the problem solving interface of the FeniCS project.
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    installation
+   demos
    api/homicsx
 
-Indices and tables
-==================
+
 * :ref:`genindex`
 * :ref:`modindex`
