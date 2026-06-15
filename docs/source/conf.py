@@ -25,7 +25,31 @@ extensions = [
     'sphinx.ext.autosummary',
     'myst_parser',
     'sphinx_rtd_theme',
+    # 'sphinx.ext.mathjax',
+    'sphinxcontrib.katex',
 ]
+
+myst_enable_extensions = [
+    "dollarmath",
+    "amsmath",
+    # "deflist",
+    # "colon_fence",
+]
+
+# katex_options = {
+#     'strict': False,
+#     'output': 'html',
+#     'displayMode': True,
+# }
+
+# katex_prerender = True
+# myst_dmath_double_inline = True
+# myst_update_mathjax = False
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
 
 autosummary_generate = True
 
@@ -37,7 +61,7 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme' #'alabaster'
+html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 # -- Path setup --------------------------------------------------------------
