@@ -26,3 +26,8 @@ Thumbs.db
 
 # plots
 *.png
+
+# Docker
+.docker/
+compose.debug.yml
+.dockerignore

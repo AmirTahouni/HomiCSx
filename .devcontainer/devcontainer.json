@@ -1,0 +1,21 @@
+{
+    "name": "HomiCSx Development",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "homicsx",
+    "workspaceFolder": "/root/HomiCSx",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter",
+                "github.copilot"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/bin/python3",
+                "jupyter.jupyterServerType": "local"
+            }
+        }
+    },
+    "forwardPorts": [8888],
+    "postCreateCommand": "pip3 install -e /root/HomiCSx"
+}
