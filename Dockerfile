@@ -2,19 +2,19 @@ FROM dolfinx/dolfinx:v0.9.0
 
 WORKDIR /root/HomiCSx
 
-# Install pip and system deps
+# Install gmsh from apt (works on ARM)
 RUN apt-get update && apt-get install -y \
-    python3-pip \
+    gmsh \
+    python3-gmsh \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (better caching)
+# Install Python dependencies
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements-docker.txt
 
-# Install HomiCSx
+# Install HomiCSx from local source
 COPY . .
 RUN pip3 install -e .
 
-# Jupyter
 EXPOSE 8888
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''"]

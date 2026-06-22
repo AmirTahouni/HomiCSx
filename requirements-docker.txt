@@ -1,0 +1,5 @@
+meshio==5.3.5
+pyvista==0.44.1
+matplotlib>=3.8
+jupyterlab
+ipykernel
