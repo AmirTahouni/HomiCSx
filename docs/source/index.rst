@@ -4,7 +4,7 @@ HomiCSx documentation
 HomiCSx is a python homogenization framework based on the problem solving interface of the FeniCS project. It is developed on `Github <https://github.com/AmirTahouni/HomiCSx>`_.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    installation
