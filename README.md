@@ -77,7 +77,7 @@ cd homicsx
 And lastly, use `pip install` while in the `homicsx_env` environment at the repository root to install HomiCSx from source:
 
 ```bash
-pip install homicsx
+pip install .
 ```
 
 ## Authors

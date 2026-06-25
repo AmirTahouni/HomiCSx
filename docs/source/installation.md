@@ -26,6 +26,6 @@ By doing so, a ready-to-use environment with all of the prerequisites installed 
 If you already have a working FEniCSx environment with dolfinx, gmsh, and other dependencies, install directly from the root of the directory:
 
 ```bash
-pip install homicsx
+pip install .
 ```
 
