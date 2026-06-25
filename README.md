@@ -1,5 +1,8 @@
 # HomiCSx
 
+## Documentation
+The documentation can be viewed [here](https://homicsx.readthedocs.io/en/latest/)
+
 ## Introduction
 
 HomiCSx is short for [FEniCSx](https://fenicsproject.org)-based homogenization.
