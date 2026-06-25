@@ -1,8 +1,5 @@
 # HomiCSx
 
-## Documentation
-The documentation can be viewed [here](https://homicsx.readthedocs.io/en/latest/)
-
 ## Introduction
 
 HomiCSx is short for [FEniCSx](https://fenicsproject.org)-based homogenization.
@@ -56,6 +53,9 @@ It is an open-source numerical homogenization software, inheriting the advantage
 <div align="center">
     <img src="images/stiffness ratio sweep.png" width="500">
 </div>
+
+## Documentation
+The documentation can be viewed [here](https://homicsx.readthedocs.io/en/latest/)
 
 ## Installation guide
 
