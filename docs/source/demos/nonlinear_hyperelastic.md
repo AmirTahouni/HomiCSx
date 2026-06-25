@@ -38,7 +38,7 @@ from homicsx.core.homogenization import AdaptiveSettings
 from homicsx.homogenization.driver import NonlinearHomogenizationDriver
 ```
 
-Custom geometry and mesh generation
+First, a custom geometry (including a single inclusion at the center of the unit cell), physical tagging convention, and the corresponding mesh are generated.
 
 ```python
 dim = 2
@@ -72,7 +72,7 @@ domain, ct, ft = generate_mesh(
 )
 ```
 
-Custom hyperelastic material definition
+A custom hyperelastic material class is then defined by inheriting from the `HyperelasticMaterial` class. To define the material class, the `ufl` psi-form, numerical energy evaluation method, and the quadrature-point stress evaluation method must be defined. The custom class is then used to initiate the material objects, which is then used for material assignment. It is noteworthy to mention that the stress evaluation method is only used for problems that include history-dependant calculation, like the viscoelastic homogenization problems. In cases where there is no history dependency, one can pass the method.
 
 ```python
 @dataclass
@@ -100,18 +100,7 @@ class NeoHookeanDecoupled(HyperelasticMaterial):
         return self.kappa/2 * (J - 1)**2 + self.mu/2 * (I1 - 3)
     
     def get_quadrature_point_stress(self, state: MaterialState, F: np.ndarray, quad_point_idx: int) -> np.ndarray:
-        dim = F.shape[0]
-        J = np.linalg.det(F)
-        Finv = np.linalg.inv(F)
-        FinvT = Finv.T
-        
-        C = F.T @ F
-        tr_C = np.trace(C)
-        
-        P_iso = self.mu * J**(-2.0/3.0) * (F - (1.0/3.0) * tr_C * FinvT)
-        P_vol = self.kappa * J * (J - 1.0) * FinvT
-        
-        return P_iso + P_vol
+        pass
 
 kappa_mat = 17.5
 mu_mat = 8.0
@@ -129,7 +118,7 @@ material_assignment = MaterialAssignment(
 )
 ```
 
-Solution with custom loading
+The FE problem settings is the defined, and Later, a custom load-case is used for nonlinear homogenization. The nonlinear driver is then initiated using the corresponding data. Lastly, the result summary can be used for post-processing.
 
 ```python
 fem_settings = ProblemSettings(

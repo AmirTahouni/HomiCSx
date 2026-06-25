@@ -3,8 +3,8 @@
 Since HomiCSx uses fenics-dolfinx and dolfinx_mpc, it is currently only available for linux and macos. For windows, it is recommended to use wsl.
 
 ## Quick Start
-
-The recommended installation uses conda to handle FEniCSx and its MPI dependencies. A pre-configured `environment.yml` is provided in the repository.
+The recommended installation uses conda to handle FEniCSx and its MPI dependencies. For more information visit the [documnetation](https://docs.conda.io/en/latest/).
+<!-- [https://docs.conda.io/en/latest/](https://docs.conda.io/en/latest/) -->
 
 ### 1. Clone the Repository
 

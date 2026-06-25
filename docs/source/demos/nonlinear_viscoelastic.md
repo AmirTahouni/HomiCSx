@@ -38,7 +38,7 @@ from homicsx.core.homogenization import AdaptiveSettings
 from homicsx.homogenization.driver import NonlinearHomogenizationDriver
 ```
 
-Custom geometry and mesh generation
+First, a custom geometry (including a single inclusion at the center of the unit cell), physical tagging convention, and the corresponding mesh are generated.
 
 ```python
 dim = 2
@@ -72,7 +72,7 @@ domain, ct, ft = generate_mesh(
 )
 ```
 
-Custom hyperelastic and viscoelastic material definition for inclusion and matrix respectively
+The custom hyperelastic material class is then defined by inheriting from the `HyperelasticMaterial` class. The hyperelastic material is then used to define the viscoelastic equilibrium material, along with the other necessary inputs. The material assignment is the defined accordingly.
 
 ```python
 @dataclass
@@ -142,7 +142,7 @@ material_assignment = MaterialAssignment(
 )
 ```
 
-Solution with custom loading
+The FE problem settings is the defined, and Later, a custom load-case is used for nonlinear homogenization. The nonlinear driver is then initiated using the corresponding data. Lastly, the result summary can be used for post-processing.
 
 ```python
 fem_settings = ProblemSettings(

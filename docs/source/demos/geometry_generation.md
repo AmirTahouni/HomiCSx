@@ -15,6 +15,12 @@ jupyter:
 
 # Geometry generation demo
 
+The generation is performed vis:
+1-  Making a `GeometryInput` data object
+2-  Feeding the data to the respective function to generate the corresponding inclusion/void centers and radii, respecting the periodicity of the geometry. The geometry is later fed to `gmsh` for meshing.
+
+In this demo, the code for generation of many different geometry types is presented.
+
 ```python
 from homicsx import GeometryInput
 from homicsx.geometry import patriculate_geometry_generator

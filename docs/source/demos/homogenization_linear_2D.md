@@ -37,7 +37,7 @@ from homicsx.utils import (
 import numpy as np
 ```
 
-Generate 2D mono-disperse unit-cell geometry with spherical inclusions
+Generate 2D mono-disperse unit-cell geometry with spherical inclusions.
 
 ```python
 geometry_input = GeometryInput(
@@ -56,7 +56,9 @@ geometry = patriculate_geometry_generator(geometry_input)
 visualize_geometry(geometry)
 ```
 
-Generate physical tagging convention, mesh settings, and the mesh entities, including the DOLFINx mesh, and DOLFINx compatible cell tags and facet tags
+Generate physical tagging convention, mesh settings, and the mesh entities, including the dolfinx mesh, and dolfinx compatible cell tags and facet tags. The `PhysicalTags` object contains the tagging convention which will later be used for identification of mesh entities throughout the the code.
+
+The `MeshSettings` data object is fed to the top level meshing function, with the cell tags, facet tags, and the mesh itself as the output.
 
 ```python
 physical_tags = PhysicalTags()
@@ -73,7 +75,7 @@ mesh, ct, ft = generate_mesh(
 )
 ```
 
-Defining the material assignment
+For material assignment, the corresponding materials are first defined. Then, the `MaterialAssignment` object is made. The material assignment is later paired with the `PhysicalTags` object for physical tag assignment in the FE problem definition. By default, the the matrix identified with id=0.
 
 ```python
 E_mat = 1.0
@@ -92,7 +94,7 @@ material_assignment = MaterialAssignment(
 )
 ```
 
-Preparing the FEM solver settings
+The FE problem is then defined via a `ProblemSettings` data object.
 
 ```python
 fem_settings = ProblemSettings(
@@ -109,7 +111,7 @@ fem_settings = ProblemSettings(
 )
 ```
 
-Solving the corresponding homogenization problem
+Then, homogenization elements, including the mesh elements, material assignment, problem settings, and other data is used to initialize the `LinearDriver`, which is then used to acquire the homogenization solution.
 
 ```python
 linear_driver = LinearHomogenizationDriver(
@@ -126,7 +128,7 @@ linear_driver = LinearHomogenizationDriver(
 result = linear_driver.run()
 ```
 
-Post-processing the results
+Lastly, the homogenization result can be used for validation and post-processing. HomiCSx includes functions that calculate the Hashin-Shtrikman analytical bounds and the Mori-Tanaka estimates.
 
 ```python
 C_hom_mt = mori_tanaka(
