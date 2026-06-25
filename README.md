@@ -80,4 +80,4 @@ pip install homicsx
 ```
 
 ## Authors
-- Amir Reza Tahouni ([tahouniamirreza@gmail.com](tahouniamirreza@gmail.com))
+- Amir Reza Tahouni (tahouniamirreza@gmail.com)
