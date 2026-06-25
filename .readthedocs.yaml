@@ -12,11 +12,11 @@ build:
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
-   configuration: docs/source/conf.py
+  configuration: docs/source/conf.py
 
 python:
   install:
-    - requirements: docs/requirements.txt  # if you have one
+    - requirements: docs/requirements.txt
     - method: pip
       path: .
     - method: pip
