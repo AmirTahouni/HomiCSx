@@ -54,6 +54,14 @@ It is an open-source numerical homogenization software, inheriting the advantage
     <img src="images/stiffness ratio sweep.png" width="500">
 </div>
 
+<div align="center">
+    <img src="images/fluctuation paraview.png" width="500">
+</div>
+
+<div align="center">
+    <img src="images/energy paraview.png" width="500">
+</div>
+
 ## Documentation
 The documentation can be viewed [here](https://homicsx.readthedocs.io/en/latest/)
 
