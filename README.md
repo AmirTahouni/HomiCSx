@@ -62,8 +62,6 @@ It is an open-source numerical homogenization software, inheriting the advantage
 It is recommended to use [conda](https://docs.conda.io/en/latest/) environments for the installation. An `environment.yml` file is provided, which can be directly use to prepare an environment which is ready to b used for HomiCSx installation. To do this, simply do:
 
 ```bash
-conda create -n homicsx_env python=3.10
-conda activate homicsx_env
 conda env create -f environment.yml
 ```
 

@@ -17,8 +17,6 @@ cd homicsx
 The prerequisites are listed in the `environment.yml` file. Some are available on conda and some on pypi. Create a dedicated environment and install the prerequisites based on the `environment.yml` file:
 
 ```bash
-conda create -n homicsx_env python=3.10
-conda activate homicsx_env
 conda env create -f environment.yml
 ```
 
