@@ -22,8 +22,10 @@ conda env create -f environment.yml
 
 By doing so, a ready-to-use environment with all of the prerequisites installed named `homicsx_env` will be created.
 
+If ran into any problems, install the provided prerequisites manually. The list of dependencies are mentioned in `environment.yml`.
+
 ### 3. Pip Install
-If you already have a working FEniCSx environment with dolfinx, gmsh, and other dependencies, install directly from the root of the directory:
+If you have a working FEniCSx environment with dolfinx, gmsh, and other dependencies, install directly from the root of the directory:
 
 ```bash
 pip install .

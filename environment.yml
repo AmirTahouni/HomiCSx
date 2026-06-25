@@ -13,3 +13,4 @@ dependencies:
   - fenics-dolfinx=0.9.0
   - mpich=4.2.3
   - pyvista=0.44.1
+  - pip
