@@ -23,7 +23,7 @@ In this demo, the code for generation of many different geometry types is presen
 
 ```python
 from homicsx import GeometryInput
-from homicsx.geometry import patriculate_geometry_generator
+from homicsx.geometry import particulate_geometry_generator
 from homicsx.visualization import visualize_geometry
 ```
 
@@ -40,7 +40,7 @@ geometry_input = GeometryInput(
     shape="sphere",
 )
 
-geometry = patriculate_geometry_generator(geometry_input)
+geometry = particulate_geometry_generator(geometry_input)
 
 visualize_geometry(geometry)
 ```
@@ -59,7 +59,7 @@ geometry_input = GeometryInput(
     axis_ratios=(1, 2, 3)
 )
 
-geometry = patriculate_geometry_generator(geometry_input)
+geometry = particulate_geometry_generator(geometry_input)
 
 visualize_geometry(geometry)
 ```
@@ -81,7 +81,7 @@ geometry_input = GeometryInput(
     max_scale=0.2
 )
 
-geometry = patriculate_geometry_generator(geometry_input)
+geometry = particulate_geometry_generator(geometry_input)
 
 visualize_geometry(geometry)
 ```
@@ -104,7 +104,7 @@ geometry_input = GeometryInput(
     max_scale=0.3
 )
 
-geometry = patriculate_geometry_generator(geometry_input)
+geometry = particulate_geometry_generator(geometry_input)
 
 visualize_geometry(geometry)
 ```
@@ -122,7 +122,7 @@ geometry_input = GeometryInput(
     shape="circle",
 )
 
-geometry = patriculate_geometry_generator(geometry_input)
+geometry = particulate_geometry_generator(geometry_input)
 
 visualize_geometry(geometry)
 ```
@@ -141,7 +141,7 @@ geometry_input = GeometryInput(
     axis_ratios=(2, 1), # GMSH occ limitation: major radius rx must be larger than minor radius ry.
 )
 
-geometry = patriculate_geometry_generator(geometry_input)
+geometry = particulate_geometry_generator(geometry_input)
 
 visualize_geometry(geometry)
 ```
@@ -163,7 +163,7 @@ geometry_input = GeometryInput(
     max_scale=0.2
 )
 
-geometry = patriculate_geometry_generator(geometry_input)
+geometry = particulate_geometry_generator(geometry_input)
 
 visualize_geometry(geometry)
 ```
@@ -186,7 +186,7 @@ geometry_input = GeometryInput(
     max_scale=0.5
 )
 
-geometry = patriculate_geometry_generator(geometry_input)
+geometry = particulate_geometry_generator(geometry_input)
 
 visualize_geometry(geometry)
 ```
@@ -210,7 +210,7 @@ geometry_input = GeometryInput(
     allow_overlap=True,
 )
 
-geometry = patriculate_geometry_generator(geometry_input)
+geometry = particulate_geometry_generator(geometry_input)
 
 visualize_geometry(geometry)
 ```

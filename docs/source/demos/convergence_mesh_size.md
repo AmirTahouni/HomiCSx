@@ -24,7 +24,7 @@ from homicsx.core import(
     LinearElasticIsotropic,
     ProblemSettings,
 )
-from homicsx.geometry import patriculate_geometry_generator
+from homicsx.geometry import particulate_geometry_generator
 from homicsx.stochastic import perform_ensemble_study
 from homicsx.visualization import visualize_geometry
 
@@ -46,7 +46,7 @@ geometry_settings = GeometryInput(
 )
 
 visualize_geometry(
-    geometry=patriculate_geometry_generator(
+    geometry=particulate_geometry_generator(
         input_data=geometry_settings
     )
 )

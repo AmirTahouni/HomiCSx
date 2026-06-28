@@ -24,7 +24,7 @@ from homicsx import(
     MaterialAssignment, 
     ProblemSettings
 )
-from homicsx.geometry import patriculate_geometry_generator
+from homicsx.geometry import particulate_geometry_generator
 from homicsx.visualization import visualize_geometry
 from homicsx.mesh import generate_mesh
 from homicsx.homogenization.driver import LinearHomogenizationDriver
@@ -51,7 +51,7 @@ geometry_input = GeometryInput(
     seed=42,
 )
 
-geometry = patriculate_geometry_generator(geometry_input)
+geometry = particulate_geometry_generator(geometry_input)
 
 visualize_geometry(geometry)
 ```
