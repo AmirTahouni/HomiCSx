@@ -67,6 +67,10 @@ The documentation can be viewed [here](https://homicsx.readthedocs.io/en/latest/
 
 ## Installation guide
 
+HomiCSx is currently only accessible via installation from source.
+
+Since HomiCSx is based on dolfinx and dolfinx_mpc, it is only available on linux and macOS.
+
 It is recommended to use [conda](https://docs.conda.io/en/latest/) environments for the installation. An `environment.yml` file is provided, which can be directly use to prepare an environment which is ready to b used for HomiCSx installation. To do this, simply do:
 
 ```bash
