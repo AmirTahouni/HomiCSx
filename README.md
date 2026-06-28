@@ -12,8 +12,10 @@ It is an open-source numerical homogenization software, inheriting the advantage
 - Option for intersecting voids to mimic the structure of open-cell foams
 - GMSH meshing backend, with support for tri/quad and tet/hex elements
 - Automatic tagging of cells and facets
+- Multi-phase material assignment
 - Prebuilt linear and capability of writing custom nonlinear material classes by inheriting from the abstract nonlinear material class
 - Ability to inherit from the hyperelastic and viscoelastic base material classes to create custom nonlinear materials of such types
+- Capability of assigning different material types to different phases
 - Tracking of material states in time-history-dependent problems at integration points
 - Automatic linear and nonlinear formulation of the periodic fluctuation problem
 - Automatic handling of periodic boundary conditions via MPCs
