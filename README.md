@@ -1,10 +1,33 @@
 # HomiCSx
 
-## Introduction
-
 HomiCSx is short for [FEniCSx](https://fenicsproject.org)-based homogenization.
 
-It is an open-source numerical homogenization software, inheriting the advantages that come with FEniCSx. It is made to be completely modular, including the:
+It is an open-source numerical homogenization software, inheriting the advantages that come with FEniCSx. 
+
+## Feature list
+
+- Generation of random periodic inclusion/void based geometries, including custom geometries of this type
+- Usage of RSA algorithm for packing
+- Supporting circular/spherical and elliptical/ellipsoidal inclusions in 2D/3D geometries
+- Option for intersecting voids to mimic the structure of open-cell foams
+- GMSH meshing backend, with support for tri/quad and tet/hex elements
+- Automatic tagging of cells and facets
+- Prebuilt linear and capability of writing custom nonlinear material classes by inheriting from the abstract nonlinear material class
+- Ability to inherit from the hyperelastic and viscoelastic base material classes to create custom nonlinear materials of such types
+- Tracking of material states in time-history-dependent problems at integration points
+- Automatic linear and nonlinear formulation of the periodic fluctuation problem
+- Automatic handling of periodic boundary conditions via MPCs
+- Usage of dolfinx nonlinear solver tailored for MPC problems
+- Built-in adaptive stepping nonlinear solver, with full control over solver hyper-parameters
+- Linear and nonlinear homogenization via built-in and custom load cases
+- Customizable homogenization procedure via 7 callable hook entry points during the homogenization process
+- Output load/time history data and Jacobian/energy/PK1/tangent graphs against load history in nonlinear homogenization
+- Ability to export XDMF files for Paraview post processing
+- Simple stochastic utilities for linear homogenization, including ensemble study of similar microstructures, and volume-fraction/stiffness ratio sweep utilities
+
+## Introduction
+
+It is made to be completely modular, including the:
 
 <div align="center">
     <img src="images/workflow.png" width="500">
