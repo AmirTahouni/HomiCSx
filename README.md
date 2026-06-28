@@ -2,7 +2,7 @@
 
 HomiCSx is short for [FEniCSx](https://fenicsproject.org)-based homogenization.
 
-It is an open-source numerical homogenization software, inheriting the advantages that come with FEniCSx. 
+It is an open-source numerical homogenization software, inheriting the advantages that come with FEniCSx. HomiCSx is intended for researchers and engineers working on computational homogenization of heterogeneous materials using finite element methods.
 
 ## Feature list
 
@@ -100,6 +100,7 @@ It is recommended to use [conda](https://docs.conda.io/en/latest/) environments 
 
 ```bash
 conda env create -f environment.yml
+conda activate homicsx_env
 ```
 
 By doing so, a ready-to-use environment with all of the prerequisites installed named `homicsx_env` will be created.
@@ -114,8 +115,10 @@ cd homicsx
 And lastly, use `pip install` while in the `homicsx_env` environment at the repository root to install HomiCSx from source:
 
 ```bash
-pip install .
+pip install -e .
 ```
+
+For a source installation such as HomiCSx, editable mode is convenient because users can pull updates without reinstalling.
 
 To verify the installation, run:
 
