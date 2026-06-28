@@ -128,5 +128,84 @@ python -c "import homicsx; print('HomiCSx imported successfully.')"
 
 Note that HomiCSx has only been tested with the provided versions of the dependencies. Using other versions may work, but is not supported.
 
+## Quickstart
+
+The code provided below performs an end-to-end linear homogenization analysis, from geometry generation to post-processing.
+
+```python
+from homicsx import GeometryInput, PhysicalTags, MeshSettings, LinearElasticIsotropic, MaterialAssignment, ProblemSettings, particulate_geometry_generator, generate_mesh, LinearHomogenizationDriver
+import numpy as np
+
+# Create geometry data object and generate the geometry
+geometry_input = GeometryInput(
+    dim=2,
+    dispersion="mono",
+    volume_fraction=0.05,
+    num_particles=100,
+    clearance=0.015,
+    domain_size=(1, 1),
+    shape="circle",
+    seed=42
+)
+geometry = particulate_geometry_generator(geometry_input)
+
+# Initiate the physical-tagging convention
+physical_tags = PhysicalTags()
+
+# Create mesh data object and generate mesh, cell tags, and facet tags
+mesh_settings = MeshSettings(
+    min_size=0.01,
+    max_size=0.02,
+    physical_tags=physical_tags,
+)
+mesh, ct, ft = generate_mesh(
+    geometry=geometry,
+    mesh_settings=mesh_settings,
+)
+
+# Create material assignment
+material_assignment = MaterialAssignment(
+    materials_by_phase={
+        0: LinearElasticIsotropic(young_modulus=1.0, poisson_ratio=0.2),
+        1: LinearElasticIsotropic(young_modulus=10.0, poisson_ratio=0.2),
+    }
+)
+
+# Create problem definition data object
+problem_settings = ProblemSettings(
+    dim = geometry_input.dim,
+    kinematics='small_strain',
+    two_dimensional_formulation='plane_strain',
+    element_family='Lagrange',
+    element_degree=1
+)
+
+# Initiate the linear driver and solve the homogenization problem
+driver = LinearHomogenizationDriver(
+    mesh_obj=mesh,
+    cell_tags=ct,
+    facet_tags=ft,
+    assignment=material_assignment,
+    settings=problem_settings,
+    physical_tags=physical_tags,
+    domain_size=geometry_input.domain_size,
+    matrix_phase_id=0
+)
+result = driver.run()
+
+# Post-processing
+print("C_hom: ")
+with np.printoptions(suppress=True, precision=3):
+    print(result.C_hom)
+
+# OUTPUT:
+#
+# C_hom: 
+# [[ 1.186  0.297 -0.   ]
+#  [ 0.297  1.186 -0.   ]
+#  [-0.    -0.     0.444]]
+```
+
+
 ## Authors
 - Amir Reza Tahouni (tahouniamirreza@gmail.com)
