@@ -92,6 +92,12 @@ And lastly, use `pip install` while in the `homicsx_env` environment at the repo
 pip install .
 ```
 
+To verify the installation, run:
+
+```bash
+python -c "import homicsx; print('HomiCSx imported successfully.')"
+```
+
 Note that HomiCSx has only been tested with the provided versions of the dependencies. Using other versions may work, but is not supported.
 
 ## Authors
