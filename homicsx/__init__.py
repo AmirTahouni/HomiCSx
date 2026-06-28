@@ -21,7 +21,7 @@ from .core import (
 )
 
 from .geometry import (
-    patriculate_geometry_generator,
+    particulate_geometry_generator,
 )
 
 from .mesh import (
@@ -56,7 +56,7 @@ __all__ = [
     "EnsembleStudyResult",
 
     # geometry
-    "patriculate_geometry_generator",
+    "particulate_geometry_generator",
 
     # mesh
     "generate_mesh",

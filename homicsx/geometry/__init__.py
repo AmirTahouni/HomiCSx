@@ -12,7 +12,7 @@ from .helpers import (
     sample_random_center,
     generate_periodic_image_centers,
 )
-from .universal_generator import patriculate_geometry_generator
+from .universal_generator import particulate_geometry_generator
 
 __all__ = [
     # helpers
@@ -30,5 +30,5 @@ __all__ = [
     "generate_periodic_image_centers",
 
     # universal_generator
-    "patriculate_geometry_generator",
+    "particulate_geometry_generator",
 ]

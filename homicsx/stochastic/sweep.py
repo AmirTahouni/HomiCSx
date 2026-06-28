@@ -9,7 +9,7 @@ from homicsx.core.fem import ProblemSettings
 from homicsx.core.stochastic import EnsembleStudyResult
 
 from homicsx.geometry.universal_generator import (
-    patriculate_geometry_generator
+    particulate_geometry_generator
 )
 
 from homicsx.mesh.gmsh_builder import (
@@ -91,7 +91,7 @@ def sweep_volume_fraction_linear (
     for vf in sweep_list:
         geometry_settings.volume_fraction = vf
 
-        geom = patriculate_geometry_generator(
+        geom = particulate_geometry_generator(
             geometry_settings,
         )
 
@@ -200,7 +200,7 @@ def sweep_stiffness_contrast_linear (
     E_hom_list= []
     result_list = []
     for contrast in sweep_list:
-        geom = patriculate_geometry_generator(
+        geom = particulate_geometry_generator(
             geometry_settings,
         )
 

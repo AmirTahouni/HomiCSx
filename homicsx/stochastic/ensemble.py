@@ -9,7 +9,7 @@ from homicsx.core.fem import ProblemSettings
 from homicsx.core.stochastic import EnsembleStudyResult
 
 from homicsx.geometry.universal_generator import (
-    patriculate_geometry_generator
+    particulate_geometry_generator
 )
 
 from homicsx.mesh.gmsh_builder import (
@@ -82,7 +82,7 @@ def perform_ensemble_study(
     
     if homogenization_solver=="linear":
         for i in range(ensemble_size):
-            geometry = patriculate_geometry_generator(
+            geometry = particulate_geometry_generator(
                 geometry_input
             )
 

@@ -14,7 +14,7 @@ from .generators_3d import _generate_mono_3d, _generate_poly_3d
 from .generators_2d import _generate_mono_2d, _generate_poly_2d
 
 
-def patriculate_geometry_generator(
+def particulate_geometry_generator(
         input_data: GeometryInput
 ) -> RVEGeometry:
     """
@@ -116,6 +116,6 @@ def patriculate_geometry_generator(
 
 __all__ = [
     # universal_generator
-    "patriculate_geometry_generator",
+    "particulate_geometry_generator",
 ]
 
