@@ -69,9 +69,9 @@ The documentation can be viewed [here](https://homicsx.readthedocs.io/en/latest/
 
 HomiCSx is currently only accessible via installation from source.
 
-Since HomiCSx is based on dolfinx and dolfinx_mpc, it is only available on linux and macOS.
+HomiCSx has been tested on macOS with Apple silicon chips. Since it uses dolfinx and dolfinx_mpc as backbone, it is currently only available on macOS and Linux. For windows, WSL2 is recommended.
 
-It is recommended to use [conda](https://docs.conda.io/en/latest/) environments for the installation. An `environment.yml` file is provided, which can be directly use to prepare an environment which is ready to b used for HomiCSx installation. To do this, simply do:
+It is recommended to use [conda](https://docs.conda.io/en/latest/) environments for the installation. An `environment.yml` file, including the versioned dependencies is provided in the repo, which can be directly use to prepare an environment which is ready to be used for HomiCSx installation. To do this, simply do:
 
 ```bash
 conda env create -f environment.yml
@@ -91,6 +91,8 @@ And lastly, use `pip install` while in the `homicsx_env` environment at the repo
 ```bash
 pip install .
 ```
+
+Note that HomiCSx has only been tested with the provided versions of the dependencies. Using other versions may work, but is not supported.
 
 ## Authors
 - Amir Reza Tahouni (tahouniamirreza@gmail.com)
