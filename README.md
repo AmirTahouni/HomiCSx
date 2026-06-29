@@ -32,7 +32,7 @@ It is an open-source numerical homogenization software, inheriting the advantage
 It is made to be completely modular, including the:
 
 <div align="center">
-    <img src="images/workflow.png" width="500">
+    <img src="images/workflow.png" width="750">
 </div>
 
 - Geometry module: Using numpy and pure python to generate the corresponding geometry of the homogenization problem. It is stochastic in nature, able to generate random periodic geometries based on the input geometry attributes. Currently, the module is able to produce mono/poly disperse 2D/3D geometries consisting of circular/elliptical 2D and spherical/spheroidal 3D and random periodic geometries. It can be encorporated for generation of both inclusion and void based geometries. It uses the RSA algorithm for the packing process. It can also be used to generated custom inclusion/void based geometries. The module also supports geometries containing interphase layer/coated inclusions.
