@@ -25,7 +25,8 @@ It is an open-source numerical homogenization software, inheriting the advantage
 - Customizable homogenization procedure via 7 callable hook entry points during the homogenization process
 - Output load/time history data and Jacobian/energy/PK1/tangent graphs against load history in nonlinear homogenization
 - Ability to export XDMF files for Paraview post processing
-- Simple stochastic utilities for linear homogenization, including ensemble study of similar microstructures, and volume-fraction/stiffness ratio sweep utilities
+
+The `homicsx.stochastic` and `homicsx.visualization` modules are experimental. They are not part of the publication-supported API and may change or be removed before version 1.0.
 
 ## Introduction
 
@@ -65,7 +66,7 @@ It is made to be completely modular, including the:
     <img src="images/tangent result figure.png" width="500">
 </div>
 
-- Stochastic module: It contains a few small functions that can be used for some simple linear stochastic analyses. Currently, it supports study of ensemble of similar random cases with similar geometrical attributes, a linear volume fraction sweep study utility, and a linear stiffness ration sweep study utility.
+- Experimental modules: The current stochastic convenience functions and visualization helpers are retained for compatibility and evaluation, but are not included in the supported publication scope. See the experimental-features documentation before using them.
 
 <div align="center">
     <img src="images/ensemble.png" width="500">

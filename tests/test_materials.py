@@ -8,10 +8,12 @@ from homicsx.core.material import (
     NeoHookeanIsotropic,
     MaterialAssignment,
 )
-from homicsx.materials import (
-    validate_material_assignment,
-    build_linear_elastic_coefficients,
-    build_hyperelastic_coefficients,
+from homicsx.materials.assignment import (
+    _validate_material_assignment as validate_material_assignment,
+)
+from homicsx.materials.coefficients import (
+    _build_linear_elastic_coefficients as build_linear_elastic_coefficients,
+    _build_hyperelastic_coefficients as build_hyperelastic_coefficients,
 )
 from homicsx.mesh.tagging import PhysicalTags
 
