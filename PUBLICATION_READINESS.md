@@ -16,7 +16,8 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 - Supported solver environment is described by `environment.yml` and targets Python 3.10, DOLFINx 0.9.0, and dolfinx_mpc 0.9.0.
 - ABAQUS 2022 is installed locally on Windows.
 - WSL2 with Ubuntu and Conda is available locally.
-- The available Conda environments do not currently contain pytest, so no clean baseline test run has yet been obtained.
+- A clean `homicsx_dev` Conda environment can be created from `environment-dev.yml` under WSL2.
+- Baseline result on 2026-09-15: 48 tests passed under Python 3.10 and DOLFINx 0.9.0, with 40% total statement coverage.
 - The associated research project contains geometry-matched HomiCSx and ABAQUS calculations, scripts, meshes, solver inputs, ODB files, extracted element data, and summary outputs.
 
 ## Publication scope
@@ -50,14 +51,13 @@ Experimental classification is not a judgment that a feature is defective. It pr
 
 ### P0 Submission blockers
 
-1. **No reproducible test environment has been demonstrated on the current machine.** The repository environment does not include pytest, and the available local environments cannot run the test suite as configured.
-2. **The homogenization solvers lack adequate regression and verification coverage.** The current tests emphasize geometry and Gmsh construction. The single full FEM test checks convergence and the existence of a solution but not correctness of homogenized quantities.
-3. **No continuous-integration workflow is present.** Reviewers cannot see automated evidence that supported behavior remains intact.
-4. **There is no compact, repository-owned verification and validation suite.** The research project contains strong ABAQUS evidence, but it is paper-specific, path-dependent, large, and not organized as reusable HomiCSx validation.
-5. **Packaging metadata is incomplete.** `pyproject.toml` lacks authors, license metadata, readme, classifiers, URLs, dependencies or dependency strategy, optional development dependencies, and other release metadata expected of a reusable Python package.
-6. **The supported public scope is not defined.** The README presents a broad feature list without differentiating stable, experimental, and known-unsupported behavior.
-7. **The project lacks contribution, support, issue-reporting, and maintenance guidance.** This is especially important for an archival maintenance posture.
-8. **JOSS public-history timing is not yet favorable.** The first public commit is dated 2026-05-05. A submission should not be attempted before at least six months of genuine public history and a fresh venue check.
+1. **The homogenization solvers lack adequate regression and verification coverage.** The current suite emphasizes geometry and Gmsh construction. The new end-to-end linear smoke test checks finite output and approximate stiffness symmetry, but not yet an analytical homogenized result.
+2. **No continuous-integration workflow is present.** Reviewers cannot see automated evidence that supported behavior remains intact.
+3. **There is no compact, repository-owned verification and validation suite.** The research project contains strong ABAQUS evidence, but it is paper-specific, path-dependent, large, and not organized as reusable HomiCSx validation.
+4. **Packaging metadata is incomplete.** `pyproject.toml` lacks authors, license metadata, readme, classifiers, URLs, dependencies or dependency strategy, optional development dependencies, and other release metadata expected of a reusable Python package.
+5. **The supported public scope is not defined.** The README presents a broad feature list without differentiating stable, experimental, and known-unsupported behavior.
+6. **The project lacks contribution, support, issue-reporting, and maintenance guidance.** This is especially important for an archival maintenance posture.
+7. **JOSS public-history timing is not yet favorable.** The first public commit is dated 2026-05-05. A submission should not be attempted before at least six months of genuine public history and a fresh venue check.
 
 ### P1 High-priority quality risks
 
@@ -207,9 +207,8 @@ Do not tag 1.0.0 until the clean environment, core test suite, validation suite,
 
 ## Immediate next actions
 
-1. Design the clean WSL2 Conda environment and dependency policy.
-2. Run and classify every existing test in that environment.
-3. Measure test coverage by subsystem and identify untested public paths.
-4. Inspect the nonlinear driver, hook lifecycle, constitutive implementation, and averaging definitions against the research workflow.
-5. Extract one minimal ABAQUS benchmark and document exact cross-solver conventions.
-6. Draft the supported-versus-experimental feature matrix for author approval.
+1. Add continuous integration for the clean environment or a documented equivalent if hosted CI cannot support the solver stack reliably.
+2. Add analytical homogeneous-material verification for linear and finite-strain solvers.
+3. Inspect the nonlinear driver, hook lifecycle, constitutive implementation, and averaging definitions against the research workflow.
+4. Extract one minimal ABAQUS benchmark and document exact cross-solver conventions.
+5. Draft the supported-versus-experimental feature matrix for author approval.

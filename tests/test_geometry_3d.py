@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
 
-from homicsx.geometry import (
-    generate_mono_sphere_3d,
-    generate_poly_sphere_3d,
-    generate_mono_ellipsoid_3d,
-    generate_poly_ellipsoid_3d,
+from homicsx.geometry.generators_3d import (
+    _generate_mono_sphere_3d as generate_mono_sphere_3d,
+    _generate_poly_sphere_3d as generate_poly_sphere_3d,
+    _generate_mono_ellipsoid_3d as generate_mono_ellipsoid_3d,
+    _generate_poly_ellipsoid_3d as generate_poly_ellipsoid_3d,
 )
 from homicsx.geometry.helpers import (
     ellipsoid_volume,

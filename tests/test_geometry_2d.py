@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
 
-from homicsx.geometry import (
-    generate_mono_circle_2d,
-    generate_poly_circle_2d,
-    generate_mono_ellipse_2d,
-    generate_poly_ellipse_2d,
+from homicsx.geometry.generators_2d import (
+    _generate_mono_circle_2d as generate_mono_circle_2d,
+    _generate_poly_circle_2d as generate_poly_circle_2d,
+    _generate_mono_ellipse_2d as generate_mono_ellipse_2d,
+    _generate_poly_ellipse_2d as generate_poly_ellipse_2d,
 )
 from homicsx.geometry.helpers import (
     circle_area,

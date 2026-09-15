@@ -57,33 +57,19 @@ def realized_volume_fraction_from_originals(geometry: RVEGeometry) -> float:
 
 
 def image_map_is_consistent(geometry: RVEGeometry) -> bool:
-    image_map = geometry.periodicity.image_map
     inclusions = geometry.inclusions
-
-    for source_idx, image_indices in image_map.items():
-        if source_idx < 0 or source_idx >= len(inclusions):
+    for image in periodic_image_inclusions(geometry):
+        source_idx = image.periodic_source_id
+        if source_idx is None or source_idx < 0 or source_idx >= len(inclusions):
             return False
 
         source = inclusions[source_idx]
         if source.is_periodic_image():
             return False
-
-        for image_idx in image_indices:
-            if image_idx < 0 or image_idx >= len(inclusions):
-                return False
-
-            image = inclusions[image_idx]
-            if not image.is_periodic_image():
-                return False
-
-            if image.periodic_source_id != source_idx:
-                return False
-
-            if image.shape != source.shape:
-                return False
-
-            if not np.allclose(image.radii, source.radii):
-                return False
+        if image.shape != source.shape or image.phase_id != source.phase_id:
+            return False
+        if not np.allclose(image.radii, source.radii):
+            return False
 
     return True
 

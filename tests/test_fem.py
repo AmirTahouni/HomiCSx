@@ -1,120 +1,65 @@
 import numpy as np
 
-from mpi4py import MPI
-from dolfinx import mesh
-
-from homicsx.core.mesh import PhysicalTags
-from homicsx.core.material import (
+from homicsx import (
+    GeometryInput,
     LinearElasticIsotropic,
-    NeoHookeanIsotropic,
+    LinearHomogenizationDriver,
     MaterialAssignment,
-)
-from homicsx.core.fem import ProblemSettings
-
-from homicsx.geometry import generate_mono_3d
-
-from homicsx.mesh import generate_mesh
-
-from homicsx.materials import (
-    build_linear_elastic_coefficients, 
-    build_hyperelastic_coefficients, 
-    validate_material_assignment
-)
-
-from homicsx.fem import (
-    build_problem,
-    build_anchor_and_periodic_constraints,
-    solve_problem,
+    MeshSettings,
+    PhysicalTags,
+    ProblemSettings,
+    generate_mesh,
+    particulate_geometry_generator,
 )
 
 
-def create_test_mesh_and_tags():
-    geometry = generate_mono_3d(
-        volume_fraction=0.1,
-        num_particles=10,
-        clearance=0.015,
-        domain_size=(1.0, 1.0, 1.0),
-        shape="sphere",
-        axis_ratios=(1, 1, 1)
+def test_linear_homogenization_pipeline_returns_symmetric_stiffness():
+    """Exercise the supported public API from geometry through homogenization."""
+    geometry_input = GeometryInput(
+        dim=2,
+        dispersion="mono",
+        shape="circle",
+        volume_fraction=0.05,
+        clearance=0.01,
+        domain_size=(1.0, 1.0),
+        num_particles=1,
+        seed=42,
     )
-
-    mesh, ct, ft = generate_mesh(
-        geometry=geometry,
-        min_size=0.03,
-        max_size=0.04
-    )
-
-    return mesh, ct, ft
-
-
-def test_full_fem_pipeline():
-    """
-    Full FEM test:
-    - mixed materials
-    - periodic constraints
-    - assembly
-    - solve
-    """
-    mesh_, cell_tags, facet_tags = create_test_mesh_and_tags()
-
+    geometry = particulate_geometry_generator(geometry_input)
     physical_tags = PhysicalTags()
-
-    # --- materials ---
-    # mat_matrix = NeoHookeanIsotropic(young_modulus=1.0, poisson_ratio=0.45)
-    mat_matrix = LinearElasticIsotropic(young_modulus=1.0, poisson_ratio=0.45)
-    mat_particle = LinearElasticIsotropic(young_modulus=10.0, poisson_ratio=0.3)
-
+    mesh_settings = MeshSettings(
+        min_size=0.06,
+        max_size=0.12,
+        physical_tags=physical_tags,
+        verbosity=0,
+    )
+    domain, cell_tags, facet_tags = generate_mesh(
+        geometry=geometry,
+        mesh_settings=mesh_settings,
+    )
     assignment = MaterialAssignment(
         materials_by_phase={
-            0: mat_matrix,
-            1: mat_particle,
+            0: LinearElasticIsotropic(young_modulus=1.0, poisson_ratio=0.2),
+            1: LinearElasticIsotropic(young_modulus=10.0, poisson_ratio=0.2),
         }
     )
-
-    validate_material_assignment(assignment)
-
-    # --- FEM settings ---
     settings = ProblemSettings(
-        dim=3,
-        kinematics="finite_strain",  # hyperelastic active
-        two_dimensional_formulation=None,
+        dim=2,
+        kinematics="small_strain",
+        two_dimensional_formulation="plane_strain",
     )
-
-    # --- function space ---
-    from homicsx.fem.assembly import build_displacement_space
-
-    V = build_displacement_space(mesh_, settings)
-
-    # --- constraints ---
-    domain_size = (1, 1, 1)
-
-    bcs, mpc = build_anchor_and_periodic_constraints(
-        mesh=mesh_,
-        facet_tags=facet_tags,
-        V=V,
-        domain_size=domain_size,
-        physical_tags=physical_tags,
-        anchor_point=(0, 0, 0),
-    )
-
-    # --- build problem ---
-    problem = build_problem(
-        mesh=mesh_,
+    result = LinearHomogenizationDriver(
+        mesh_obj=domain,
         cell_tags=cell_tags,
+        facet_tags=facet_tags,
         assignment=assignment,
         settings=settings,
         physical_tags=physical_tags,
-        bcs=bcs,
-        mpc=mpc,
+        domain_size=geometry_input.domain_size,
         matrix_phase_id=0,
-    )
+    ).run()
 
-    # --- solve ---
-    result = solve_problem(problem)
-
-    # --- checks ---
-    assert result.converged
-    assert result.solution is not None
-
-
-
+    assert result.C_hom.shape == (3, 3)
+    assert np.all(np.isfinite(result.C_hom))
+    relative_skew = np.linalg.norm(result.C_hom - result.C_hom.T) / np.linalg.norm(result.C_hom)
+    assert relative_skew < 5e-3

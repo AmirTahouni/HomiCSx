@@ -16,12 +16,14 @@ if HAS_GMSH:
     import gmsh
 
 from homicsx.core.geometry import Inclusion, RVEGeometry
-from homicsx.core.mesh import PhysicalTags
-from homicsx.geometry import (
-    generate_mono_circle_2d,
-    generate_mono_ellipse_2d,
-    generate_mono_sphere_3d,
-    generate_mono_ellipsoid_3d,
+from homicsx.core.mesh import MeshSettings, PhysicalTags
+from homicsx.geometry.generators_2d import (
+    _generate_mono_circle_2d as generate_mono_circle_2d,
+    _generate_mono_ellipse_2d as generate_mono_ellipse_2d,
+)
+from homicsx.geometry.generators_3d import (
+    _generate_mono_sphere_3d as generate_mono_sphere_3d,
+    _generate_mono_ellipsoid_3d as generate_mono_ellipsoid_3d,
 )
 from homicsx.mesh import build_gmsh_model, generate_mesh
 
@@ -264,7 +266,7 @@ def test_build_gmsh_model_2d_adds_expected_physical_groups(simple_circle_geom):
         facet_names = {name for _, name in groups[1]}
 
         assert "Matrix" in cell_names
-        assert "Phase_1" in cell_names
+        assert "Core_Phase_1" in cell_names
 
         assert "Left" in facet_names
         assert "Right" in facet_names
@@ -333,7 +335,7 @@ def test_build_gmsh_model_3d_adds_expected_physical_groups(simple_sphere_geom):
         facet_names = {name for _, name in groups[2]}
 
         assert "Matrix" in cell_names
-        assert "Phase_1" in cell_names
+        assert "Core_Phase_1" in cell_names
 
         assert "Left" in facet_names
         assert "Right" in facet_names
@@ -399,12 +401,12 @@ def test_multiphase_2d_physical_group_names(manual_multiphase_geom_2d):
 
         name_to_tag = _physical_group_name_to_tag(2)
         assert "Matrix" in name_to_tag
-        assert "Phase_1" in name_to_tag
-        assert "Phase_2" in name_to_tag
+        assert "Core_Phase_1" in name_to_tag
+        assert "Core_Phase_2" in name_to_tag
 
         assert name_to_tag["Matrix"] == 1
-        assert name_to_tag["Phase_1"] == 11
-        assert name_to_tag["Phase_2"] == 12
+        assert name_to_tag["Core_Phase_1"] == 11
+        assert name_to_tag["Core_Phase_2"] == 12
 
     finally:
         gmsh.finalize()
@@ -499,7 +501,7 @@ def test_build_gmsh_model_with_custom_physical_tags(simple_circle_geom):
         name_to_tag_facets = _physical_group_name_to_tag(1)
 
         assert name_to_tag_cells["Matrix"] == 100
-        assert name_to_tag_cells["Phase_1"] == 201
+        assert name_to_tag_cells["Core_Phase_1"] == 201
         assert name_to_tag_facets["Left"] == 301
         assert name_to_tag_facets["Right"] == 302
         assert name_to_tag_facets["Bottom"] == 303
@@ -517,8 +519,7 @@ def test_build_gmsh_model_with_custom_physical_tags(simple_circle_geom):
 def test_generate_mesh_2d_smoke(simple_circle_geom):
     mesh, cell_tags, facet_tags = generate_mesh(
         simple_circle_geom,
-        min_size=0.02,
-        max_size=0.08,
+        MeshSettings(min_size=0.02, max_size=0.08),
     )
 
     assert mesh.topology.dim == 2
@@ -530,8 +531,7 @@ def test_generate_mesh_2d_smoke(simple_circle_geom):
 def test_generate_mesh_2d_multiphase_smoke(manual_multiphase_geom_2d):
     mesh, cell_tags, facet_tags = generate_mesh(
         manual_multiphase_geom_2d,
-        min_size=0.02,
-        max_size=0.08,
+        MeshSettings(min_size=0.02, max_size=0.08),
     )
 
     assert mesh.topology.dim == 2
@@ -543,8 +543,7 @@ def test_generate_mesh_2d_multiphase_smoke(manual_multiphase_geom_2d):
 def test_generate_mesh_3d_smoke(simple_sphere_geom):
     mesh, cell_tags, facet_tags = generate_mesh(
         simple_sphere_geom,
-        min_size=0.05,
-        max_size=0.12,
+        MeshSettings(min_size=0.05, max_size=0.12),
     )
 
     assert mesh.topology.dim == 3
@@ -556,8 +555,7 @@ def test_generate_mesh_3d_smoke(simple_sphere_geom):
 def test_generate_mesh_3d_multiphase_smoke(manual_multiphase_geom_3d):
     mesh, cell_tags, facet_tags = generate_mesh(
         manual_multiphase_geom_3d,
-        min_size=0.05,
-        max_size=0.12,
+        MeshSettings(min_size=0.05, max_size=0.12),
     )
 
     assert mesh.topology.dim == 3
@@ -576,7 +574,7 @@ def test_physical_tags_cell_tag_mapping_defaults():
     assert tags.cell_tag_for_phase(1, matrix_phase_id=0) == 11
     assert tags.cell_tag_for_phase(2, matrix_phase_id=0) == 12
     assert tags.cell_name_for_phase(0, matrix_phase_id=0) == "Matrix"
-    assert tags.cell_name_for_phase(3, matrix_phase_id=0) == "Phase_3"
+    assert tags.cell_name_for_phase(3, matrix_phase_id=0) == "Core_Phase_3"
 
 
 def test_physical_tags_boundary_mapping_2d():
