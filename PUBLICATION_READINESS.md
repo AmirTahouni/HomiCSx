@@ -52,13 +52,13 @@ The stochastic and visualization modules are explicitly experimental and exclude
 
 ### P0 Submission blockers
 
-1. **The homogenization solvers lack adequate regression and verification coverage.** The current suite emphasizes geometry and Gmsh construction. The new end-to-end linear smoke test checks finite output and approximate stiffness symmetry, but not yet an analytical homogenized result.
-2. **No continuous-integration workflow is present.** Reviewers cannot see automated evidence that supported behavior remains intact.
-3. **There is no compact, repository-owned verification and validation suite.** The research project contains strong ABAQUS evidence, but it is paper-specific, path-dependent, large, and not organized as reusable HomiCSx validation.
-4. **Packaging metadata is incomplete.** `pyproject.toml` lacks authors, license metadata, readme, classifiers, URLs, dependencies or dependency strategy, optional development dependencies, and other release metadata expected of a reusable Python package.
-5. **The supported public scope is not defined.** The README presents a broad feature list without differentiating stable, experimental, and known-unsupported behavior.
-6. **The project lacks contribution, support, issue-reporting, and maintenance guidance.** This is especially important for an archival maintenance posture.
-7. **JOSS public-history timing is not yet favorable.** The first public commit is dated 2026-05-05. A submission should not be attempted before at least six months of genuine public history and a fresh venue check.
+1. **The homogenization solvers still lack adequate regression and verification coverage.** The first end-to-end linear tests now check finite output, approximate stiffness symmetry, and recovery of an analytical homogeneous plane-strain stiffness. Mesh convergence, three-dimensional linear verification, nonlinear analytical verification, and hook behavior remain open.
+2. **There is no compact, repository-owned verification and validation suite.** The research project contains strong ABAQUS evidence, but it is paper-specific, path-dependent, large, and not organized as reusable HomiCSx validation.
+3. **Packaging metadata is incomplete.** `pyproject.toml` lacks authors, license metadata, readme, classifiers, URLs, dependencies or dependency strategy, optional development dependencies, and other release metadata expected of a reusable Python package.
+4. **The project lacks contribution, support, issue-reporting, and maintenance guidance.** This is especially important for an archival maintenance posture.
+5. **JOSS public-history timing is not yet favorable.** The first public commit is dated 2026-05-05. A submission should not be attempted before at least six months of genuine public history and a fresh venue check.
+
+The publication-preparation branch now defines the supported scope and provides a GitHub Actions workflow for pull requests, pushes to `main`, and manual runs. These items remain subject to a successful hosted CI run and merge.
 
 ### P1 High-priority quality risks
 
@@ -209,7 +209,7 @@ Do not tag 1.0.0 until the clean environment, core test suite, validation suite,
 ## Immediate next actions
 
 1. Add continuous integration for the clean environment or a documented equivalent if hosted CI cannot support the solver stack reliably.
-2. Add analytical homogeneous-material verification for linear and finite-strain solvers.
+2. Extend the initial 2D linear analytical check with mesh convergence, 3D linear verification, and finite-strain analytical verification.
 3. Inspect the nonlinear driver, hook lifecycle, constitutive implementation, and averaging definitions against the research workflow.
 4. Extract one minimal ABAQUS benchmark and document exact cross-solver conventions.
 5. Draft the supported-versus-experimental feature matrix for author approval.
