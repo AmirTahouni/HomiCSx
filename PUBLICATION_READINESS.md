@@ -18,7 +18,7 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 - WSL2 with Ubuntu and Conda is available locally.
 - A clean `homicsx_dev` Conda environment can be created from `environment-dev.yml` under WSL2.
 - Baseline result on 2026-09-15: 49 tests passed under Python 3.10 and DOLFINx 0.9.0, with 40% total statement coverage.
-- Initial homogeneous plane-strain verification recovers the analytical stiffness within a 1.5% relative-norm tolerance on the coarse test mesh. Small stiffness asymmetry and spurious coupling terms require a mesh and periodic-constraint convergence study.
+- Homogeneous plane-strain verification recovers the analytical stiffness within a 0.5% relative-norm tolerance on the fine test mesh. An initial four-level diagnostic reduced the error from 2.54% on the coarsest mesh to 0.21% on the finest, although independently generated unstructured meshes did not produce monotonic intermediate errors. A controlled mesh and periodic-constraint convergence study remains necessary.
 - The associated research project contains geometry-matched HomiCSx and ABAQUS calculations, scripts, meshes, solver inputs, ODB files, extracted element data, and summary outputs.
 
 ## Publication scope

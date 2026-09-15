@@ -13,7 +13,13 @@ from homicsx import (
 )
 
 
-def _run_linear_homogenization(matrix_material, inclusion_material):
+def _run_linear_homogenization(
+    matrix_material,
+    inclusion_material,
+    *,
+    min_size=0.06,
+    max_size=0.12,
+):
     geometry_input = GeometryInput(
         dim=2,
         dispersion="mono",
@@ -27,8 +33,8 @@ def _run_linear_homogenization(matrix_material, inclusion_material):
     geometry = particulate_geometry_generator(geometry_input)
     physical_tags = PhysicalTags()
     mesh_settings = MeshSettings(
-        min_size=0.06,
-        max_size=0.12,
+        min_size=min_size,
+        max_size=max_size,
         physical_tags=physical_tags,
         verbosity=0,
     )
@@ -80,7 +86,12 @@ def test_homogeneous_plane_strain_recovers_analytical_stiffness():
         young_modulus=young_modulus,
         poisson_ratio=poisson_ratio,
     )
-    result = _run_linear_homogenization(material, material)
+    result = _run_linear_homogenization(
+        material,
+        material,
+        min_size=0.025,
+        max_size=0.05,
+    )
 
     lame_lambda = (
         young_modulus
@@ -97,4 +108,4 @@ def test_homogeneous_plane_strain_recovers_analytical_stiffness():
     )
 
     relative_error = np.linalg.norm(result.C_hom - expected) / np.linalg.norm(expected)
-    assert relative_error < 1.5e-2
+    assert relative_error < 5e-3
