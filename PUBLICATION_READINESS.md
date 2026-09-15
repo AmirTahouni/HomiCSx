@@ -17,7 +17,8 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 - ABAQUS 2022 is installed locally on Windows.
 - WSL2 with Ubuntu and Conda is available locally.
 - A clean `homicsx_dev` Conda environment can be created from `environment-dev.yml` under WSL2.
-- Baseline result on 2026-09-15: 48 tests passed under Python 3.10 and DOLFINx 0.9.0, with 40% total statement coverage.
+- Baseline result on 2026-09-15: 49 tests passed under Python 3.10 and DOLFINx 0.9.0, with 40% total statement coverage.
+- Initial homogeneous plane-strain verification recovers the analytical stiffness within a 1.5% relative-norm tolerance on the coarse test mesh. Small stiffness asymmetry and spurious coupling terms require a mesh and periodic-constraint convergence study.
 - The associated research project contains geometry-matched HomiCSx and ABAQUS calculations, scripts, meshes, solver inputs, ODB files, extracted element data, and summary outputs.
 
 ## Publication scope
@@ -33,19 +34,19 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 - Nonlinear workflow customization through hooks.
 - Essential history, field, and XDMF outputs required to reproduce documented examples.
 
-### Candidate experimental features
+### Features excluded from the publication-supported scope
 
 These features require additional evidence before they are included in the publication-supported core:
 
 - Finite-strain viscoelasticity and state evolution.
 - Quad and hex meshing across the advertised geometry range.
 - Overlapping-void and open-cell-foam workflows.
-- Stochastic sweep convenience functions.
-- Ensemble summary and plotting utilities.
+- Stochastic sweep and ensemble convenience functions.
+- Visualization helpers.
 - Imported external-mesh workflows.
 - Advanced post-processing beyond essential result extraction.
 
-Experimental classification is not a judgment that a feature is defective. It prevents the publication release from making stronger support claims than its tests and validation justify.
+The stochastic and visualization modules are explicitly experimental and excluded from publication claims. They are initially retained for compatibility. Before 1.0, they will either receive a focused rework with adequate tests or be deprecated and removed from the public release. Experimental classification is not a judgment that every feature is defective; it prevents stronger support claims than the evidence justifies.
 
 ## Findings by priority
 
