@@ -17,9 +17,9 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 - ABAQUS 2022 is installed locally on Windows.
 - WSL2 with Ubuntu and Conda is available locally.
 - A clean `homicsx_dev` Conda environment can be created from `environment-dev.yml` under WSL2.
-- Baseline result on 2026-09-15: 49 tests passed under Python 3.10 and DOLFINx 0.9.0, with 40% total statement coverage.
+- Baseline result on 2026-09-15: 51 tests passed under Python 3.10 and DOLFINx 0.9.0, with 40% total statement coverage.
 - Homogeneous plane-strain verification recovers the analytical stiffness within a 0.5% relative-norm tolerance on the fine test mesh. An initial four-level diagnostic reduced the error from 2.54% on the coarsest mesh to 0.21% on the finest, although independently generated unstructured meshes did not produce monotonic intermediate errors. A controlled mesh and periodic-constraint convergence study remains necessary.
-- The associated research project contains geometry-matched HomiCSx and ABAQUS calculations, scripts, meshes, solver inputs, ODB files, extracted element data, and summary outputs.
+- The repository now contains a compact nine-case HomiCSx--Abaqus macroscopic energy, stress, and deformation reference suite with machine-readable provenance and executable acceptance checks. Research-specific localization statistics remain in the associated study, which also retains the full calculations, scripts, meshes, solver inputs, ODB files, and extracted element data.
 
 ## Publication scope
 
@@ -53,10 +53,9 @@ The stochastic and visualization modules are explicitly experimental and exclude
 ### P0 Submission blockers
 
 1. **The homogenization solvers still lack adequate regression and verification coverage.** The first end-to-end linear tests now check finite output, approximate stiffness symmetry, and recovery of an analytical homogeneous plane-strain stiffness. Mesh convergence, three-dimensional linear verification, nonlinear analytical verification, and hook behavior remain open.
-2. **There is no compact, repository-owned verification and validation suite.** The research project contains strong ABAQUS evidence, but it is paper-specific, path-dependent, large, and not organized as reusable HomiCSx validation.
-3. **Packaging metadata is incomplete.** `pyproject.toml` lacks authors, license metadata, readme, classifiers, URLs, dependencies or dependency strategy, optional development dependencies, and other release metadata expected of a reusable Python package.
-4. **The project lacks contribution, support, issue-reporting, and maintenance guidance.** This is especially important for an archival maintenance posture.
-5. **JOSS public-history timing is not yet favorable.** The first public commit is dated 2026-05-05. A submission should not be attempted before at least six months of genuine public history and a fresh venue check.
+2. **Packaging metadata is incomplete.** `pyproject.toml` lacks authors, license metadata, readme, classifiers, URLs, dependencies or dependency strategy, optional development dependencies, and other release metadata expected of a reusable Python package.
+3. **The project lacks contribution, support, issue-reporting, and maintenance guidance.** This is especially important for an archival maintenance posture.
+4. **JOSS public-history timing is not yet favorable.** The first public commit is dated 2026-05-05. A submission should not be attempted before at least six months of genuine public history and a fresh venue check.
 
 The publication-preparation branch now defines the supported scope and provides a GitHub Actions workflow for pull requests, pushes to `main`, and manual runs. The first hosted run passed all 49 tests on 2026-09-15; these changes remain subject to review and merge.
 
