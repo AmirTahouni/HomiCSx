@@ -58,7 +58,7 @@ The stochastic and visualization modules are explicitly experimental and exclude
 4. **The project lacks contribution, support, issue-reporting, and maintenance guidance.** This is especially important for an archival maintenance posture.
 5. **JOSS public-history timing is not yet favorable.** The first public commit is dated 2026-05-05. A submission should not be attempted before at least six months of genuine public history and a fresh venue check.
 
-The publication-preparation branch now defines the supported scope and provides a GitHub Actions workflow for pull requests, pushes to `main`, and manual runs. These items remain subject to a successful hosted CI run and merge.
+The publication-preparation branch now defines the supported scope and provides a GitHub Actions workflow for pull requests, pushes to `main`, and manual runs. The first hosted run passed all 49 tests on 2026-09-15; these changes remain subject to review and merge.
 
 ### P1 High-priority quality risks
 
