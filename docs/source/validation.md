@@ -14,14 +14,15 @@ The automated test suite assigns identical isotropic linear-elastic properties t
 
 The repository contains a compact extract of nine outcome-blind, geometry-matched HomiCSx--Abaqus comparisons. The cases span particle counts 20, 50, and 110 and clearance-to-radius ratios 0.25, 0.50, and 0.75 at stretch 1.50.
 
-The predeclared acceptance limits are 1% for macroscopic energy and `P11`, and 3% for matrix energy Q99 and maximum-principal-Biot-stress Q99. Maximum observed absolute differences are:
+The package-level suite uses conventional macroscopic quantities rather than the localization statistics studied in the associated research paper. Its acceptance limit is 1% for macroscopic energy and stress. Mean `J` uses a tighter tolerance because both solvers impose a deformation gradient with determinant 1.5. Maximum observed absolute differences are:
 
 | Metric | Maximum difference | Limit |
 |---|---:|---:|
 | Macroscopic energy | 0.106% | 1% |
 | Macroscopic `P11` | 0.137% | 1% |
-| Matrix energy Q99 | 0.516% | 3% |
-| Matrix principal-Biot-stress Q99 | 2.052% | 3% |
+| Macroscopic `P22` | 0.0051% | 1% |
+| Macroscopic `P33` | 0.111% | 1% |
+| Mean `J` | 1.42e-8% | 0.000001% |
 
 Recompute the comparison from the stored reference values with:
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "comparison_id": "nonlinear_plane_strain_stage_b_primary_metrics_v1",
+  "comparison_id": "nonlinear_plane_strain_macroscopic_response_v1",
   "date_assessed": "2026-09-14",
   "scope": "Nine outcome-blind, geometry-matched finite-strain comparisons at stretch 1.50.",
   "selection": {
@@ -34,18 +34,20 @@
   "metrics": {
     "macro_energy": {"limit_percent": 1.0},
     "macro_p11": {"limit_percent": 1.0},
-    "energy_q99": {"limit_percent": 3.0},
-    "principal_biot_q99": {"limit_percent": 3.0}
+    "macro_p22": {"limit_percent": 1.0},
+    "macro_p33": {"limit_percent": 1.0},
+    "mean_j": {"limit_percent": 0.000001}
   },
   "expected_maximum_absolute_difference_percent": {
     "macro_energy": 0.10615462630787764,
     "macro_p11": 0.13683527022173544,
-    "energy_q99": 0.5164808285103456,
-    "principal_biot_q99": 2.0515636212795885
+    "macro_p22": 0.00500962054111771,
+    "macro_p33": 0.110378114508649,
+    "mean_j": 1.41930023289662e-8
   },
   "source_provenance": {
     "selection": "paper_study/config/abaqus_stage_b_validation_selection_v1.json",
     "comparison": "paper_study/results/abaqus_stage_b_validation_assessment_v1/per_case_metric.csv",
-    "note": "Compact primary-metric extract; raw ODB, mesh, and field archives remain in the associated research workspace."
+    "note": "Compact macroscopic-response extract; Q metrics and dense local fields remain with the associated research study."
   }
 }

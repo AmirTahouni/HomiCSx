@@ -11,11 +11,9 @@ HERE = Path(__file__).resolve().parent
 METRIC_COLUMNS = {
     "macro_energy": ("homicsx_macro_energy", "abaqus_macro_energy"),
     "macro_p11": ("homicsx_macro_p11", "abaqus_macro_p11"),
-    "energy_q99": ("homicsx_energy_q99", "abaqus_energy_q99"),
-    "principal_biot_q99": (
-        "homicsx_principal_biot_q99",
-        "abaqus_principal_biot_q99",
-    ),
+    "macro_p22": ("homicsx_macro_p22", "abaqus_macro_p22"),
+    "macro_p33": ("homicsx_macro_p33", "abaqus_macro_p33"),
+    "mean_j": ("homicsx_mean_j", "abaqus_mean_j"),
 }
 
 

@@ -19,7 +19,7 @@ def test_relative_difference_uses_homicsx_as_reference():
         relative_difference_percent(0.0, 1.0)
 
 
-def test_compact_abaqus_reference_passes_predeclared_primary_metric_gates():
+def test_compact_abaqus_reference_passes_macroscopic_response_gates():
     summary = evaluate()
     metadata = json.loads((VALIDATION_DIR / "metadata.json").read_text())
 
