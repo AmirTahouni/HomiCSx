@@ -84,6 +84,10 @@ It is made to be completely modular, including the:
 ## Documentation
 The documentation can be viewed [here](https://homicsx.readthedocs.io/en/latest/)
 
+Compact, non-interactive examples that are exercised by the test suite are in
+[`examples/`](examples/). The notebooks in [`demos/`](demos/) provide longer
+narrative walkthroughs.
+
 ## Installation guide
 
 HomiCSx is currently only accessible via installation from source.

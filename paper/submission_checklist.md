@@ -13,6 +13,8 @@
 
 ## Software release
 
+- [x] Add deterministic, tested scripts for the essential linear and
+  heterogeneous viscoelastic workflows.
 - [ ] Choose the publication version (proposed: `1.0.0`).
 - [ ] Finish the release notes and public API freeze.
 - [ ] Run the full clean-environment test and documentation matrix.
@@ -32,7 +34,7 @@
 - [ ] Keep main text, abstract, captions, and footnotes within 3000 words.
 - [ ] Use no more than six figures.
 - [ ] Complete the required software metadata table.
-- [ ] Prepare a workflow/component figure from a reproducible source.
+- [x] Prepare a workflow/component figure from a reproducible source.
 - [x] Prepare a validation figure comparing the conventional macro-response
   histories; do not use research-paper localization/Q statistics.
 - [ ] Finalize keywords, highlights, graphical abstract, and cover letter if

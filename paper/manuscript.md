@@ -123,15 +123,24 @@ external post-processing.
 
 The repository includes executable demonstrations for geometry generation,
 2D and 3D linear homogenization, nonlinear hyperelasticity, generalized-Maxwell
-homogenization, mesh convergence, and hook-based field processing. A minimal
-linear workflow creates a seeded geometry, generates a periodic-conforming
-mesh, assigns phase materials, and passes these objects to the linear driver.
-The same separation of concerns is retained for nonlinear analyses, allowing a
-geometry or material implementation to be changed without replacing the full
-pipeline.
+homogenization, mesh convergence, and hook-based field processing. In addition
+to narrative notebooks, compact deterministic scripts for linear and
+heterogeneous viscoelastic homogenization are executed by the test suite. The
+linear script creates a fixed geometry, generates a periodic-conforming mesh,
+assigns phase materials, and passes these objects to the linear driver. The
+viscoelastic script exercises nonlinear equilibrium, state evolution, and a
+typed macro-stress hook. The same separation of concerns allows a geometry or
+material implementation to be changed without replacing the full pipeline.
 
-[FIGURE 1: Component and data-flow diagram, generated from a reproducible
-source rather than a screenshot.]
+![HomiCSx architecture and data flow. The supported workflow proceeds from
+geometry through periodic meshing, finite-element construction, homogenization,
+and result extraction. Custom materials, load callables, and typed hooks expose
+documented extension points.](figures/architecture_workflow.png)
+
+**Figure 1.** HomiCSx architecture and data flow. The supported workflow
+proceeds from geometry through periodic meshing, finite-element construction,
+homogenization, and result extraction. Custom materials, load callables, and
+typed hooks expose documented extension points.
 
 [FIGURE 2: Representative periodic 2D/3D cells and matching opposite-boundary
 meshes.]
