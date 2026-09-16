@@ -238,11 +238,11 @@ development if active maintenance changes.
 
 ## 7. Availability and reproducibility
 
-Source code: https://github.com/AmirTahouni/HomiCSx  
-Documentation: https://homicsx.readthedocs.io/en/latest/  
-License: MIT  
-Version described: [RELEASE REQUIRED]  
-Archive DOI: [ZENODO DOI REQUIRED]
+- Source code: https://github.com/AmirTahouni/HomiCSx
+- Documentation: https://homicsx.readthedocs.io/en/latest/
+- License: MIT
+- Version described: 1.0.0
+- Archive DOI: [ZENODO DOI REQUIRED]
 
 The repository contains pinned Conda environment specifications, installation
 instructions, automated tests, benchmark manifests, independent Abaqus runner
@@ -277,7 +277,7 @@ required to evaluate the committed comparison results and are not distributed.
 
 | Field | Value |
 |---|---|
-| Current code version | [RELEASE REQUIRED] |
+| Current code version | 1.0.0 |
 | Permanent link to code/repository | [ZENODO DOI REQUIRED] |
 | Code repository | https://github.com/AmirTahouni/HomiCSx |
 | Legal software license | MIT |
@@ -322,5 +322,5 @@ the publication.
    implementing periodic boundary conditions in multi-scale homogenisation,
    European Journal of Mechanics - A/Solids 78 (2019) 103825.
    https://doi.org/10.1016/j.euromechsol.2019.103825.
-7. A. R. Tahouni, HomiCSx, version [VERSION], Zenodo (2026).
+7. A. R. Tahouni, HomiCSx, version 1.0.0, Zenodo (2026).
    [ZENODO DOI REQUIRED].

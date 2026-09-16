@@ -15,7 +15,7 @@ Guide for Authors and submission system.
 
 Compile from this directory with MiKTeX or TeXstudio by running `pdflatex`
 twice on `manuscript.tex`. The checked-in `manuscript.pdf` is the visually
-inspected draft output; its release and archive identifiers remain pending.
+inspected draft output; its Zenodo archive identifiers remain pending.
 
 Do not submit this draft until all items in `submission_checklist.md` are
 resolved, a versioned release has been archived with a DOI, and the manuscript

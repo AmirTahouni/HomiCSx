@@ -16,6 +16,7 @@ dependencies:
   - pytest-cov>=5,<7
   - pip
   - pip:
+      - build>=1,<2
       - sphinx>=8,<9
       - myst-parser>=4,<5
       - sphinx-rtd-theme>=3,<4

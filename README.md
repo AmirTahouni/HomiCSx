@@ -19,7 +19,9 @@ It is an open-source numerical homogenization software, inheriting the advantage
 - Macroscopic stress, strain, energy, and tangent response histories
 - Ability to export XDMF files for Paraview post processing
 
-The `homicsx.stochastic` and `homicsx.visualization` modules are experimental. They are not part of the publication-supported API and may change or be removed before version 1.0.
+The `homicsx.stochastic` and `homicsx.visualization` modules are experimental.
+They are not part of the publication-supported API and may change or be removed
+in a future release.
 
 ## Introduction
 
@@ -92,7 +94,7 @@ narrative walkthroughs.
 
 HomiCSx is currently only accessible via installation from source.
 
-HomiCSx 0.1.0 is tested on Linux with Python 3.10, DOLFINx 0.9.0, and
+HomiCSx 1.0.0 is tested on Linux with Python 3.10, DOLFINx 0.9.0, and
 `dolfinx_mpc` 0.9.0. On Windows, use WSL2. Other environments, including
 macOS, may work but are outside the current tested support envelope.
 

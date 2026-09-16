@@ -2,7 +2,7 @@
 
 ## Supported environment
 
-HomiCSx 0.1.0 is tested with Python 3.10, DOLFINx 0.9.0, and
+HomiCSx 1.0.0 is tested with Python 3.10, DOLFINx 0.9.0, and
 `dolfinx_mpc` 0.9.0 on Linux. Windows users should run the Linux
 environment under WSL2. macOS may work, but is not currently exercised by
 the automated test suite.

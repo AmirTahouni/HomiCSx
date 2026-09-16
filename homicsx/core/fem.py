@@ -61,12 +61,12 @@ class ProblemSettings:
         if self.two_dimensional_formulation is None:
             raise ValueError(
                 "two_dimensional_formulation must be 'plane_strain' for 2D "
-                "problems; plane stress is not supported in HomiCSx 0.1.0."
+                "problems; plane stress is not supported."
             )
         if self.two_dimensional_formulation == "plane_stress":
             raise NotImplementedError(
                 "Plane-stress homogenization is not supported in HomiCSx "
-                "0.1.0; use 'plane_strain' or a 3D model."
+                "the current release; use 'plane_strain' or a 3D model."
             )
         if self.two_dimensional_formulation != "plane_strain":
             raise ValueError(

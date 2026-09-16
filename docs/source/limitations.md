@@ -2,7 +2,7 @@
 
 ## Supported publication scope
 
-HomiCSx 0.1.0 supports the documented end-to-end workflow for periodic
+HomiCSx 1.0.0 supports the documented end-to-end workflow for periodic
 particulate geometry generation, Gmsh meshing and tagging, multiphase
 linear-elastic homogenization, finite-strain Neo-Hookean homogenization,
 finite-strain generalized-Maxwell homogenization, custom nonlinear materials,

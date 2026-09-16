@@ -14,6 +14,7 @@ htmlcov/
 
 # Documentation (if using Sphinx)
 docs/build/
+docs/_build/
 
 # IDE and editors
 .vscode/
@@ -35,6 +36,8 @@ Thumbs.db
 compose.debug.yml
 .dockerignore
 *.egg-info/
+build/
+dist/
 # Abaqus validation scratch files (ODB, lock, message, and solver databases).
 validation/abaqus/canonical_work/
 validation/abaqus/abaqus.rpy*

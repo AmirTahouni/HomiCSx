@@ -15,9 +15,10 @@
 
 - [x] Add deterministic, tested scripts for the essential linear and
   heterogeneous viscoelastic workflows.
-- [ ] Choose the publication version (proposed: `1.0.0`).
-- [ ] Finish the release notes and public API freeze.
-- [ ] Run the full clean-environment test and documentation matrix.
+- [x] Choose the publication version: `1.0.0`.
+- [x] Finish the release notes and public API freeze.
+- [x] Run the full clean-environment test, strict documentation, validation,
+  package-build, and installed-wheel matrix for the 1.0.0 release candidate.
 - [ ] Create and push the signed or annotated Git tag.
 - [ ] Create the GitHub release.
 - [ ] Archive the release in Zenodo and obtain the version DOI and concept DOI.
