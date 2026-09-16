@@ -48,13 +48,31 @@ class ProblemSettings:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        if self.dim==3 and self.two_dimensional_formulation!=None:
-            raise ValueError('for 3 dimensional problems "two_dimensional_formulation" must be set to None.')
-        elif self.dim==2:
-            if self.two_dimensional_formulation==None:
-                raise ValueError('for 2 dimensional problems "two_dimensional_formulation" must be set to either "plane_strain" or "plane_stress".')
-            elif self.two_dimensional_formulation=="plane_stress":
-                raise NotImplementedError('plane stress two dimenstional formulation is not implementd yet.')
+        if self.dim not in (2, 3):
+            raise ValueError("dim must be either 2 or 3.")
+
+        if self.dim == 3:
+            if self.two_dimensional_formulation is not None:
+                raise ValueError(
+                    "two_dimensional_formulation must be None for 3D problems."
+                )
+            return
+
+        if self.two_dimensional_formulation is None:
+            raise ValueError(
+                "two_dimensional_formulation must be 'plane_strain' for 2D "
+                "problems; plane stress is not supported in HomiCSx 0.1.0."
+            )
+        if self.two_dimensional_formulation == "plane_stress":
+            raise NotImplementedError(
+                "Plane-stress homogenization is not supported in HomiCSx "
+                "0.1.0; use 'plane_strain' or a 3D model."
+            )
+        if self.two_dimensional_formulation != "plane_strain":
+            raise ValueError(
+                "two_dimensional_formulation must be 'plane_strain' for 2D "
+                "problems."
+            )
 
 
 __all__ = [

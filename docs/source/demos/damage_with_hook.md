@@ -34,7 +34,7 @@ from homicsx import(
 )
 from homicsx.core.material import HyperelasticMaterial, MaterialState
 from homicsx.mesh import generate_mesh
-from homicsx.core.homogenization import AdaptiveSettings
+from homicsx import AdaptiveSettings
 from homicsx.homogenization.driver import (
     NonlinearHomogenizationDriver,
     PostLoadCaseData,

@@ -17,7 +17,7 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 - ABAQUS 2022 is installed locally on Windows.
 - WSL2 with Ubuntu and Conda is available locally.
 - A clean `homicsx_dev` Conda environment can be created from `environment-dev.yml` under WSL2.
-- Current result on 2026-09-16: 62 tests pass under Python 3.10 and DOLFINx 0.9.0. The suite includes analytical 2D/3D linear patch tests, a solver-level homogeneous finite-strain patch test, nonlinear constitutive consistency, hook semantics, and the compact Abaqus macroscopic-reference checks.
+- Current result on 2026-09-16: 68 tests pass under Python 3.10 and DOLFINx 0.9.0. The suite includes analytical 2D/3D linear patch tests, a solver-level homogeneous finite-strain patch test, nonlinear constitutive consistency, hook semantics, public API and unsupported-input checks, and the compact Abaqus macroscopic-reference checks.
 - Homogeneous plane-strain verification now includes a deterministic two-level convergence gate on one fixed seeded geometry. Relative stiffness error falls from 2.543% at minimum/maximum mesh sizes 0.08/0.16 to 0.211% at 0.025/0.05, a 12.0-fold reduction. CI requires coarse error below 5%, fine error below 0.5%, and at least a factor-two reduction; no claim of monotonic intermediate convergence is made for independently regenerated unstructured meshes.
 - The repository now contains a compact nine-case HomiCSx--Abaqus macroscopic energy, stress, and deformation reference suite with machine-readable provenance and executable acceptance checks. Research-specific localization statistics remain in the associated study, which also retains the full calculations, scripts, meshes, solver inputs, ODB files, and extracted element data.
 
@@ -65,8 +65,8 @@ The publication-preparation branch now defines the supported scope and provides 
 2. **Documentation imports are heavily mocked.** A successful documentation build does not establish that documented public imports work against the real scientific dependencies.
 3. **Dependency roles are now explicit.** Conda owns the compiled runtime stack; `pyproject.toml` describes the package and optional pure-Python tooling; `docs/requirements.txt` contains only direct documentation dependencies.
 4. **The documentation dependency file has been reduced to direct, bounded requirements.** Malformed API docstrings, duplicate indexing, the missing static path, and orphan demo pages have been corrected. The Sphinx build now passes with warnings treated as errors and is enforced in CI.
-5. **The public API and compatibility policy are not stated.** Top-level exports exist, but stability expectations and deprecation rules are absent.
-6. **Several advertised branches explicitly raise `NotImplementedError`.** These need clear documentation, tests for the expected failure, implementation, or removal from release claims.
+5. **Public API and compatibility policy documented.** `PUBLIC_API.md` defines top-level supported imports, experimental compatibility exports, pre-1.0 stability expectations, and deprecation practice. Nonlinear settings, results, simulation state, and typed hook data are now available from the top-level package and covered by regression tests.
+6. **Unsupported branches classified and documented.** Plane stress now raises a tested, actionable `NotImplementedError`; other unsupported workflows are listed on the limitations page. Remaining `NotImplementedError` paths are private defensive shape branches or belong to explicitly experimental stochastic helpers.
 7. **Runtime output relies heavily on direct `print` calls.** Library-level diagnostics should be reviewed and generally routed through logging or explicit result objects.
 8. **Examples are notebook-heavy.** Important publication examples need deterministic, scriptable counterparts that can run in automated checks.
 9. **The repository contains two notebooks larger than 1 MB.** Notebook outputs and embedded data should be reviewed for reproducibility, noise, and repository size.
@@ -76,7 +76,7 @@ The publication-preparation branch now defines the supported scope and provides 
 
 1. Rewrite the README around a precise statement of need, supported scope, minimal example, installation path, documentation, validation status, citation, and support expectations.
 2. Add conceptual documentation for conventions, periodicity, stress and strain measures, averaging, load cases, hooks, and result interpretation.
-3. Add a limitations page that distinguishes unsupported behavior from planned or experimental behavior.
+3. Maintain the limitations page so unsupported behavior remains distinct from planned or experimental behavior.
 4. Add reproducible tutorials for linear homogenization, nonlinear homogenization, custom materials, and hooks.
 5. Add a verification and validation section containing benchmark definitions, software versions, tolerances, reference values, and regeneration instructions.
 6. Correct spelling, terminology, and inconsistent capitalization throughout the README and documentation.
@@ -211,4 +211,4 @@ Do not tag 1.0.0 until the clean environment, core test suite, validation suite,
 2. Maintain the analytical convergence, 3D linear, and finite-strain verification gates as the solver evolves.
 3. Inspect the nonlinear driver, hook lifecycle, constitutive implementation, and averaging definitions against the research workflow.
 4. Extract one minimal ABAQUS benchmark and document exact cross-solver conventions.
-5. Draft the supported-versus-experimental feature matrix for author approval.
+5. Review the documented supported-versus-experimental feature boundary before the release candidate.
