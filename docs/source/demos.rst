@@ -29,3 +29,17 @@ Here you'll find examples demonstrating various features of HomiCSx:
      - Convergence study with respect to mesh size
    * - :doc:`demos/convergence_num_particles`
      - Convergence study with respect to number of particles
+
+.. toctree::
+   :hidden:
+
+   demos/geometry_generation
+   demos/homogenization_linear_2D
+   demos/homogenization_linear_3D
+   demos/nonlinear_hyperelastic
+   demos/nonlinear_viscoelastic
+   demos/damage_with_hook
+   demos/ensemble_homogenization
+   demos/sweep_studies
+   demos/convergence_mesh_size
+   demos/convergence_num_particles

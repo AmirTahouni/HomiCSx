@@ -24,6 +24,7 @@ def as_domain_size(dim: int, domain_size: float | tuple | list | np.ndarray) -> 
         The expected spatial dimension (e.g., 2 or 3).
     domain_size : float | tuple | list | np.ndarray
         The input defining the domain size. 
+
         - If a scalar (float/int) is provided, it is interpreted as a uniform 
           length for all dimensions (cubic/square domain).
         - If a sequence is provided, it must contain exactly `dim` elements 
@@ -37,6 +38,7 @@ def as_domain_size(dim: int, domain_size: float | tuple | list | np.ndarray) -> 
     Raises
     ------
     ValueError
+
         - If the scalar value is non-positive.
         - If the provided sequence length does not match `dim`.
         - If any of the dimension values are non-positive.

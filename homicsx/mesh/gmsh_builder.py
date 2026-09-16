@@ -391,6 +391,7 @@ def build_gmsh_model(
     -------
     dict
         Dictionary containing metadata about the constructed model, including:
+
         - ``"dim"`` : geometric dimension
         - ``"domain_size"`` : RVE side lengths
         - ``"matrix_phase_id"`` : matrix phase identifier
@@ -407,6 +408,7 @@ def build_gmsh_model(
     ``gmsh.model.mesh.generate(...)``.
 
     Important assumptions of the current implementation:
+
     - the outer domain is rectangular in 2D or cuboidal in 3D,
     - the outer domain starts at the origin,
     - inclusions are axis-aligned,
