@@ -12,3 +12,6 @@ Experimental features:
 The random geometry generators used by the supported geometry workflow are not classified as experimental merely because their algorithms are stochastic. This status applies to the higher-level ensemble, parameter-sweep, plotting, and interactive visualization conveniences.
 
 Publication examples and validation claims do not rely on the experimental modules.
+
+See the repository's `PUBLIC_API.md` for the compatibility policy and
+{doc}`limitations` for the publication-supported feature boundary.

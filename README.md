@@ -130,7 +130,8 @@ deliberately excluded from package verification.
 
 Citation metadata is provided in [`CITATION.cff`](CITATION.cff). See
 [`SUPPORT.md`](SUPPORT.md) for the maintenance policy and
-[`CONTRIBUTING.md`](CONTRIBUTING.md) for contribution guidance.
+[`CONTRIBUTING.md`](CONTRIBUTING.md) for contribution guidance. The supported
+surface and compatibility rules are defined in [`PUBLIC_API.md`](PUBLIC_API.md).
 
 ## Quickstart
 
