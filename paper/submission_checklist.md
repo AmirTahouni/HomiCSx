@@ -2,12 +2,12 @@
 
 ## Blocking author inputs
 
-- [ ] Confirm the final author spelling: **Amir Reza Tahouni**.
-- [ ] Provide the affiliation to print, or explicitly choose “Independent
+- [x] Confirm the final author spelling: **Amir Reza Tahouni**.
+- [x] Provide the affiliation to print, or explicitly choose “Independent
   researcher, Tehran, Iran.”
-- [ ] Confirm the corresponding-author email.
-- [ ] Provide an ORCID, or decide to submit without one.
-- [ ] Confirm whether any funding supported HomiCSx development.
+- [x] Confirm the corresponding-author email: tahouniamirreza@gmail.com.
+- [x] Provide an ORCID, or decide to submit without one: submit without one.
+- [x] Confirm whether any funding supported HomiCSx development: no funding.
 - [ ] Confirm whether the associated application paper may be cited as a
   preprint by submission time.
 
@@ -39,7 +39,7 @@
   requested by the live submission system.
 - [ ] Verify every reference and DOI against its publisher record.
 - [ ] Add the archived HomiCSx software citation as a software reference.
-- [ ] Retain the generative-AI disclosure because AI assisted code review,
+- [x] Retain the generative-AI disclosure because AI assisted code review,
   validation preparation, documentation, and manuscript drafting.
 - [ ] Complete the submission-system declarations and sanctions/payment checks
   using the author's own accurate identity and residence information.
@@ -55,4 +55,3 @@
 - [ ] Reviewer-form audit: metadata tables are complete and consistent.
 - [ ] Render and visually inspect the final PDF.
 - [ ] Obtain author approval of the exact files before submission.
-

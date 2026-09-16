@@ -2,9 +2,8 @@
 
 **Article type:** Original Software Publication  
 **Author:** Amir Reza Tahouni  
-**Affiliation:** [AUTHOR INPUT REQUIRED]  
-**Corresponding email:** tahouniamirreza@gmail.com [CONFIRM]  
-**ORCID:** [AUTHOR INPUT REQUIRED OR OMIT]
+**Affiliation:** Independent researcher, Tehran, Iran
+**Corresponding email:** tahouniamirreza@gmail.com
 
 ## Abstract
 
@@ -209,14 +208,6 @@ instructions, automated tests, benchmark manifests, independent Abaqus runner
 scripts, compact reference results, and executable acceptance gates. Abaqus is
 not required to recompute comparisons from the committed compact results.
 
-## Declaration of generative AI and AI-assisted technologies
-
-During preparation of the software and this manuscript, the author used an
-OpenAI coding assistant to support code review, test and validation development,
-documentation editing, and manuscript drafting. The author reviewed and
-verified the resulting code, numerical evidence, and text and takes full
-responsibility for the content of the work.
-
 ## CRediT authorship contribution statement
 
 **Amir Reza Tahouni:** Conceptualization, Methodology, Software, Validation,
@@ -225,8 +216,8 @@ Writing—review and editing.
 
 ## Funding
 
-[AUTHOR INPUT REQUIRED: identify funding, or state that no specific grant was
-received.]
+This research did not receive any specific grant from funding agencies in the
+public, commercial, or not-for-profit sectors.
 
 ## Declaration of competing interest
 
@@ -253,7 +244,15 @@ required to evaluate the committed comparison results and are not distributed.
 | Software code languages/tools | Python, UFL, Gmsh API |
 | Compilation requirements | Conda environment; Python 3.10; DOLFINx 0.9.0; dolfinx_mpc 0.9.0 |
 | Operating environment | Linux; WSL2 tested |
-| Support email | tahouniamirreza@gmail.com [CONFIRM] |
+| Support email | tahouniamirreza@gmail.com |
+
+## Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
+
+During the preparation of this work, the author used an OpenAI coding assistant
+to support code review, test and validation development, documentation editing,
+and manuscript drafting. After using this service, the author reviewed and
+edited the content as needed and takes full responsibility for the content of
+the publication.
 
 ## References
 

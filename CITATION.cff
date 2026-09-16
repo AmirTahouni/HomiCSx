@@ -8,6 +8,7 @@ type: software
 authors:
   - family-names: Tahouni
     given-names: Amir Reza
+    affiliation: "Independent researcher, Tehran, Iran"
     email: "tahouniamirreza@gmail.com"
 
 version: "0.1.0"
