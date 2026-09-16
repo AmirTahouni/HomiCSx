@@ -34,3 +34,8 @@ Thumbs.db
 compose.debug.yml
 .dockerignore
 *.egg-info/
+# Abaqus validation scratch files (ODB, lock, message, and solver databases).
+validation/abaqus/canonical_work/
+validation/abaqus/abaqus.rpy*
+validation/abaqus/abaqus*.rec
+validation/abaqus/abaqus_acis.log

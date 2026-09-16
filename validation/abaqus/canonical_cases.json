@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "description": "Deterministic, package-specific HomiCSx/Abaqus verification cases.",
+  "domain": {"lx": 2.0, "ly": 0.75},
+  "mesh": {"homicsx_min_size": 0.018, "homicsx_max_size": 0.036, "abaqus_size": 0.03},
+  "linear_materials": {
+    "matrix": {"young_modulus": 10.0, "poisson_ratio": 0.3},
+    "inclusion": {"young_modulus": 100.0, "poisson_ratio": 0.3}
+  },
+  "linear_cases": [
+    {
+      "case_id": "homogeneous_nonunit",
+      "description": "Non-unit rectangular patch with identical phase properties.",
+      "inclusion_material": "matrix",
+      "circles": [{"center": [1.0, 0.375], "radius": 0.18, "periodic_source_id": null}]
+    },
+    {
+      "case_id": "centered_circle_vf20",
+      "description": "Centered circular inclusion at exactly 20 percent area fraction.",
+      "inclusion_material": "inclusion",
+      "circles": [{"center": [1.0, 0.375], "radius": 0.3090193616185517, "periodic_source_id": null}]
+    },
+    {
+      "case_id": "periodic_split_circle",
+      "description": "One physical circle split across the left/right periodic boundary.",
+      "inclusion_material": "inclusion",
+      "circles": [
+        {"center": [0.0, 0.375], "radius": 0.22, "periodic_source_id": null},
+        {"center": [2.0, 0.375], "radius": 0.22, "periodic_source_id": 0}
+      ]
+    }
+  ],
+  "macro_strain_probes": {
+    "eps11": [0.01, 0.0, 0.0],
+    "eps22": [0.0, 0.01, 0.0],
+    "gamma12": [0.0, 0.0, 0.01]
+  },
+  "nonlinear_case": {
+    "case_id": "homogeneous_simple_shear",
+    "young_modulus": 10.0,
+    "poisson_ratio": 0.3,
+    "gamma12": 0.2,
+    "compared_quantities": ["macro_energy", "macro_p12", "mean_j"]
+  },
+  "acceptance": {
+    "linear_stiffness_frobenius_percent": 1.0,
+    "linear_probe_stress_percent": 1.0,
+    "linear_probe_energy_percent": 1.0,
+    "nonlinear_macro_energy_percent": 1.0,
+    "nonlinear_macro_p12_percent": 1.0,
+    "nonlinear_mean_j_percent": 0.1
+  }
+}
