@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document records the initial evidence-based audit for preparing HomiCSx as a stable, citable research-software release. The intended first-choice venue is the Journal of Open Source Software, with another archival software journal retained as a fallback if HomiCSx does not satisfy JOSS scope or sustainability expectations.
+This document records the evidence-based audit for preparing HomiCSx as a stable, citable research-software release. The selected venue is SoftwareX, using its Original Software Publication route.
 
 The publication release should present HomiCSx as an extensible, end-to-end framework for linear and nonlinear finite-element computational homogenization. The supported workflow spans periodic microstructure generation, meshing, finite-element formulation, homogenization, hook-based customization, and essential post-processing.
 
@@ -17,7 +17,7 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 - ABAQUS 2022 is installed locally on Windows.
 - WSL2 with Ubuntu and Conda is available locally.
 - A clean `homicsx_dev` Conda environment can be created from `environment-dev.yml` under WSL2.
-- Current result on 2026-09-16: 68 tests pass under Python 3.10 and DOLFINx 0.9.0. The suite includes analytical 2D/3D linear patch tests, a solver-level homogeneous finite-strain patch test, nonlinear constitutive consistency, hook semantics, public API and unsupported-input checks, and the compact Abaqus macroscopic-reference checks.
+- Current result on 2026-09-16: 101 tests pass under Python 3.10 and DOLFINx 0.9.0. The suite includes analytical 2D/3D linear patch tests, finite-strain and viscoelastic solver tests, nonlinear constitutive consistency, 2D/3D periodic-constraint checks, hook semantics, public API checks, and compact Abaqus macroscopic-reference checks.
 - Homogeneous plane-strain verification now includes a deterministic two-level convergence gate on one fixed seeded geometry. Relative stiffness error falls from 2.543% at minimum/maximum mesh sizes 0.08/0.16 to 0.211% at 0.025/0.05, a 12.0-fold reduction. CI requires coarse error below 5%, fine error below 0.5%, and at least a factor-two reduction; no claim of monotonic intermediate convergence is made for independently regenerated unstructured meshes.
 - The repository now contains a compact nine-case HomiCSx--Abaqus macroscopic energy, stress, and deformation reference suite with machine-readable provenance and executable acceptance checks. Research-specific localization statistics remain in the associated study, which also retains the full calculations, scripts, meshes, solver inputs, ODB files, and extracted element data.
 
@@ -38,7 +38,6 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 
 These features require additional evidence before they are included in the publication-supported core:
 
-- Finite-strain viscoelasticity and state evolution.
 - Quad and hex meshing across the advertised geometry range.
 - Overlapping-void and open-cell-foam workflows.
 - Stochastic sweep and ensemble convenience functions.
@@ -55,7 +54,7 @@ The stochastic and visualization modules are explicitly experimental and exclude
 1. **Core analytical verification implemented.** End-to-end linear tests check finite output, stiffness symmetry, analytical homogeneous stiffness recovery in 2D plane strain and full six-load-case 3D, and deterministic coarse-to-fine error reduction. The nonlinear periodic solver recovers analytical homogeneous Neo-Hookean macroscopic energy, PK1 stress, and mean J; the constitutive PK1 is independently checked against the numerical energy gradient in 2D and 3D. Hook ordering, shared state, scope, and failure isolation are tested. Further convergence studies can broaden evidence but are no longer a submission blocker for the documented core.
 2. **Packaging metadata completed for the source-release workflow.** `pyproject.toml` now records authorship, license, readme, classifiers, URLs, Python support, and optional test/docs dependencies. The Conda environment is explicitly authoritative for the compiled FEniCSx/PETSc/MPI runtime stack rather than making an unreliable PyPI dependency claim.
 3. **Archival maintenance guidance completed.** `CONTRIBUTING.md`, `SUPPORT.md`, and `SECURITY.md` now document issue reporting, contribution expectations, availability-dependent maintenance, and license-enabled continuity through community forks.
-4. **JOSS public-history timing is not yet favorable.** The first public commit is dated 2026-05-05. A submission should not be attempted before at least six months of genuine public history and a fresh venue check.
+4. **Archival release and manuscript metadata remain blockers.** The publication release needs a versioned archive DOI, synchronized citation metadata, final author affiliation/ORCID decisions, and transfer of the manuscript into the current official SoftwareX template.
 
 The publication-preparation branch now defines the supported scope and provides a GitHub Actions workflow for pull requests, pushes to `main`, and manual runs. The first hosted run passed all 49 tests on 2026-09-15; these changes remain subject to review and merge.
 
@@ -193,9 +192,11 @@ This posture must be checked against the target journal immediately before submi
 
 Every feature advertised as supported must have documentation, an executable example, and an objective verification path. Otherwise it is experimental, deferred, or removed from the release claims.
 
-### Gate B JOSS viability
+### Gate B SoftwareX compliance
 
-Reassess after six months of public history, completed core tests, at least one versioned prerelease, and documented research use. If scope or sustainability remains doubtful, prepare a pre-submission inquiry or redirect to a suitable archival software journal.
+Use the current Original Software Publication template, keep the main text
+within the journal's word and figure limits, complete its software metadata
+table, and audit the package and manuscript against the public reviewer form.
 
 ### Gate C Research-paper sequencing
 
@@ -207,8 +208,8 @@ Do not tag 1.0.0 until the clean environment, core test suite, validation suite,
 
 ## Immediate next actions
 
-1. Add continuous integration for the clean environment or a documented equivalent if hosted CI cannot support the solver stack reliably.
-2. Maintain the analytical convergence, 3D linear, and finite-strain verification gates as the solver evolves.
-3. Inspect the nonlinear driver, hook lifecycle, constitutive implementation, and averaging definitions against the research workflow.
-4. Extract one minimal ABAQUS benchmark and document exact cross-solver conventions.
-5. Review the documented supported-versus-experimental feature boundary before the release candidate.
+1. Resolve the author metadata requested in `paper/submission_checklist.md`.
+2. Review and revise the SoftwareX manuscript draft against the author's intended scientific emphasis.
+3. Replace notebook-only essential examples with deterministic scriptable counterparts where needed.
+4. Freeze the release API, prepare release notes, and run the clean release matrix.
+5. Tag and archive the publication release, then synchronize its DOI and version across the repository and manuscript.
