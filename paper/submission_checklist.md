@@ -39,8 +39,9 @@
   strain-energy output without using localization/Q statistics.
 - [x] Prepare a validation figure comparing the conventional macro-response
   histories; do not use research-paper localization/Q statistics.
-- [ ] Finalize keywords, highlights, graphical abstract, and cover letter if
-  requested by the live submission system.
+- [x] Draft compliant highlights, an optional graphical abstract, and a
+  SoftwareX-specific cover letter; reconfirm upload requirements in the live
+  submission system.
 - [ ] Verify every reference and DOI against its publisher record.
 - [ ] Add the archived HomiCSx software citation as a software reference.
 - [x] Retain the generative-AI disclosure because AI assisted code review,
@@ -50,12 +51,13 @@
 
 ## Final quality gate
 
-- [ ] Reviewer-form audit: scientific scope is explicit.
-- [ ] Reviewer-form audit: novelty and research impact are supported without
+- [x] Reviewer-form audit: scientific scope is explicit.
+- [x] Reviewer-form audit: novelty and research impact are supported without
   claiming adoption that has not occurred.
-- [ ] Reviewer-form audit: architecture and experimental setting are clear.
-- [ ] Reviewer-form audit: empirical evidence supports every advertised core
+- [x] Reviewer-form audit: architecture and experimental setting are clear.
+- [x] Reviewer-form audit: empirical evidence supports every advertised core
   feature, or the limitation is stated.
-- [ ] Reviewer-form audit: metadata tables are complete and consistent.
+- [ ] Reviewer-form audit: release-dependent metadata tables are complete and
+  consistent.
 - [ ] Render and visually inspect the final PDF.
 - [ ] Obtain author approval of the exact files before submission.

@@ -7,6 +7,7 @@ environment:
 python paper/figures/generate_architecture_figure.py
 python paper/figures/generate_periodic_mesh_figure.py
 python paper/figures/generate_validation_figure.py
+python paper/figures/generate_graphical_abstract.py
 python paper/figures/generate_paraview_data.py
 ```
 
