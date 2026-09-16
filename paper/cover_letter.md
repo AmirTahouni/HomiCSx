@@ -2,7 +2,8 @@
 
 [Submission date]
 
-Editors  
+Editors
+
 SoftwareX
 
 Dear Editors,
@@ -48,7 +49,10 @@ Thank you for considering this submission.
 
 Sincerely,
 
-Amir Reza Tahouni  
-Independent researcher  
-Tehran, Iran  
+Amir Reza Tahouni
+
+Independent researcher
+
+Tehran, Iran
+
 tahouniamirreza@gmail.com
