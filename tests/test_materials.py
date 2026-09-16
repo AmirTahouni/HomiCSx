@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from dolfinx import mesh, fem
 from mpi4py import MPI
@@ -103,4 +104,61 @@ def test_material_assignment_and_coefficients():
     # Make sure fields are non-zero somewhere
     assert np.any(linear_coeffs.young_modulus.x.array > 0.0)
     assert np.any(hyper_coeffs.mu.x.array > 0.0)
+
+
+@pytest.mark.parametrize(
+    "deformation_gradient",
+    [
+        np.array([[1.20, 0.08], [0.03, 0.92]]),
+        np.array(
+            [
+                [1.12, 0.05, 0.01],
+                [0.02, 0.95, 0.04],
+                [0.00, 0.03, 1.08],
+            ]
+        ),
+    ],
+)
+def test_neo_hookean_pk1_is_energy_gradient(deformation_gradient):
+    """PK1 must equal the derivative of strain energy with respect to F."""
+    material = NeoHookeanIsotropic(young_modulus=7.5, poisson_ratio=0.32)
+    dim = deformation_gradient.shape[0]
+    analytical_stress = material.get_quadrature_point_stress(
+        state=None,
+        F=deformation_gradient,
+        quad_point_idx=0,
+    )
+
+    step = 1e-7
+    numerical_stress = np.zeros_like(deformation_gradient)
+    for i in range(dim):
+        for j in range(dim):
+            perturbation = np.zeros_like(deformation_gradient)
+            perturbation[i, j] = step
+            energy_plus = material.evaluate_energy(
+                deformation_gradient + perturbation,
+                dim,
+            )
+            energy_minus = material.evaluate_energy(
+                deformation_gradient - perturbation,
+                dim,
+            )
+            numerical_stress[i, j] = (energy_plus - energy_minus) / (2.0 * step)
+
+    np.testing.assert_allclose(
+        analytical_stress,
+        numerical_stress,
+        rtol=2e-7,
+        atol=2e-8,
+    )
+
+
+@pytest.mark.parametrize("dim", [2, 3])
+def test_neo_hookean_reference_configuration_is_stress_and_energy_free(dim):
+    material = NeoHookeanIsotropic(young_modulus=7.5, poisson_ratio=0.32)
+    identity = np.eye(dim)
+
+    assert material.evaluate_energy(identity, dim) == pytest.approx(0.0, abs=1e-14)
+    stress = material.get_quadrature_point_stress(None, identity, 0)
+    np.testing.assert_allclose(stress, np.zeros((dim, dim)), atol=1e-14)
 

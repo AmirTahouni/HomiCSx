@@ -19,14 +19,15 @@ def _run_linear_homogenization(
     *,
     min_size=0.06,
     max_size=0.12,
+    dim=2,
 ):
     geometry_input = GeometryInput(
-        dim=2,
+        dim=dim,
         dispersion="mono",
-        shape="circle",
-        volume_fraction=0.05,
+        shape="circle" if dim == 2 else "sphere",
+        volume_fraction=0.05 if dim == 2 else 0.02,
         clearance=0.01,
-        domain_size=(1.0, 1.0),
+        domain_size=(1.0,) * dim,
         num_particles=1,
         seed=42,
     )
@@ -49,9 +50,9 @@ def _run_linear_homogenization(
         }
     )
     settings = ProblemSettings(
-        dim=2,
+        dim=dim,
         kinematics="small_strain",
-        two_dimensional_formulation="plane_strain",
+        two_dimensional_formulation="plane_strain" if dim == 2 else None,
     )
     return LinearHomogenizationDriver(
         mesh_obj=domain,
@@ -109,3 +110,42 @@ def test_homogeneous_plane_strain_recovers_analytical_stiffness():
 
     relative_error = np.linalg.norm(result.C_hom - expected) / np.linalg.norm(expected)
     assert relative_error < 5e-3
+
+def test_homogeneous_3d_recovers_analytical_stiffness():
+    """The full six-load-case 3D solver must pass a homogeneous patch test."""
+    young_modulus = 3.0
+    poisson_ratio = 0.25
+    material = LinearElasticIsotropic(
+        young_modulus=young_modulus,
+        poisson_ratio=poisson_ratio,
+    )
+    result = _run_linear_homogenization(
+        material,
+        material,
+        min_size=0.05,
+        max_size=0.10,
+        dim=3,
+    )
+
+    lame_lambda = (
+        young_modulus
+        * poisson_ratio
+        / ((1.0 + poisson_ratio) * (1.0 - 2.0 * poisson_ratio))
+    )
+    shear_modulus = young_modulus / (2.0 * (1.0 + poisson_ratio))
+    expected = np.array(
+        [
+            [lame_lambda + 2.0 * shear_modulus, lame_lambda, lame_lambda, 0.0, 0.0, 0.0],
+            [lame_lambda, lame_lambda + 2.0 * shear_modulus, lame_lambda, 0.0, 0.0, 0.0],
+            [lame_lambda, lame_lambda, lame_lambda + 2.0 * shear_modulus, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, shear_modulus, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, shear_modulus, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, shear_modulus],
+        ]
+    )
+
+    assert result.C_hom.shape == (6, 6)
+    relative_error = np.linalg.norm(result.C_hom - expected) / np.linalg.norm(expected)
+    # The unstructured 3D periodic mesh carries a small discretization error;
+    # the full constitutive tensor must remain within 1.5% in Frobenius norm.
+    assert relative_error < 1.5e-2
