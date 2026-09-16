@@ -66,6 +66,49 @@ macro-shear-stress error is 0.000157%, and the mean-`J` error is below
 `1e-8`%. Abaqus is treated as an independent comparison implementation, not as
 ground truth.
 
+## Experimental viscoelastic verification
+
+`viscoelastic_case.json` defines an additional homogeneous, two-branch shear-
+relaxation benchmark. A simple shear of `gamma12=0.01` is held for five time
+units. The equilibrium Neo-Hookean branch has `E=10` and `nu=0.25`; Maxwell
+branch shear moduli are 3 and 2, with relaxation times 0.2 and 1.0.
+
+The validation compares the complete macro-`P12` history through three
+independent paths:
+
+1. the HomiCSx driver, including meshing, periodic constraints, material-state
+   evolution, and macroscopic averaging;
+2. direct evaluation of HomiCSx's exponential state recurrence; and
+3. an Abaqus/Standard time-domain Prony-series model using `CPE6H` elements.
+
+The Abaqus model uses long-term hyperelastic moduli, as required by the Abaqus
+2022 CAE material convention when Prony viscoelasticity is attached. It applies
+the shear in a negligible-duration preload step before the relaxation hold so
+the first 0.05-time increment is not contaminated by a displacement ramp.
+
+Run and compare it with:
+
+```bash
+python -m validation.abaqus.run_homicsx_viscoelastic
+cd validation/abaqus
+abaqus cae noGUI=run_abaqus_viscoelastic.py
+cd ../..
+python -m validation.abaqus.compare_viscoelastic
+```
+
+For the committed reference run, the HomiCSx end-to-end curve agrees with its
+direct material recurrence to within `6e-12`% peak-normalized maximum error.
+The Abaqus curve agrees with HomiCSx to within 0.000621% by the same measure;
+the endpoint stress error is 0.0000028%, and maximum absolute mean-`J` error is
+`1.12e-8`.
+
+This benchmark verifies homogeneous constitutive time evolution and driver
+state handling. It does **not** validate heterogeneous viscoelastic
+homogenization. At present, nonequilibrium Maxwell-branch stress is included in
+HomiCSx macroscopic post-processing but not in the nonlinear equilibrium
+residual that determines a heterogeneous fluctuation field. That capability
+therefore remains explicitly experimental.
+
 Run the comparison without an Abaqus installation:
 
 ```console

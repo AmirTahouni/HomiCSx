@@ -28,7 +28,13 @@ work but are not currently part of the verification matrix.
 - Overlapping-void and open-cell-foam workflows lack publication-level tests.
 - Imported external meshes are outside the publication-supported workflow.
   Such meshes are not automatically made periodic-conforming.
-- Finite-strain viscoelasticity and state evolution remain experimental.
+- Finite-strain viscoelasticity and state evolution remain experimental. A
+  homogeneous two-branch shear-relaxation history is verified against Abaqus,
+  but heterogeneous viscoelastic homogenization is not yet validated. The
+  current nonlinear equilibrium residual uses the equilibrium hyperelastic
+  branch; nonequilibrium Maxwell-branch stress is included in macroscopic
+  post-processing but does not yet determine the heterogeneous fluctuation
+  field.
 - Advanced post-processing beyond essential result and XDMF extraction is not
   part of the supported core.
 
