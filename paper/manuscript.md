@@ -142,8 +142,25 @@ proceeds from geometry through periodic meshing, finite-element construction,
 homogenization, and result extraction. Custom materials, load callables, and
 typed hooks expose documented extension points.
 
-[FIGURE 2: Representative periodic 2D/3D cells and matching opposite-boundary
-meshes.]
+![Representative HomiCSx meshes. The 2D cell contains one physical circle
+split across the periodic left/right boundary; the 3D cell contains a centered
+sphere. Blue circles mark master-face nodes and red crosses mark their matching
+slave-face patterns.](figures/periodic_meshes.png)
+
+**Figure 2.** Representative periodic-conforming HomiCSx meshes. The 2D cell
+contains one physical circle split across the left/right boundary; the 3D cell
+contains a centered sphere. Blue circles mark master-face nodes and red crosses
+mark matching slave-face patterns.
+
+![ParaView rendering of the final state of a two-phase hyperelastic cell under
+simple shear. Panel (a) shows von Mises stress and panel (b) shows
+strain-energy density, with finite-element edges retained.](figures/paraview_fields.png)
+
+**Figure 3.** ParaView rendering of the final state at engineering shear
+$\gamma_{12}=0.25$ for a two-phase Neo-Hookean cell. Panel (a) shows von Mises
+stress and panel (b) shows strain-energy density. The field data are exported
+by HomiCSx; mesh edges are retained to distinguish the numerical field from a
+schematic illustration.
 
 ## 4. Verification and validation
 
@@ -181,7 +198,7 @@ lines denote HomiCSx and open markers denote Abaqus. Panel (a) shows the
 homogeneous 2D and 3D cells; panel (b) shows centered and periodic-split
 hyperelastic inclusions in a viscoelastic matrix.](figures/viscoelastic_validation.png)
 
-**Figure 3.** HomiCSx and Abaqus generalized-Maxwell shear-relaxation
+**Figure 4.** HomiCSx and Abaqus generalized-Maxwell shear-relaxation
 histories. Solid lines denote HomiCSx and open markers denote Abaqus. Panel (a)
 shows homogeneous 2D and 3D cells; panel (b) shows centered and periodic-split
 hyperelastic inclusions in a viscoelastic matrix.

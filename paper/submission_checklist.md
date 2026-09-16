@@ -35,6 +35,8 @@
 - [ ] Use no more than six figures.
 - [ ] Complete the required software metadata table.
 - [x] Prepare a workflow/component figure from a reproducible source.
+- [x] Prepare one reproducible ParaView field figure illustrating stress and
+  strain-energy output without using localization/Q statistics.
 - [x] Prepare a validation figure comparing the conventional macro-response
   histories; do not use research-paper localization/Q statistics.
 - [ ] Finalize keywords, highlights, graphical abstract, and cover letter if

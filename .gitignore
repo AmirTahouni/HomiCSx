@@ -40,3 +40,5 @@ validation/abaqus/canonical_work/
 validation/abaqus/abaqus.rpy*
 validation/abaqus/abaqus*.rec
 validation/abaqus/abaqus_acis.log
+# Reproducible manuscript visualization intermediates
+/paper/figures/paraview_data/
