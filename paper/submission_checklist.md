@@ -33,7 +33,7 @@
 - [ ] Use no more than six figures.
 - [ ] Complete the required software metadata table.
 - [ ] Prepare a workflow/component figure from a reproducible source.
-- [ ] Prepare a validation figure comparing the conventional macro-response
+- [x] Prepare a validation figure comparing the conventional macro-response
   histories; do not use research-paper localization/Q statistics.
 - [ ] Finalize keywords, highlights, graphical abstract, and cover letter if
   requested by the live submission system.

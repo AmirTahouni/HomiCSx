@@ -167,7 +167,15 @@ converged heterogeneous fluctuation fields. The external evidence does not
 establish pointwise field identity, all loading paths, or external validation
 of a heterogeneous 3D viscoelastic cell.
 
-[FIGURE 3: Macro-response validation curves and acceptance limits.]
+![HomiCSx and Abaqus generalized-Maxwell shear-relaxation histories. Solid
+lines denote HomiCSx and open markers denote Abaqus. Panel (a) shows the
+homogeneous 2D and 3D cells; panel (b) shows centered and periodic-split
+hyperelastic inclusions in a viscoelastic matrix.](figures/viscoelastic_validation.png)
+
+**Figure 3.** HomiCSx and Abaqus generalized-Maxwell shear-relaxation
+histories. Solid lines denote HomiCSx and open markers denote Abaqus. Panel (a)
+shows homogeneous 2D and 3D cells; panel (b) shows centered and periodic-split
+hyperelastic inclusions in a viscoelastic matrix.
 
 ## 5. Impact and reuse
 
