@@ -64,7 +64,7 @@ The publication-preparation branch now defines the supported scope and provides 
 1. **Documentation and solver environments aligned.** Read the Docs and the solver environment now target Python 3.10.
 2. **Documentation imports are heavily mocked.** A successful documentation build does not establish that documented public imports work against the real scientific dependencies.
 3. **Dependency roles are now explicit.** Conda owns the compiled runtime stack; `pyproject.toml` describes the package and optional pure-Python tooling; `docs/requirements.txt` contains only direct documentation dependencies.
-4. **The documentation dependency file has been reduced to direct, bounded requirements.** A local HTML build completes, but a strict warnings-as-errors build still reports 43 pre-existing API-docstring, duplicate-index, static-path, and orphan-page warnings that require cleanup.
+4. **The documentation dependency file has been reduced to direct, bounded requirements.** Malformed API docstrings, duplicate indexing, the missing static path, and orphan demo pages have been corrected. The Sphinx build now passes with warnings treated as errors and is enforced in CI.
 5. **The public API and compatibility policy are not stated.** Top-level exports exist, but stability expectations and deprecation rules are absent.
 6. **Several advertised branches explicitly raise `NotImplementedError`.** These need clear documentation, tests for the expected failure, implementation, or removal from release claims.
 7. **Runtime output relies heavily on direct `print` calls.** Library-level diagnostics should be reviewed and generally routed through logging or explicit result objects.

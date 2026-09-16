@@ -18,8 +18,10 @@ class ProblemSettings:
         Geometric dimension of the mesh. Supported values are 2 and 3.
     kinematics:
         Name of the kinematic setting. Typical values are:
+
             - "small_strain"
             - "finite_strain"
+
         This is mainly descriptive metadata. The actual global problem type
         is inferred from the assigned material models during assembly.
     two_dimensional_formulation:

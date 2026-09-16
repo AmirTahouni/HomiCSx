@@ -489,16 +489,9 @@ class NonlinearHomogenizationDriver:
             a smaller increment. Useful for capturing rapid changes in
             material response (e.g., damage onset, snap-through).
 
-        Use Cases
-        ---------
-        - **Damage-aware stepping** : Reduce step size when damage begins to
-        accumulate.
-        - **Softening detection** : Force smaller steps when material
-        stiffness decreases.
-        - **Target modification** : Adjust the deformation gradient mid-step
-        for custom loading protocols.
-        - **Performance optimization** : Skip tangent computation for steps
-        where it is not required.
+        Typical uses include damage-aware stepping, softening detection,
+        mid-step target modification, and skipping unnecessary tangent
+        computations.
 
         Example
         -------
@@ -515,13 +508,12 @@ class NonlinearHomogenizationDriver:
 
         Notes
         -----
-        - When ``force_adaptive_step_reduction`` is set to ``True``, the
-        driver discards the current increment, applies the cutback factor,
-        and retries. No solve is attempted for the original increment.
-        - Modifying ``F_macro_target`` changes only the current step; it
-        does not affect the overall loading path.
-        - Hook execution order follows registration order. If multiple
-        hooks modify the same fields, the last modification wins.
+        When ``force_adaptive_step_reduction`` is ``True``, the driver
+        discards the current increment, applies the cutback factor, and
+        retries without solving the original increment. Modifying
+        ``F_macro_target`` changes only the current step, not the overall
+        loading path. Hooks execute in registration order, so the final hook
+        to modify a field determines its value.
         """
         self._pre_step_hooks.append(callback)
     
@@ -564,16 +556,8 @@ class NonlinearHomogenizationDriver:
         state : SimulationState
             Shared mutable state container.
 
-        Use Cases
-        ---------
-        - **Solution quality checks** : Warn or log when iteration counts
-        are unusually high.
-        - **Field pre-processing** : Compute gradient fields or projections
-        needed for non-local constitutive models before stress evaluation.
-        - **State initialization** : Set up temporary state variables that
-        the stress computation will consume.
-        - **Convergence monitoring** : Track residual norm history for
-        solver diagnostics.
+        Typical uses include solution-quality checks, field pre-processing,
+        state initialization, and convergence monitoring.
 
         Example
         -------
@@ -588,11 +572,10 @@ class NonlinearHomogenizationDriver:
 
         Notes
         -----
-        - This hook runs **before** :meth:`add_post_stress_hook`. State
+        This hook runs **before** :meth:`add_post_stress_hook`; state
         modifications made here are visible to stress computation and all
-        subsequent hooks.
-        - The displacement field ``u`` is provided as a full
-        ``dolfinx.fem.Function``, enabling operations like gradient
+        subsequent hooks. The displacement field ``u`` is a full
+        ``dolfinx.fem.Function``, enabling operations such as gradient
         projection and interpolation.
         """
         self._post_convergence_hooks.append(callback)
@@ -643,19 +626,9 @@ class NonlinearHomogenizationDriver:
         state : SimulationState
             Shared mutable state container for inter-hook communication.
 
-        Use Cases
-        ---------
-        - **Damage models** : Compute equivalent strain at quadrature
-        points and update damage variables in ``material_states``.
-        - **Machine learning data export** : Extract full-field deformation
-        gradients and stresses for training constitutive models.
-        - **Non-local models** : Use ``u`` to compute spatial gradients of
-        field variables and solve auxiliary PDEs (e.g., Helmholtz filter
-        for gradient damage).
-        - **Material parameter calibration** : Compare computed stresses
-        against experimental data.
-        - **Real-time monitoring** : Log or visualize stress-strain
-        evolution during long simulations.
+        Typical uses include damage updates, full-field data export,
+        non-local constitutive models, parameter calibration, and runtime
+        monitoring.
 
         Example
         -------
@@ -678,14 +651,12 @@ class NonlinearHomogenizationDriver:
 
         Notes
         -----
-        - This hook fires after :meth:`add_post_convergence_hook` and
-        before :meth:`add_post_tangent_hook`.
-        - Modifications to ``material_states`` **must** respect the state
-        variable naming conventions of the active material models.
-        - The :class:`~homicsx.homogenization.quadrature.QuadraturePointEvaluator`
-        accessible via ``context.quad_evaluator`` provides methods for
-        computing deformation gradients at quadrature points, enabling
-        local constitutive updates.
+        This hook fires after :meth:`add_post_convergence_hook` and before
+        :meth:`add_post_tangent_hook`. Modifications to ``material_states``
+        **must** respect the active material models' state-variable naming
+        conventions. The object at ``context.quad_evaluator`` provides
+        methods for computing deformation gradients at quadrature points,
+        enabling local constitutive updates.
         """
         self._post_stress_hooks.append(callback)
     
@@ -733,19 +704,9 @@ class NonlinearHomogenizationDriver:
         state : SimulationState
             Shared mutable state container.
 
-        Use Cases
-        ---------
-        - **Material stability analysis** : Compute eigenvalues of the
-        tangent matrix; negative eigenvalues indicate loss of ellipticity
-        (strain localization).
-        - **Acoustic tensor check** : Evaluate the strong ellipticity
-        condition for detecting shear band formation.
-        - **Multi-scale FE² coupling** : Pass the consistent tangent to a
-        macro-scale finite element simulation.
-        - **Stiffness degradation tracking** : Monitor the evolution of
-        specific tangent components during damage progression.
-        - **Bifurcation detection** : Identify critical loads where the
-        tangent becomes singular.
+        Typical uses include material-stability analysis, acoustic-tensor
+        checks, multiscale coupling, stiffness-degradation tracking, and
+        bifurcation detection.
 
         Example
         -------
@@ -766,13 +727,12 @@ class NonlinearHomogenizationDriver:
 
         Notes
         -----
-        - The tangent is computed via finite difference perturbation of the
-        macroscopic deformation gradient, using state-aware solves to
-        preserve material history.
-        - 2D problems produce a 4*4 tangent (plane strain components).
-        Convert to 3*3 Voigt notation for eigenvalue analysis:
-        indices [0, 1, 3] correspond to (11, 22, 12).
-        - 3D problems produce a 9*9 tangent. Convert to 6*6 Voigt notation.
+        The tangent is computed by finite-difference perturbation of the
+        macroscopic deformation gradient using state-aware solves. Two-
+        dimensional problems produce a 4-by-4 plane-strain tangent; indices
+        ``[0, 1, 3]`` correspond to ``(11, 22, 12)`` when converting to a
+        3-by-3 Voigt matrix. Three-dimensional problems produce a 9-by-9
+        tangent that can be converted to 6-by-6 Voigt notation.
         """
         self._post_tangent_hooks.append(callback)
     
@@ -819,16 +779,8 @@ class NonlinearHomogenizationDriver:
         state : SimulationState
             Shared mutable state container.
 
-        Use Cases
-        ---------
-        - **Failure logging** : Record load, increment size, and error
-        details for debugging.
-        - **State snapshot** : Save the non-converged displacement field
-        and material states for offline analysis.
-        - **Custom recovery** : Implement problem-specific fallback
-        strategies (e.g., switching to a more robust solver).
-        - **Early termination** : Decide whether to continue with smaller
-        steps or abort the load case.
+        Typical uses include failure logging, non-converged state snapshots,
+        custom recovery strategies, and early-termination decisions.
 
         Example
         -------
@@ -846,13 +798,11 @@ class NonlinearHomogenizationDriver:
 
         Notes
         -----
-        - After this hook fires, the driver automatically reduces the step
-        size and retries (unless the minimum step size has been reached).
-        - Multiple failures at the same load level will cause this hook to
-        fire multiple times.
-        - If the minimum step size is reached, a fatal failure occurs and
-        the load case terminates. The :meth:`add_post_load_case_hook`
-        will still fire with ``converged=False``.
+        After this hook fires, the driver reduces the step size and retries
+        unless the minimum step size has been reached. Multiple failures at
+        one load level invoke the hook multiple times. At the minimum step
+        size, the load case terminates and :meth:`add_post_load_case_hook`
+        still runs with ``converged=False``.
         """
         self._step_failure_hooks.append(callback)
     

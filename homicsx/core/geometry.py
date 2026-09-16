@@ -201,11 +201,13 @@ class GeometryInput:
         Spatial dimension of the RVE. Must be 2 or 3.
     dispersion : str
         Type of particle size distribution.
+
         - ``"mono"`` : Uniform size. Requires ``num_particles``.
         - ``"poly"`` : Random size within [``min_radius``, ``max_radius``] 
           or [``min_scale``, ``max_scale``]. Requires ``volume_fraction_tolerance``.
     shape : str
         Geometry of the inclusions.
+
         - 3D: ``"sphere"``, ``"ellipsoid"``
         - 2D: ``"circle"``, ``"ellipse"``
     volume_fraction : float
@@ -502,9 +504,3 @@ __all__ = [
     "GeometryInput",
     "RVEGeometry",
 ]
-
-
-
-
-
-        
