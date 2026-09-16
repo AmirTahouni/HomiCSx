@@ -21,6 +21,14 @@ Neo-Hookean strain energy are compared component-by-component with the
 implemented first Piola--Kirchhoff stress in both 2D and 3D. The undeformed
 configuration is also required to have zero energy and zero stress.
 
+An end-to-end homogeneous finite-strain patch test applies the explicit
+macroscopic deformation gradient $F=\mathrm{diag}(1.1,1)$ to a two-phase mesh
+whose phases share identical Neo-Hookean properties. The nonlinear periodic
+solver's macroscopic energy, complete first Piola--Kirchhoff stress tensor, and
+mean $J$ must each agree with the analytical constitutive response within 0.5%.
+The explicit deformation gradient avoids relying on load-case naming
+conventions in the verification definition.
+
 Hook tests verify registration order, shared-state propagation, load-case and
 persistent state scopes, and the documented behavior when a hook raises an
 exception.
