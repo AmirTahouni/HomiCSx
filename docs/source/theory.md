@@ -28,7 +28,7 @@ $$\tilde{\mathbf{u}}(\mathbf{x}^+) - \tilde{\mathbf{u}}(\mathbf{x}^-) = \mathbf{
 
 where $\mathbf{x}^+$ and $\mathbf{x}^-$ are corresponding points on opposite faces.
 
-To apply this in a finite element context, the mesh must be periodic-conforming—nodes on opposite faces must match one-to-one. HomiCSx ensures this through GMSH's periodic mesh generation. For each master-slave node pair, the constraint eliminates the slave degrees of freedom from the system. If $\mathbf{u}_m$ and $\mathbf{u}_s$ are the displacement vectors of a master and slave node respectively, the total displacement constraint is:
+To apply this in a finite element context, the mesh should be periodic-conforming—nodes on opposite faces match one-to-one. HomiCSx makes this the default through Gmsh periodic mesh constraints. Left, bottom, and near faces are masters; their translated right, top, and far faces are slaves. Fragmented entities caused by periodic inclusions are paired geometrically before meshing. The DOLFINx MPC layer then constrains the corresponding displacement degrees of freedom. If $\mathbf{u}_m$ and $\mathbf{u}_s$ are the displacement vectors of a master and slave node respectively, the total displacement constraint is:
 
 $$\mathbf{u}_m - \mathbf{u}_s = \bar{\boldsymbol{\varepsilon}} \cdot (\mathbf{x}_m - \mathbf{x}_s)$$
 

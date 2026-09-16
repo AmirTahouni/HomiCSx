@@ -329,6 +329,109 @@ def _set_interface_refinement_field(
     field.setAsBackgroundMesh(2)
 
 
+def _translation_affine(axis: int, distance: float) -> list[float]:
+    """Return a homogeneous transform mapping a master side to its slave."""
+    transform = np.eye(4)
+    transform[axis, 3] = distance
+    return transform.reshape(-1).tolist()
+
+
+def _translated_entity_distance(
+    *,
+    dim: int,
+    master_tag: int,
+    slave_tag: int,
+    translation: np.ndarray,
+) -> float:
+    """Score how closely two boundary entities coincide after translation."""
+    master_box = np.asarray(gmsh.model.getBoundingBox(dim, master_tag), dtype=float)
+    slave_box = np.asarray(gmsh.model.getBoundingBox(dim, slave_tag), dtype=float)
+    shifted_box = master_box.copy()
+    shifted_box[:3] += translation
+    shifted_box[3:] += translation
+    scale = max(1.0, float(np.linalg.norm(slave_box[3:] - slave_box[:3])))
+    box_error = float(np.linalg.norm(shifted_box - slave_box)) / scale
+    master_mass = float(gmsh.model.occ.getMass(dim, master_tag))
+    slave_mass = float(gmsh.model.occ.getMass(dim, slave_tag))
+    mass_error = abs(master_mass - slave_mass) / max(1.0, master_mass, slave_mass)
+    return box_error + mass_error
+
+
+def _pair_periodic_entities(
+    *,
+    dim: int,
+    master_tags: list[int],
+    slave_tags: list[int],
+    translation: np.ndarray,
+    tolerance: float,
+) -> list[tuple[int, int]]:
+    """Pair translated boundary entities without relying on OCC tag ordering."""
+    if len(master_tags) != len(slave_tags):
+        raise ValueError(
+            "Periodic boundary topology does not match: "
+            f"{len(master_tags)} master entities and {len(slave_tags)} slave entities"
+        )
+
+    unmatched = set(master_tags)
+    pairs: list[tuple[int, int]] = []
+    for slave_tag in sorted(slave_tags):
+        candidates = sorted(
+            (
+                _translated_entity_distance(
+                    dim=dim,
+                    master_tag=master_tag,
+                    slave_tag=slave_tag,
+                    translation=translation,
+                ),
+                master_tag,
+            )
+            for master_tag in unmatched
+        )
+        error, master_tag = candidates[0]
+        if error > tolerance:
+            raise ValueError(
+                "Could not geometrically pair periodic boundary entity "
+                f"{slave_tag}; best normalized mismatch is {error:.3e}"
+            )
+        unmatched.remove(master_tag)
+        pairs.append((slave_tag, master_tag))
+    return pairs
+
+
+def _set_periodic_boundaries(
+    *,
+    dim: int,
+    domain_size: np.ndarray,
+    boundary_entities: dict[str, list[int]],
+    tolerance: float = 1e-7,
+) -> dict[str, list[tuple[int, int]]]:
+    """Constrain opposite Gmsh boundaries to receive matching meshes."""
+    side_pairs = [("left", "right", 0)]
+    side_pairs.append(("bottom", "top", 1))
+    if dim == 3:
+        side_pairs.append(("near", "far", 2))
+
+    periodic_pairs: dict[str, list[tuple[int, int]]] = {}
+    for master_name, slave_name, axis in side_pairs:
+        translation = np.zeros(3)
+        translation[axis] = float(domain_size[axis])
+        pairs = _pair_periodic_entities(
+            dim=dim - 1,
+            master_tags=boundary_entities[master_name],
+            slave_tags=boundary_entities[slave_name],
+            translation=translation,
+            tolerance=tolerance,
+        )
+        gmsh.model.mesh.setPeriodic(
+            dim - 1,
+            [slave for slave, _ in pairs],
+            [master for _, master in pairs],
+            _translation_affine(axis, float(domain_size[axis])),
+        )
+        periodic_pairs[f"{master_name}_{slave_name}"] = pairs
+    return periodic_pairs
+
+
 def build_gmsh_model(
     geometry: RVEGeometry,
     *,
@@ -344,6 +447,7 @@ def build_gmsh_model(
     optimize: bool = True,
     smoothing_steps: int = 10,
     quad_hex: bool = False,
+    periodic_mesh: bool = True,
 ) -> dict:
     """
     Build a Gmsh OCC model from an ``RVEGeometry`` object.
@@ -386,6 +490,9 @@ def build_gmsh_model(
         If ``True``, enable Gmsh mesh optimization. Defaults to ``True``.
     smoothing_steps : int, optional
         Number of requested mesh smoothing iterations. Defaults to 10.
+    periodic_mesh : bool, optional
+        If ``True``, apply translated Gmsh periodic constraints to every pair
+        of opposite outer boundaries. Defaults to ``True``.
 
     Returns
     -------
@@ -401,6 +508,8 @@ def build_gmsh_model(
         - ``"phase_entity_tags"`` : mapping from phase ID to region tags
         - ``"boundary_entities"`` : outer boundary entity classification
         - ``"interface_entity_tags"`` : collected interface entity tags
+        - ``"periodic_mesh"`` : whether periodic constraints were requested
+        - ``"periodic_entity_pairs"`` : paired slave/master entity tags
 
     Notes
     -----
@@ -526,6 +635,18 @@ def build_gmsh_model(
 
     occ.synchronize()
 
+    periodic_entity_pairs = {}
+    if periodic_mesh:
+        periodic_entity_pairs = _set_periodic_boundaries(
+            dim=dim,
+            domain_size=domain_size,
+            boundary_entities=boundary_entities,
+            # OCC bounding boxes for clipped curved entities are approximate;
+            # allow their normal CAD tolerance while still rejecting a
+            # materially different opposite-side topology.
+            tolerance=max(1000.0 * boundary_tol, 1e-5),
+        )
+
     interface_entity_tags = _collect_interface_entities(
         phase_dimtags=all_clipped_phase_dimtags,
         dim=dim,
@@ -556,6 +677,8 @@ def build_gmsh_model(
         "phase_entity_tags": phase_entity_tags,
         "boundary_entities": boundary_entities,
         "interface_entity_tags": interface_entity_tags,
+        "periodic_mesh": periodic_mesh,
+        "periodic_entity_pairs": periodic_entity_pairs,
     }
 
 
@@ -619,6 +742,7 @@ def generate_mesh(
                 optimize=mesh_settings.optimize,
                 smoothing_steps=mesh_settings.smoothing_steps,
                 quad_hex=mesh_settings.quad_hex,
+                periodic_mesh=mesh_settings.periodic_mesh,
             )
             gmsh.model.mesh.generate(int(geometry.dim))
 

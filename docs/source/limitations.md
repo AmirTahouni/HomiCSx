@@ -8,6 +8,14 @@ linear-elastic homogenization, finite-strain Neo-Hookean homogenization,
 custom nonlinear materials, hook-based workflow customization, and essential
 result extraction.
 
+Generated meshes are periodic-conforming by default: Gmsh copies each master
+boundary mesh to its translated opposite boundary. This requires geometrically
+periodic opposite-side topology. HomiCSx raises an error instead of silently
+creating a nonmatching mesh when the boundary entities cannot be paired.
+`MeshSettings.periodic_mesh=False` is available for deliberate legacy or
+nonperiodic workflows, but that mode is outside the publication-supported
+homogenization path.
+
 The tested environment is Linux, or Linux under WSL2, with the exact solver
 versions in `environment.yml`. Other dependency versions and platforms may
 work but are not currently part of the verification matrix.
@@ -19,6 +27,7 @@ work but are not currently part of the verification matrix.
 - Quad and hex meshing are not supported across the advertised geometry range.
 - Overlapping-void and open-cell-foam workflows lack publication-level tests.
 - Imported external meshes are outside the publication-supported workflow.
+  Such meshes are not automatically made periodic-conforming.
 - Finite-strain viscoelasticity and state evolution remain experimental.
 - Advanced post-processing beyond essential result and XDMF extraction is not
   part of the supported core.

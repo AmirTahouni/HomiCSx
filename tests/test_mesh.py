@@ -73,6 +73,28 @@ def _build_model_in_clean_gmsh(
         gmsh.finalize()
 
 
+def _boundary_nodes(entity_dim: int, entity_tags: list[int]) -> np.ndarray:
+    coordinates = []
+    for entity_tag in entity_tags:
+        _, values, _ = gmsh.model.mesh.getNodes(
+            entity_dim, entity_tag, includeBoundary=True
+        )
+        coordinates.extend(np.asarray(values).reshape(-1, 3))
+    return np.unique(np.round(np.asarray(coordinates), decimals=12), axis=0)
+
+
+def _assert_translated_boundary_nodes_match(
+    info: dict, master_name: str, slave_name: str, translation: np.ndarray
+):
+    entity_dim = info["dim"] - 1
+    master = _boundary_nodes(entity_dim, info["boundary_entities"][master_name])
+    slave = _boundary_nodes(entity_dim, info["boundary_entities"][slave_name])
+    shifted = np.round(master + translation, decimals=12)
+    shifted = shifted[np.lexsort(shifted.T[::-1])]
+    slave = slave[np.lexsort(slave.T[::-1])]
+    np.testing.assert_allclose(slave, shifted, rtol=0.0, atol=1e-10)
+
+
 # ------------------------------------------------------------
 # fixtures
 # ------------------------------------------------------------
@@ -449,6 +471,108 @@ def test_periodic_image_geometry_builds_in_2d(periodic_crossing_geom_2d):
         assert info["phase_cell_tags"][1] == 11
         assert len(info["phase_entity_tags"][1]) >= 1
 
+    finally:
+        gmsh.finalize()
+
+
+def test_periodic_mesh_matches_all_opposite_boundaries_2d(simple_circle_geom):
+    gmsh.initialize()
+    try:
+        info = build_gmsh_model(
+            simple_circle_geom,
+            min_size=0.03,
+            max_size=0.10,
+        )
+        gmsh.model.mesh.generate(2)
+
+        assert info["periodic_mesh"] is True
+        _assert_translated_boundary_nodes_match(
+            info, "left", "right", np.array([1.0, 0.0, 0.0])
+        )
+        _assert_translated_boundary_nodes_match(
+            info, "bottom", "top", np.array([0.0, 1.0, 0.0])
+        )
+    finally:
+        gmsh.finalize()
+
+
+def test_periodic_mesh_matches_fragmented_crossing_boundary_2d(
+    periodic_crossing_geom_2d,
+):
+    gmsh.initialize()
+    try:
+        info = build_gmsh_model(
+            periodic_crossing_geom_2d,
+            min_size=0.025,
+            max_size=0.08,
+        )
+        gmsh.model.mesh.generate(2)
+
+        assert len(info["periodic_entity_pairs"]["left_right"]) > 1
+        _assert_translated_boundary_nodes_match(
+            info, "left", "right", np.array([1.0, 0.0, 0.0])
+        )
+    finally:
+        gmsh.finalize()
+
+
+def test_periodic_mesh_matches_all_opposite_boundaries_3d(simple_sphere_geom):
+    gmsh.initialize()
+    try:
+        info = build_gmsh_model(
+            simple_sphere_geom,
+            min_size=0.08,
+            max_size=0.16,
+        )
+        gmsh.model.mesh.generate(3)
+
+        _assert_translated_boundary_nodes_match(
+            info, "left", "right", np.array([1.0, 0.0, 0.0])
+        )
+        _assert_translated_boundary_nodes_match(
+            info, "bottom", "top", np.array([0.0, 1.0, 0.0])
+        )
+        _assert_translated_boundary_nodes_match(
+            info, "near", "far", np.array([0.0, 0.0, 1.0])
+        )
+    finally:
+        gmsh.finalize()
+
+
+def test_periodic_mesh_can_be_disabled(simple_circle_geom):
+    gmsh.initialize()
+    try:
+        info = build_gmsh_model(
+            simple_circle_geom,
+            min_size=0.03,
+            max_size=0.10,
+            periodic_mesh=False,
+        )
+        assert info["periodic_mesh"] is False
+        assert info["periodic_entity_pairs"] == {}
+    finally:
+        gmsh.finalize()
+
+
+def test_periodic_mesh_rejects_nonperiodic_boundary_topology():
+    geometry = RVEGeometry(
+        dim=2,
+        domain_size=np.array([1.0, 1.0]),
+        phase_ids=(0, 1),
+        inclusions=[
+            Inclusion(
+                center=np.array([0.96, 0.50]),
+                phase_id=1,
+                shape="circle",
+                radii=np.array([0.10]),
+            )
+        ],
+    )
+
+    gmsh.initialize()
+    try:
+        with pytest.raises(ValueError, match="Periodic boundary topology does not match"):
+            build_gmsh_model(geometry, min_size=0.025, max_size=0.08)
     finally:
         gmsh.finalize()
 
