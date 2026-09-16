@@ -29,7 +29,8 @@
 ## Manuscript and submission files
 
 - [ ] Download the current official SoftwareX Original Software Publication
-  template and choose Word or LaTeX.
+  template and confirm it against the selected LaTeX source.
+- [x] Select LaTeX and produce a compiling `elsarticle` manuscript draft.
 - [ ] Transfer `manuscript.md` without altering the template formatting.
 - [ ] Keep main text, abstract, captions, and footnotes within 3000 words.
 - [ ] Use no more than six figures.
@@ -60,4 +61,6 @@
 - [ ] Reviewer-form audit: release-dependent metadata tables are complete and
   consistent.
 - [ ] Render and visually inspect the final PDF.
+- [x] Compile and visually inspect every page of the pre-release LaTeX PDF.
 - [ ] Obtain author approval of the exact files before submission.
+- [x] Confirm the declaration of no competing interests.

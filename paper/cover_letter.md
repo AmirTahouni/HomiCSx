@@ -38,9 +38,9 @@ research workflows. No claim of external adoption is made, and the manuscript
 states the software’s current limitations and archival maintenance model.
 
 This manuscript is original, is not under consideration elsewhere, and has one
-author. No specific funding supported the software; the competing-interest
-statement remains subject to the author's final confirmation. A versioned
-archival DOI and exact release identifier will be
+author. The author declares no competing interests, and no specific funding
+supported the software. A versioned archival DOI and exact release identifier
+will be
 inserted before submission. The author confirms responsibility for the work
 and for the disclosed use of an AI-assisted coding tool during code review,
 validation preparation, documentation editing, and manuscript drafting.

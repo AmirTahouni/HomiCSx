@@ -1,12 +1,28 @@
-# HomiCSx: An end-to-end FEniCSx framework for finite-element computational homogenization
+\documentclass[preprint,12pt]{elsarticle}
 
-**Article type:** Original Software Publication  
-**Author:** Amir Reza Tahouni  
-**Affiliation:** Independent researcher, Tehran, Iran
-**Corresponding email:** tahouniamirreza@gmail.com
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{xurl}
 
-## Abstract
+\journal{SoftwareX}
+\graphicspath{{figures/}}
+\emergencystretch=1em
 
+\begin{document}
+
+\begin{frontmatter}
+
+\title{HomiCSx: An end-to-end FEniCSx framework for finite-element computational homogenization}
+
+\author{Amir Reza Tahouni\corref{cor1}}
+\ead{tahouniamirreza@gmail.com}
+\address{Independent researcher, Tehran, Iran}
+\cortext[cor1]{Corresponding author}
+
+\begin{abstract}
 HomiCSx is an open-source Python framework for first-order finite-element
 computational homogenization of heterogeneous materials. It treats geometry
 generation, periodic-conforming meshing, material assignment, finite-element
@@ -23,30 +39,35 @@ gates, and deterministic regression tests. Independent Abaqus comparisons use
 conventional macroscopic quantities and cover linear heterogeneous cells,
 finite-strain hyperelastic shear, and homogeneous and heterogeneous
 viscoelastic relaxation. Maximum discrepancies in the canonical linear suite
-are below 0.55%; heterogeneous viscoelastic stress-history discrepancies are
-below 1.36% by the peak-normalized maximum measure for the tested cells.
+are below 0.55\%; heterogeneous viscoelastic stress-history discrepancies are
+below 1.36\% by the peak-normalized maximum measure for the tested cells.
 HomiCSx is intended to make customized computational-homogenization studies
 easier to construct, inspect, reproduce, and extend while stating a deliberately
 bounded support and maintenance scope.
+\end{abstract}
 
-**Keywords:** computational homogenization; finite element method; FEniCSx;
-representative volume element; composite materials; viscoelasticity
+\begin{keyword}
+computational homogenization \sep finite element method \sep FEniCSx \sep
+representative volume element \sep composite materials \sep viscoelasticity
+\end{keyword}
 
-## 1. Motivation and significance
+\end{frontmatter}
+
+\section{Motivation and significance}
 
 First-order computational homogenization obtains macroscopic constitutive
 response from microscopic boundary-value problems under scale separation
-[4,5]. Its finite-element realization requires a chain of choices that
-are often implemented in separate research scripts: constructing a
-representative cell, preserving periodic geometry, producing compatible
+\cite{geers2003,saeb2016}. Its finite-element realization requires a chain of
+choices that are often implemented in separate research scripts: constructing
+a representative cell, preserving periodic geometry, producing compatible
 opposite-boundary meshes, assigning phases, enforcing periodic constraints,
 solving multiple macroscopic load cases, and reducing microscopic fields to
 macroscopic quantities. This fragmentation makes it difficult to adapt a
 workflow without also weakening its traceability.
 
 HomiCSx provides these steps through a common set of Python data objects and
-drivers built on DOLFINx and UFL [1,2], with geometry and meshing provided by
-Gmsh [3]. Its main contribution is not a new
+drivers built on DOLFINx and UFL \cite{dolfinx2025,ufl2014}, with geometry and
+meshing provided by Gmsh \cite{gmsh2009}. Its main contribution is not a new
 homogenization theory. It is an extensible end-to-end implementation in which
 the geometry, discretization, constitutive response, macroscopic loading,
 nonlinear solution, and result extraction remain explicit and replaceable.
@@ -60,9 +81,9 @@ documented points in the nonlinear driver. The package therefore occupies a
 middle ground between one-off finite-element scripts and closed workflows that
 offer limited intervention in the solution sequence.
 
-## 2. Software description
+\section{Software description}
 
-### 2.1. Architecture and workflow
+\subsection{Architecture and workflow}
 
 The workflow has five cooperating layers. The geometry layer creates seeded,
 periodic particulate cells or accepts explicitly constructed inclusions. The
@@ -83,17 +104,16 @@ seedable for reproducibility. The publication-supported discretization path
 uses triangles or tetrahedra; forced quad/hex workflows are outside the current
 support boundary.
 
-### 2.2. Homogenization formulation
+\subsection{Homogenization formulation}
 
 For linear elasticity, the microscopic displacement is decomposed into a
 macroscopic affine field and a periodic fluctuation. Elementary macroscopic
 strain probes recover the effective stiffness from volume-averaged stress. In
 finite strain, the deformation gradient is decomposed as
-
-\[
-\mathbf{F}(\mathbf{X})=\bar{\mathbf{F}}+\nabla\tilde{\mathbf{u}}(\mathbf{X}),
-\]
-
+\begin{equation}
+  \mathbf{F}(\mathbf{X}) = \bar{\mathbf{F}} +
+  \nabla\widetilde{\mathbf{u}}(\mathbf{X}),
+\end{equation}
 where the fluctuation is periodic on opposite cell boundaries. The nonlinear
 driver solves incremental equilibrium with adaptive stepping and records
 volume-averaged first Piola--Kirchhoff stress, energy, deformation Jacobian,
@@ -108,7 +128,7 @@ Newton Jacobian is obtained by automatic differentiation. Previous converged
 viscous metrics remain fixed during a global solve and are committed only after
 convergence, preserving step-retry semantics.
 
-### 2.3. Customization and outputs
+\subsection{Customization and outputs}
 
 Users can define macroscopic deformation histories as Python callables and can
 derive new nonlinear material classes through the public material interface.
@@ -119,7 +139,17 @@ additional workflow logic. Core outputs include effective stiffness, macro
 stress/strain/energy histories, Jacobian histories, and XDMF field exports for
 external post-processing.
 
-## 3. Illustrative examples
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{architecture_workflow.pdf}
+  \caption{HomiCSx architecture and data flow. The supported workflow proceeds
+  from geometry through periodic meshing, finite-element construction,
+  homogenization, and result extraction. Custom materials, load callables, and
+  typed hooks expose documented extension points.}
+  \label{fig:architecture}
+\end{figure}
+
+\section{Illustrative examples}
 
 The repository includes executable demonstrations for geometry generation,
 2D and 3D linear homogenization, nonlinear hyperelasticity, generalized-Maxwell
@@ -132,78 +162,68 @@ viscoelastic script exercises nonlinear equilibrium, state evolution, and a
 typed macro-stress hook. The same separation of concerns allows a geometry or
 material implementation to be changed without replacing the full pipeline.
 
-![HomiCSx architecture and data flow. The supported workflow proceeds from
-geometry through periodic meshing, finite-element construction, homogenization,
-and result extraction. Custom materials, load callables, and typed hooks expose
-documented extension points.](figures/architecture_workflow.png)
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{periodic_meshes.pdf}
+  \caption{Representative periodic-conforming HomiCSx meshes. The 2D cell
+  contains one physical circle split across the left/right boundary; the 3D
+  cell contains a centered sphere. Blue circles mark master-face nodes and red
+  crosses mark matching slave-face patterns.}
+  \label{fig:meshes}
+\end{figure}
 
-**Figure 1.** HomiCSx architecture and data flow. The supported workflow
-proceeds from geometry through periodic meshing, finite-element construction,
-homogenization, and result extraction. Custom materials, load callables, and
-typed hooks expose documented extension points.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{paraview_fields.png}
+  \caption{ParaView rendering of the final state at engineering shear
+  $\gamma_{12}=0.25$ for a two-phase Neo-Hookean cell. (a) von Mises stress;
+  (b) strain-energy density. The field data are exported by HomiCSx and mesh
+  edges are retained to distinguish the numerical field from a schematic.}
+  \label{fig:fields}
+\end{figure}
 
-![Representative HomiCSx meshes. The 2D cell contains one physical circle
-split across the periodic left/right boundary; the 3D cell contains a centered
-sphere. Blue circles mark master-face nodes and red crosses mark their matching
-slave-face patterns.](figures/periodic_meshes.png)
-
-**Figure 2.** Representative periodic-conforming HomiCSx meshes. The 2D cell
-contains one physical circle split across the left/right boundary; the 3D cell
-contains a centered sphere. Blue circles mark master-face nodes and red crosses
-mark matching slave-face patterns.
-
-![ParaView rendering of the final state of a two-phase hyperelastic cell under
-simple shear. Panel (a) shows von Mises stress and panel (b) shows
-strain-energy density, with finite-element edges retained.](figures/paraview_fields.png)
-
-**Figure 3.** ParaView rendering of the final state at engineering shear
-$\gamma_{12}=0.25$ for a two-phase Neo-Hookean cell. Panel (a) shows von Mises
-stress and panel (b) shows strain-energy density. The field data are exported
-by HomiCSx; mesh edges are retained to distinguish the numerical field from a
-schematic illustration.
-
-## 4. Verification and validation
+\section{Verification and validation}
 
 The automated test suite covers deterministic geometry behavior, tagging,
 periodic mesh construction, public API behavior, hook semantics, constitutive
 parameter validation, and solver integration. Homogeneous 2D plane-strain and
 six-load-case 3D linear problems are compared with analytical isotropic
 stiffness. A deterministic 2D refinement gate reduces relative stiffness error
-from 2.543% on the coarse mesh to 0.211% on the refined mesh. Neo-Hookean first
-Piola stress is independently checked against numerical energy derivatives in
-2D and 3D, and an end-to-end nonlinear patch recovers analytical macroscopic
-energy, stress, and mean Jacobian.
+from 2.543\% on the coarse mesh to 0.211\% on the refined mesh. Neo-Hookean
+first Piola stress is independently checked against numerical energy
+derivatives in 2D and 3D, and an end-to-end nonlinear patch recovers analytical
+macroscopic energy, stress, and mean Jacobian.
 
 Because periodic-boundary enforcement is a consequential implementation choice
-in multiscale homogenization [6], the external validation suite includes a
-boundary-split geometry. It uses independently generated Abaqus models and
-only conventional macroscopic quantities. Three linear plane-strain cases—a
-homogeneous non-unit cell, a centered 20% circular inclusion, and a periodic
-boundary-split inclusion—have maximum stiffness, probe-stress, and probe-energy
-differences below 0.55%. Homogeneous finite simple shear agrees to within
-0.00016% for macro energy and shear stress.
+in multiscale homogenization \cite{henys2019}, the external validation suite
+includes a boundary-split geometry. It uses independently generated Abaqus
+models and only conventional macroscopic quantities. Three linear plane-strain
+cases---a homogeneous non-unit cell, a centered 20\% circular inclusion, and a
+periodic boundary-split inclusion---have maximum stiffness, probe-stress, and
+probe-energy differences below 0.55\%. Homogeneous finite simple shear agrees
+to within 0.00016\% for macro energy and shear stress.
 
 Generalized-Maxwell validation compares complete macro-shear-stress relaxation
 histories. The homogeneous 2D and 3D curves agree with Abaqus to within
-0.00063% and 0.00068% peak-normalized maximum error, respectively. For a
+0.00063\% and 0.00068\% peak-normalized maximum error, respectively. For a
 viscoelastic matrix containing a hyperelastic inclusion, the centered and
-periodic-split 2D cases give 1.22% and 1.35% maximum curve errors. Automated
+periodic-split 2D cases give 1.22\% and 1.35\% maximum curve errors. Automated
 fast/slow-rate regressions in 2D and 3D additionally require different
 converged heterogeneous fluctuation fields. The external evidence does not
 establish pointwise field identity, all loading paths, or external validation
 of a heterogeneous 3D viscoelastic cell.
 
-![HomiCSx and Abaqus generalized-Maxwell shear-relaxation histories. Solid
-lines denote HomiCSx and open markers denote Abaqus. Panel (a) shows the
-homogeneous 2D and 3D cells; panel (b) shows centered and periodic-split
-hyperelastic inclusions in a viscoelastic matrix.](figures/viscoelastic_validation.png)
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{viscoelastic_validation.pdf}
+  \caption{HomiCSx and Abaqus generalized-Maxwell shear-relaxation histories.
+  Solid lines denote HomiCSx and open markers denote Abaqus. (a) Homogeneous 2D
+  and 3D cells; (b) centered and periodic-split hyperelastic inclusions in a
+  viscoelastic matrix.}
+  \label{fig:visco-validation}
+\end{figure}
 
-**Figure 4.** HomiCSx and Abaqus generalized-Maxwell shear-relaxation
-histories. Solid lines denote HomiCSx and open markers denote Abaqus. Panel (a)
-shows homogeneous 2D and 3D cells; panel (b) shows centered and periodic-split
-hyperelastic inclusions in a viscoelastic matrix.
-
-## 5. Impact and reuse
+\section{Impact and reuse}
 
 HomiCSx enables a researcher to move from a seeded particulate description to
 homogenized linear, hyperelastic, or viscoelastic response in one inspectable
@@ -221,14 +241,15 @@ No claim of external adoption is made at this stage. The MIT license, public
 interfaces, tests, and archived releases are intended to allow independent use
 and continuation.
 
-## 6. Limitations and maintenance
+\section{Limitations and maintenance}
 
 The tested environment is Linux, including Linux under WSL2, with Python 3.10,
-DOLFINx 0.9.0, and dolfinx_mpc 0.9.0. Two-dimensional FEM uses plane strain;
+DOLFINx 0.9.0, and dolfinx\_mpc 0.9.0. Two-dimensional FEM uses plane strain;
 plane stress is not implemented. The supported meshing path uses triangles and
 tetrahedra. Imported meshes, overlapping-void and open-cell workflows,
 advanced visualization, and stochastic convenience modules are outside the
-publication-supported core. The latter two modules are explicitly experimental.
+publication-supported core. The latter two modules are explicitly
+experimental.
 
 HomiCSx is maintained as archival research software. No feature schedule or
 guaranteed support response is promised. Reproducibility, documentation,
@@ -236,58 +257,69 @@ correctness fixes as resources permit, versioned releases, and preservation
 are prioritized. The permissive license allows community forks and continued
 development if active maintenance changes.
 
-## 7. Availability and reproducibility
+\section{Availability and reproducibility}
 
-Source code: https://github.com/AmirTahouni/HomiCSx  
-Documentation: https://homicsx.readthedocs.io/en/latest/  
-License: MIT  
-Version described: [RELEASE REQUIRED]  
-Archive DOI: [ZENODO DOI REQUIRED]
+\begin{description}
+  \item[Source code:] \url{https://github.com/AmirTahouni/HomiCSx}
+  \item[Documentation:] \url{https://homicsx.readthedocs.io/en/latest/}
+  \item[License:] MIT
+  \item[Version described:] To be assigned at release
+  \item[Archive DOI:] To be assigned at archival release
+\end{description}
 
 The repository contains pinned Conda environment specifications, installation
 instructions, automated tests, benchmark manifests, independent Abaqus runner
 scripts, compact reference results, and executable acceptance gates. Abaqus is
 not required to recompute comparisons from the committed compact results.
 
-## CRediT authorship contribution statement
+\section*{Software metadata}
 
-**Amir Reza Tahouni:** Conceptualization, Methodology, Software, Validation,
-Investigation, Data curation, Visualization, Writing—original draft,
-Writing—review and editing.
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}p{0.31\linewidth}X@{}}
+\toprule
+Current code version & To be assigned at release \\
+Permanent link to code/repository & To be assigned at archival release \\
+Code repository & \url{https://github.com/AmirTahouni/HomiCSx} \\
+Legal software license & MIT \\
+Code versioning system & Git \\
+Languages and tools & Python, UFL, Gmsh API \\
+Installation requirements & Conda; Python 3.10; DOLFINx 0.9.0; dolfinx\_mpc 0.9.0 \\
+Operating environment & Linux; WSL2 tested \\
+User documentation & \url{https://homicsx.readthedocs.io/en/latest/} \\
+Support email & \href{mailto:tahouniamirreza@gmail.com}{tahouniamirreza@gmail.com} \\
+\bottomrule
+\end{tabularx}
+\caption{Software metadata for the publication-supported HomiCSx release.}
+\label{tab:metadata}
+\end{table}
 
-## Funding
+\section*{CRediT authorship contribution statement}
+
+\textbf{Amir Reza Tahouni:} Conceptualization, Methodology, Software,
+Validation, Investigation, Data curation, Visualization, Writing---original
+draft, Writing---review and editing.
+
+\section*{Funding}
 
 This research did not receive any specific grant from funding agencies in the
 public, commercial, or not-for-profit sectors.
 
-## Declaration of competing interest
+\section*{Declaration of competing interest}
 
 The author declares no known competing financial interests or personal
 relationships that could have appeared to influence the work reported in this
 paper.
 
-## Data availability
+\section*{Data availability}
 
 The software, validation manifests, scripts, and compact numerical results are
 available in the public repository and will be preserved in the archived
 release identified above. Large proprietary Abaqus working databases are not
 required to evaluate the committed comparison results and are not distributed.
 
-## Software metadata
-
-| Field | Value |
-|---|---|
-| Current code version | [RELEASE REQUIRED] |
-| Permanent link to code/repository | [ZENODO DOI REQUIRED] |
-| Code repository | https://github.com/AmirTahouni/HomiCSx |
-| Legal software license | MIT |
-| Code versioning system | Git |
-| Software code languages/tools | Python, UFL, Gmsh API |
-| Compilation requirements | Conda environment; Python 3.10; DOLFINx 0.9.0; dolfinx_mpc 0.9.0 |
-| Operating environment | Linux; WSL2 tested |
-| Support email | tahouniamirreza@gmail.com |
-
-## Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
+\section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
 
 During the preparation of this work, the author used an OpenAI coding assistant
 to support code review, test and validation development, documentation editing,
@@ -295,32 +327,46 @@ and manuscript drafting. After using this service, the author reviewed and
 edited the content as needed and takes full responsibility for the content of
 the publication.
 
-## References
+\begin{thebibliography}{00}
 
-1. I. A. Baratta, J. P. Dean, J. S. Dokken, M. Habera, J. S. Hale,
-   C. N. Richardson, M. E. Rognes, M. W. Scroggs, N. Sime, G. N. Wells,
-   DOLFINx: The next generation FEniCS problem solving environment, preprint
-   (2025). https://doi.org/10.5281/zenodo.18101307.
-2. M. S. Alnæs, A. Logg, K. B. Ølgaard, M. E. Rognes, G. N. Wells, Unified Form
-   Language: A domain-specific language for weak formulations of partial
-   differential equations, ACM Transactions on Mathematical Software 40 (2014).
-   https://doi.org/10.1145/2566630.
-3. C. Geuzaine, J.-F. Remacle, Gmsh: A 3-D finite element mesh generator with
-   built-in pre- and post-processing facilities, International Journal for
-   Numerical Methods in Engineering 79 (11) (2009) 1309–1331.
-   https://doi.org/10.1002/nme.2579.
-4. M. G. D. Geers, V. G. Kouznetsova, W. A. M. Brekelmans, Multi-scale
-   first-order and second-order computational homogenization of microstructures
-   towards continua, International Journal for Multiscale Computational
-   Engineering 1 (4) (2003) 371–386.
-   https://doi.org/10.1615/IntJMultCompEng.v1.i4.40.
-5. S. Saeb, P. Steinmann, A. Javili, Aspects of computational homogenization at
-   finite deformations: A unifying review from Reuss' to Voigt's bound,
-   Applied Mechanics Reviews 68 (5) (2016) 050801.
-   https://doi.org/10.1115/1.4034024.
-6. P. Henyš, L. Čapek, J. Březina, Comparison of current methods for
-   implementing periodic boundary conditions in multi-scale homogenisation,
-   European Journal of Mechanics - A/Solids 78 (2019) 103825.
-   https://doi.org/10.1016/j.euromechsol.2019.103825.
-7. A. R. Tahouni, HomiCSx, version [VERSION], Zenodo (2026).
-   [ZENODO DOI REQUIRED].
+\bibitem{dolfinx2025}
+I. A. Baratta, J. P. Dean, J. S. Dokken, et al., DOLFINx: The next generation
+FEniCS problem solving environment, preprint (2025).
+\url{https://doi.org/10.5281/zenodo.18101307}.
+
+\bibitem{ufl2014}
+M. S. Aln\ae s, A. Logg, K. B. \O lgaard, M. E. Rognes, G. N. Wells, Unified
+Form Language: A domain-specific language for weak formulations of partial
+differential equations, ACM Trans. Math. Softw. 40 (2014).
+\url{https://doi.org/10.1145/2566630}.
+
+\bibitem{gmsh2009}
+C. Geuzaine, J.-F. Remacle, Gmsh: A 3-D finite element mesh generator with
+built-in pre- and post-processing facilities, Int. J. Numer. Methods Eng. 79
+(11) (2009) 1309--1331. \url{https://doi.org/10.1002/nme.2579}.
+
+\bibitem{geers2003}
+M. G. D. Geers, V. G. Kouznetsova, W. A. M. Brekelmans, Multi-scale
+first-order and second-order computational homogenization of microstructures
+towards continua, Int. J. Multiscale Comput. Eng. 1 (4) (2003) 371--386.
+\url{https://doi.org/10.1615/IntJMultCompEng.v1.i4.40}.
+
+\bibitem{saeb2016}
+S. Saeb, P. Steinmann, A. Javili, Aspects of computational homogenization at
+finite deformations: A unifying review from Reuss' to Voigt's bound, Appl.
+Mech. Rev. 68 (5) (2016) 050801.
+\url{https://doi.org/10.1115/1.4034024}.
+
+\bibitem{henys2019}
+P. Heny\v{s}, L. \v{C}apek, J. B\v{r}ezina, Comparison of current methods for
+implementing periodic boundary conditions in multi-scale homogenisation, Eur.
+J. Mech. A Solids 78 (2019) 103825.
+\url{https://doi.org/10.1016/j.euromechsol.2019.103825}.
+
+\bibitem{homicsx2026}
+A. R. Tahouni, HomiCSx, archival release, Zenodo (2026). DOI to be assigned at
+archival release.
+
+\end{thebibliography}
+
+\end{document}

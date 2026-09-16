@@ -42,3 +42,10 @@ validation/abaqus/abaqus*.rec
 validation/abaqus/abaqus_acis.log
 # Reproducible manuscript visualization intermediates
 /paper/figures/paraview_data/
+
+# LaTeX build intermediates and local QA renders
+*.aux
+*.log
+*.out
+*.spl
+/tmp/
