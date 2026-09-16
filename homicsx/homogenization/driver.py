@@ -106,8 +106,17 @@ class LinearHomogenizationDriver:
         self.matrix_phase_id = matrix_phase_id
         self.mode = mode
     
-    def run(self, mode="complete", petsc_options=None) -> LinearHomogenizationResult:
-        """Execute linear homogenization. No hooks, no state."""
+    def run(self, mode=None, petsc_options=None) -> LinearHomogenizationResult:
+        """Execute linear homogenization.
+
+        Explicit ``mode`` and ``petsc_options`` values override those supplied
+        when the driver was constructed. Omitting them preserves the configured
+        driver and problem settings.
+        """
+        resolved_mode = self.mode if mode is None else mode
+        resolved_petsc_options = (
+            self.settings.petsc_options if petsc_options is None else petsc_options
+        )
         return _solve_linear_homogenization(
             mesh_obj=self.mesh_obj,
             cell_tags=self.cell_tags,
@@ -117,8 +126,8 @@ class LinearHomogenizationDriver:
             physical_tags=self.physical_tags,
             domain_size=self.domain_size,
             matrix_phase_id=self.matrix_phase_id,
-            mode=self.mode,
-            petsc_options=self.settings.petsc_options if self.settings.petsc_options else None,
+            mode=resolved_mode,
+            petsc_options=resolved_petsc_options or None,
         )
 
 

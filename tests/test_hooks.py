@@ -1,3 +1,4 @@
+import logging
 from types import SimpleNamespace
 
 from homicsx.core.homogenization import SimulationState
@@ -23,7 +24,7 @@ def test_hooks_execute_in_registration_order_and_share_state():
     assert state.get("value") == 6
 
 
-def test_hook_failure_is_reported_and_does_not_skip_later_hooks(capsys):
+def test_hook_failure_is_reported_and_does_not_skip_later_hooks(caplog):
     calls = []
 
     def failing(_):
@@ -33,12 +34,12 @@ def test_hook_failure_is_reported_and_does_not_skip_later_hooks(capsys):
     def later(_):
         calls.append("later")
 
-    _execute_hooks([failing, later], object(), "post-stress")
+    with caplog.at_level(logging.ERROR):
+        _execute_hooks([failing, later], object(), "post-stress")
 
-    captured = capsys.readouterr()
     assert calls == ["failing", "later"]
-    assert "post-stress hook failed" in captured.out
-    assert "intentional hook failure" in captured.out
+    assert "post-stress hook failed" in caplog.text
+    assert "intentional hook failure" in caplog.text
 
 
 def test_simulation_state_preserves_persistent_values_between_load_cases():

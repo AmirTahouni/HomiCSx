@@ -1,30 +1,13 @@
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Tuple, Union
+import logging
 import numpy as np
 import dolfinx
 from mpi4py import MPI
 
 from homicsx.core.mesh import PhysicalTags, MeshImportMapping
 
-
-def _read_gmsh_mesh(mesh_file: str, dim: int):
-    """Read GMSH mesh file into dolfinx format."""
-    import gmsh
-    from dolfinx.io import gmshio
-    
-    gmsh.initialize()
-    gmsh.open(mesh_file)
-    
-    mesh, cell_tags, facet_tags = gmshio.model_to_mesh(
-        gmsh.model,
-        comm=MPI.COMM_WORLD,
-        rank=0,
-        gdim=dim,
-    )
-    
-    gmsh.finalize()
-    
-    return mesh, cell_tags, facet_tags
+logger = logging.getLogger(__name__)
 
 
 def _read_gmsh_mesh(mesh_file: str, dim: int):
@@ -68,8 +51,10 @@ def _remap_cell_tags(mesh, raw_tags, cell_groups: Dict[int, int]):
     unmapped = all_groups - mapped_set
     
     if unmapped:
-        print(f"Warning: Unmapped cell groups detected: {unmapped}")
-        print(f"  These cells will keep their original tags.")
+        logger.warning(
+            "Unmapped cell groups detected: %s; these cells retain their original tags",
+            unmapped,
+        )
     
     return dolfinx.mesh.meshtags(mesh, raw_tags.dim, raw_tags.indices, values)
 

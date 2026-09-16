@@ -227,7 +227,7 @@ def _solve_linear_homogenization(
             tensile_off_diag_2 = C_hom[2, 0]
             shear_diag = C_hom[3, 1]
 
-            C_hom = np.ndarray((6, 6))
+            C_hom = np.zeros((6, 6))
 
             C_hom[0, 0] = tensile_diag
             C_hom[1, 0] = tensile_off_diag_1
@@ -277,7 +277,7 @@ def _solve_linear_homogenization(
             tensile_off_diag = C_hom[1, 0]
             shear_diag = C_hom[2, 1]
 
-            C_hom = np.ndarray((3, 3))
+            C_hom = np.zeros((3, 3))
 
             C_hom[0, 0] = tensile_diag
             C_hom[1, 0] = tensile_off_diag

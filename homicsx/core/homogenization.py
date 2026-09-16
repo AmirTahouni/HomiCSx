@@ -111,6 +111,7 @@ class PreStepData:
     load_name: str
     state: 'SimulationState'
     force_adaptive_step_reduction: bool = False
+    skip_tangent: bool = False
 
 
 @dataclass
@@ -338,4 +339,4 @@ __all__ = [
     "PostTangentData",
     "PostLoadCaseData",
     "StepFailureData",
-]  
+]
