@@ -82,15 +82,21 @@ def test_linear_homogenization_pipeline_returns_symmetric_stiffness():
     assert relative_skew < 5e-3
 
 
-def test_homogeneous_plane_strain_recovers_analytical_stiffness():
-    """A geometrically heterogeneous mesh must recover a homogeneous material."""
+def test_homogeneous_plane_strain_converges_to_analytical_stiffness():
+    """Refinement of one fixed geometry must reduce the stiffness error."""
     young_modulus = 2.5
     poisson_ratio = 0.3
     material = LinearElasticIsotropic(
         young_modulus=young_modulus,
         poisson_ratio=poisson_ratio,
     )
-    result = _run_linear_homogenization(
+    coarse_result = _run_linear_homogenization(
+        material,
+        material,
+        min_size=0.08,
+        max_size=0.16,
+    )
+    fine_result = _run_linear_homogenization(
         material,
         material,
         min_size=0.025,
@@ -111,8 +117,12 @@ def test_homogeneous_plane_strain_recovers_analytical_stiffness():
         ]
     )
 
-    relative_error = np.linalg.norm(result.C_hom - expected) / np.linalg.norm(expected)
-    assert relative_error < 5e-3
+    coarse_error = np.linalg.norm(coarse_result.C_hom - expected) / np.linalg.norm(expected)
+    fine_error = np.linalg.norm(fine_result.C_hom - expected) / np.linalg.norm(expected)
+
+    assert coarse_error < 5e-2
+    assert fine_error < 5e-3
+    assert fine_error < 0.5 * coarse_error
 
 def test_homogeneous_3d_recovers_analytical_stiffness():
     """The full six-load-case 3D solver must pass a homogeneous patch test."""

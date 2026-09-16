@@ -16,6 +16,15 @@ isotropic tensor within 0.5% in relative Frobenius norm. A full six-load-case
 test mesh. These tests exercise geometry generation, meshing, material
 assignment, periodic constraints, solution, and homogenized result extraction.
 
+The 2D check also contains a deterministic coarse-to-fine convergence gate on
+one fixed seeded geometry. With Gmsh minimum/maximum sizes of 0.08/0.16, the
+relative stiffness error is 2.543%; at 0.025/0.05 it is 0.211%. Refinement
+therefore reduces the error by a factor of 12.0. CI requires the coarse error
+to remain below 5%, the fine error below 0.5%, and the fine error to be less
+than half the coarse error. This two-level gate demonstrates controlled error
+reduction without claiming monotonicity across independently generated
+intermediate unstructured meshes.
+
 For finite strain, numerical central differences of the compressible
 Neo-Hookean strain energy are compared component-by-component with the
 implemented first Piola--Kirchhoff stress in both 2D and 3D. The undeformed

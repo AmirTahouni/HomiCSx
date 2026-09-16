@@ -18,7 +18,7 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 - WSL2 with Ubuntu and Conda is available locally.
 - A clean `homicsx_dev` Conda environment can be created from `environment-dev.yml` under WSL2.
 - Current result on 2026-09-16: 62 tests pass under Python 3.10 and DOLFINx 0.9.0. The suite includes analytical 2D/3D linear patch tests, a solver-level homogeneous finite-strain patch test, nonlinear constitutive consistency, hook semantics, and the compact Abaqus macroscopic-reference checks.
-- Homogeneous plane-strain verification recovers the analytical stiffness within a 0.5% relative-norm tolerance on the fine test mesh. An initial four-level diagnostic reduced the error from 2.54% on the coarsest mesh to 0.21% on the finest, although independently generated unstructured meshes did not produce monotonic intermediate errors. A controlled mesh and periodic-constraint convergence study remains necessary.
+- Homogeneous plane-strain verification now includes a deterministic two-level convergence gate on one fixed seeded geometry. Relative stiffness error falls from 2.543% at minimum/maximum mesh sizes 0.08/0.16 to 0.211% at 0.025/0.05, a 12.0-fold reduction. CI requires coarse error below 5%, fine error below 0.5%, and at least a factor-two reduction; no claim of monotonic intermediate convergence is made for independently regenerated unstructured meshes.
 - The repository now contains a compact nine-case HomiCSx--Abaqus macroscopic energy, stress, and deformation reference suite with machine-readable provenance and executable acceptance checks. Research-specific localization statistics remain in the associated study, which also retains the full calculations, scripts, meshes, solver inputs, ODB files, and extracted element data.
 
 ## Publication scope
@@ -52,7 +52,7 @@ The stochastic and visualization modules are explicitly experimental and exclude
 
 ### P0 Submission blockers
 
-1. **Core analytical coverage substantially expanded.** End-to-end linear tests check finite output, stiffness symmetry, and analytical homogeneous stiffness recovery in 2D plane strain and full six-load-case 3D. The nonlinear periodic solver recovers analytical homogeneous Neo-Hookean macroscopic energy, PK1 stress, and mean J; the constitutive PK1 is independently checked against the numerical energy gradient in 2D and 3D. Hook ordering, shared state, scope, and failure isolation are tested. A controlled mesh/periodic-constraint convergence study remains open.
+1. **Core analytical verification implemented.** End-to-end linear tests check finite output, stiffness symmetry, analytical homogeneous stiffness recovery in 2D plane strain and full six-load-case 3D, and deterministic coarse-to-fine error reduction. The nonlinear periodic solver recovers analytical homogeneous Neo-Hookean macroscopic energy, PK1 stress, and mean J; the constitutive PK1 is independently checked against the numerical energy gradient in 2D and 3D. Hook ordering, shared state, scope, and failure isolation are tested. Further convergence studies can broaden evidence but are no longer a submission blocker for the documented core.
 2. **Packaging metadata completed for the source-release workflow.** `pyproject.toml` now records authorship, license, readme, classifiers, URLs, Python support, and optional test/docs dependencies. The Conda environment is explicitly authoritative for the compiled FEniCSx/PETSc/MPI runtime stack rather than making an unreliable PyPI dependency claim.
 3. **Archival maintenance guidance completed.** `CONTRIBUTING.md`, `SUPPORT.md`, and `SECURITY.md` now document issue reporting, contribution expectations, availability-dependent maintenance, and license-enabled continuity through community forks.
 4. **JOSS public-history timing is not yet favorable.** The first public commit is dated 2026-05-05. A submission should not be attempted before at least six months of genuine public history and a fresh venue check.
@@ -208,7 +208,7 @@ Do not tag 1.0.0 until the clean environment, core test suite, validation suite,
 ## Immediate next actions
 
 1. Add continuous integration for the clean environment or a documented equivalent if hosted CI cannot support the solver stack reliably.
-2. Extend the initial 2D linear analytical check with mesh convergence, 3D linear verification, and finite-strain analytical verification.
+2. Maintain the analytical convergence, 3D linear, and finite-strain verification gates as the solver evolves.
 3. Inspect the nonlinear driver, hook lifecycle, constitutive implementation, and averaging definitions against the research workflow.
 4. Extract one minimal ABAQUS benchmark and document exact cross-solver conventions.
 5. Draft the supported-versus-experimental feature matrix for author approval.
