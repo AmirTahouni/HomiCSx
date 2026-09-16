@@ -161,9 +161,12 @@ class QuadraturePointEvaluator:
     def _create_quadrature_spaces(self):
         """Create standard function spaces (not quadrature)."""
         # Use standard CG spaces for interpolation
-        self.V_scalar = fem.functionspace(self.mesh, ("CG", 1))
-        self.V_vector = fem.functionspace(self.mesh, ("CG", 1, (self.dim,)))
-        self.V_tensor = fem.functionspace(self.mesh, ("CG", 1, (self.dim, self.dim)))
+        self.V_scalar = fem.functionspace(self.mesh, ("Lagrange", 1))
+        self.V_vector = fem.functionspace(self.mesh, ("Lagrange", 1, (self.dim,)))
+        self.V_tensor = fem.functionspace(
+            self.mesh,
+            ("Lagrange", 1, (self.dim, self.dim)),
+        )
 
     def compute_deformation_gradient_at_quad_points(
         self,

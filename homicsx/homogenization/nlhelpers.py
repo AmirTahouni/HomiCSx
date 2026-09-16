@@ -1320,7 +1320,7 @@ def _write_xdmf_at_end(
     # Use DG0 for stress/energy fields (element-wise constant)
     V_tensor = functionspace(domain, ("DG", 0, (dim, dim)))
     V_scalar = functionspace(domain, ("DG", 0))
-    V_vector = functionspace(domain, ("CG", 1, (dim,)))
+    V_vector = functionspace(domain, ("Lagrange", 1, (dim,)))
     
     print(f"   Writing {len(solutions)} time steps to XDMF...")
     
