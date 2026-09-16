@@ -34,7 +34,9 @@ representative volume element; composite materials; viscoelasticity
 
 ## 1. Motivation and significance
 
-Finite-element computational homogenization requires a chain of choices that
+First-order computational homogenization obtains macroscopic constitutive
+response from microscopic boundary-value problems under scale separation
+[4,5]. Its finite-element realization requires a chain of choices that
 are often implemented in separate research scripts: constructing a
 representative cell, preserving periodic geometry, producing compatible
 opposite-boundary meshes, assigning phases, enforcing periodic constraints,
@@ -43,7 +45,8 @@ macroscopic quantities. This fragmentation makes it difficult to adapt a
 workflow without also weakening its traceability.
 
 HomiCSx provides these steps through a common set of Python data objects and
-drivers built on FEniCSx/DOLFINx and Gmsh. Its main contribution is not a new
+drivers built on DOLFINx and UFL [1,2], with geometry and meshing provided by
+Gmsh [3]. Its main contribution is not a new
 homogenization theory. It is an extensible end-to-end implementation in which
 the geometry, discretization, constitutive response, macroscopic loading,
 nonlinear solution, and result extraction remain explicit and replaceable.
@@ -97,11 +100,13 @@ volume-averaged first Piola--Kirchhoff stress, energy, deformation Jacobian,
 and optional tangent information.
 
 Built-in nonlinear behavior includes compressible Neo-Hookean elasticity and a
-generalized-Maxwell solid. For Maxwell phases, the algorithmically updated
-nonequilibrium branch stress participates directly in the weak residual and
-its Newton Jacobian is obtained by automatic differentiation. Previous
-converged viscous metrics remain fixed during a global solve and are committed
-only after convergence, preserving step-retry semantics.
+generalized-Maxwell solid. Each Maxwell branch stores a cellwise viscous metric
+and advances it with an exponential recurrence based on the current right
+Cauchy--Green tensor and branch relaxation time. The resulting algorithmic
+nonequilibrium stress participates directly in the weak residual, and its
+Newton Jacobian is obtained by automatic differentiation. Previous converged
+viscous metrics remain fixed during a global solve and are committed only after
+convergence, preserving step-retry semantics.
 
 ### 2.3. Customization and outputs
 
@@ -143,7 +148,9 @@ Piola stress is independently checked against numerical energy derivatives in
 2D and 3D, and an end-to-end nonlinear patch recovers analytical macroscopic
 energy, stress, and mean Jacobian.
 
-The external validation suite uses independently generated Abaqus models and
+Because periodic-boundary enforcement is a consequential implementation choice
+in multiscale homogenization [6], the external validation suite includes a
+boundary-split geometry. It uses independently generated Abaqus models and
 only conventional macroscopic quantities. Three linear plane-strain cases—a
 homogeneous non-unit cell, a centered 20% circular inclusion, and a periodic
 boundary-split inclusion—have maximum stiffness, probe-stress, and probe-energy
@@ -256,19 +263,30 @@ the publication.
 
 ## References
 
-1. M. W. Scroggs, J. S. Dokken, C. N. Richardson, G. N. Wells, Construction of
-   arbitrary order finite element degree-of-freedom maps on polygonal and
-   polyhedral cell meshes, ACM Transactions on Mathematical Software 48 (2)
-   (2022). [VERIFY DOI AND WHETHER THIS IS THE BEST DOLFINx CITATION]
-2. C. Geuzaine, J.-F. Remacle, Gmsh: A 3-D finite element mesh generator with
+1. I. A. Baratta, J. P. Dean, J. S. Dokken, M. Habera, J. S. Hale,
+   C. N. Richardson, M. E. Rognes, M. W. Scroggs, N. Sime, G. N. Wells,
+   DOLFINx: The next generation FEniCS problem solving environment, preprint
+   (2025). https://doi.org/10.5281/zenodo.18101307.
+2. M. S. Alnæs, A. Logg, K. B. Ølgaard, M. E. Rognes, G. N. Wells, Unified Form
+   Language: A domain-specific language for weak formulations of partial
+   differential equations, ACM Transactions on Mathematical Software 40 (2014).
+   https://doi.org/10.1145/2566630.
+3. C. Geuzaine, J.-F. Remacle, Gmsh: A 3-D finite element mesh generator with
    built-in pre- and post-processing facilities, International Journal for
    Numerical Methods in Engineering 79 (11) (2009) 1309–1331.
    https://doi.org/10.1002/nme.2579.
-3. P. Henyš, L. Čapek, J. Březina, Comparison of current methods for
+4. M. G. D. Geers, V. G. Kouznetsova, W. A. M. Brekelmans, Multi-scale
+   first-order and second-order computational homogenization of microstructures
+   towards continua, International Journal for Multiscale Computational
+   Engineering 1 (4) (2003) 371–386.
+   https://doi.org/10.1615/IntJMultCompEng.v1.i4.40.
+5. S. Saeb, P. Steinmann, A. Javili, Aspects of computational homogenization at
+   finite deformations: A unifying review from Reuss' to Voigt's bound,
+   Applied Mechanics Reviews 68 (5) (2016) 050801.
+   https://doi.org/10.1115/1.4034024.
+6. P. Henyš, L. Čapek, J. Březina, Comparison of current methods for
    implementing periodic boundary conditions in multi-scale homogenisation,
    European Journal of Mechanics - A/Solids 78 (2019) 103825.
    https://doi.org/10.1016/j.euromechsol.2019.103825.
-4. [ADD VERIFIED FIRST-ORDER/FINITE-STRAIN COMPUTATIONAL HOMOGENIZATION
-   REFERENCES.]
-5. A. R. Tahouni, HomiCSx, version [VERSION], Zenodo (2026).
+7. A. R. Tahouni, HomiCSx, version [VERSION], Zenodo (2026).
    [ZENODO DOI REQUIRED].

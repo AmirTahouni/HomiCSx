@@ -8,8 +8,8 @@
 - [x] Confirm the corresponding-author email: tahouniamirreza@gmail.com.
 - [x] Provide an ORCID, or decide to submit without one: submit without one.
 - [x] Confirm whether any funding supported HomiCSx development: no funding.
-- [ ] Confirm whether the associated application paper may be cited as a
-  preprint by submission time.
+- [x] Decide whether to rely on the associated application paper as a preprint:
+  no; keep the software paper independently supported unless this changes.
 
 ## Software release
 

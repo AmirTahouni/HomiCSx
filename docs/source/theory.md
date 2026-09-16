@@ -120,15 +120,46 @@ A custom nonlinear material model can be provided by subclassing the abstract ma
 
 ### Finite Strain Viscoelasticity
 
-The generalized Maxwell model is available for rate-dependent materials. The total strain energy splits into equilibrium and $N$ non-equilibrium contributions:
+The implemented generalized-Maxwell model stores a symmetric viscous metric
+$\mathbf{C}_{v,i}$ for each branch. For a converged deformation gradient
+$\mathbf{F}_{n+1}$, let $\mathbf{C}_{n+1}=\mathbf{F}_{n+1}^{T}\mathbf{F}_{n+1}$.
+The branch update used by HomiCSx is the discrete exponential recurrence
 
-$$\Psi = \Psi_{eq}(\mathbf{F}) + \sum_{i=1}^N \Psi_{neq}^{(i)}(\mathbf{F}_e^{(i)})$$
+$$
+\mathbf{C}_{v,i}^{n+1}
+= \alpha_i\mathbf{C}_{v,i}^{n}
++ (1-\alpha_i)\mathbf{C}_{n+1},
+\qquad
+\alpha_i=\exp(-\Delta t/\tau_i),
+$$
 
-where $\mathbf{F}_e^{(i)} = \mathbf{F} (\mathbf{F}_v^{(i)})^{-1}$ is the elastic deformation in branch $i$, and $\mathbf{F}_v^{(i)}$ are internal viscous deformation variables. Their evolution follows:
+where $\tau_i$ is the branch relaxation time. The recoverable branch energy
+and nonequilibrium first Piola--Kirchhoff stress are
 
-$$\dot{\mathbf{F}}_v^{(i)} = \frac{1}{\tau_i} (\mathbf{F}_e^{(i)})^{-1} \, \text{dev}\!\left[ \frac{\partial \Psi_{neq}^{(i)}}{\partial \mathbf{F}_e^{(i)}} \right] \mathbf{F}$$
+$$
+\Psi_i
+= \frac{\mu_i}{2}\left[
+\operatorname{tr}(\mathbf{C}\mathbf{C}_{v,i}^{-1})-d
+-\ln\det(\mathbf{C}\mathbf{C}_{v,i}^{-1})
+\right],
+$$
 
-with relaxation times $\tau_i$. The equilibrium branch can use any hyperelastic model (Neo-Hookean or custom). State variables $\mathbf{F}_v^{(i)}$ are tracked at every quadrature point and updated during the solution.
+$$
+\mathbf{P}_i
+= \mu_i\mathbf{F}\left(\mathbf{C}_{v,i}^{-1}-\mathbf{C}^{-1}\right),
+$$
+
+with branch shear modulus $\mu_i$ and spatial dimension $d$. The total stress
+is the equilibrium hyperelastic stress plus $\sum_i\mathbf{P}_i$.
+
+During a global step, the algorithmic trial value
+$\alpha_i\mathbf{C}_{v,i}^{n}+(1-\alpha_i)\mathbf{C}$ is inserted directly in
+the weak residual, and the Newton Jacobian is obtained by automatic
+differentiation. The previous converged metrics remain fixed during Newton
+iterations and the new state is committed only after global convergence.
+Consistent with the current cellwise deformation-gradient evaluator, the
+internal metrics are represented by DG0 tensor coefficients and replicated
+over the material-state quadrature samples of each cell.
 
 ### Solution Strategy
 
