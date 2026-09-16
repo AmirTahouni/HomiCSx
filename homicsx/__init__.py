@@ -39,7 +39,10 @@ from .stochastic import (
     sweep_stiffness_contrast_linear,
 )
 
+__version__ = "0.1.0"
+
 __all__ = [
+    "__version__",
     # core
     "Inclusion", 
     "GeometryInput", 
