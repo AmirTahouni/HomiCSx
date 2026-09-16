@@ -28,13 +28,15 @@ work but are not currently part of the verification matrix.
 - Overlapping-void and open-cell-foam workflows lack publication-level tests.
 - Imported external meshes are outside the publication-supported workflow.
   Such meshes are not automatically made periodic-conforming.
-- Generalized-Maxwell validation currently covers two-dimensional plane-strain
+- Generalized-Maxwell external validation covers two-dimensional plane-strain
   simple-shear relaxation for homogeneous, centered-inclusion, and periodic
-  boundary-split cells. Other loading paths, three-dimensional viscoelasticity,
-  and non-Maxwell history-dependent laws have not yet received equivalent
-  external validation. Internal viscous metrics are represented cellwise using
-  DG0 coefficients, matching the current cellwise deformation-gradient/state
-  update implementation.
+  boundary-split cells, plus a homogeneous three-dimensional simple-shear
+  patch. A heterogeneous 3D fast/slow-rate regression exercises time-dependent
+  redistribution, but no heterogeneous 3D Abaqus comparison is currently
+  provided. Other loading paths and non-Maxwell history-dependent laws have not
+  received equivalent external validation. Internal viscous metrics are
+  represented cellwise using DG0 coefficients, matching the current cellwise
+  deformation-gradient/state update implementation.
 - Advanced post-processing beyond essential result and XDMF extraction is not
   part of the supported core.
 

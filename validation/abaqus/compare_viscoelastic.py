@@ -55,7 +55,10 @@ def evaluate(
     )
     limits = case["acceptance"]
     failures = []
-    for label, metrics in (("material_recurrence", material_metrics), ("abaqus", abaqus_metrics)):
+    for label, metrics in (
+        ("material_recurrence", material_metrics),
+        ("abaqus", abaqus_metrics),
+    ):
         for metric, key in (
             ("peak_normalized_max_percent", "stress_curve_peak_normalized_max_percent"),
             ("peak_normalized_rms_percent", "stress_curve_peak_normalized_rms_percent"),
@@ -115,12 +118,65 @@ def evaluate_heterogeneous(
     return {"passed": not failures, "cases": summaries, "failures": failures}
 
 
+def evaluate_3d(
+    homicsx_path: Path = HERE / "viscoelastic_homicsx_3d_results.json",
+    abaqus_path: Path = HERE / "viscoelastic_abaqus_3d_results.json",
+) -> dict:
+    """Evaluate the independent 3D homogeneous relaxation comparison."""
+    case = _load(HERE / "viscoelastic_case.json")
+    homicsx = _load(homicsx_path)
+    abaqus = _load(abaqus_path)
+    expected_id = case["three_dimensional_case"]["case_id"]
+    if homicsx["case_id"] != expected_id or abaqus["case_id"] != expected_id:
+        raise ValueError("3D result case IDs do not match the manifest")
+    end_to_end = homicsx["end_to_end_history"]
+    discrete = homicsx["discrete_material_history"]
+    abq_history = abaqus["history"]
+    times = np.asarray([row["time"] for row in end_to_end])
+    for name, history in (("discrete", discrete), ("abaqus", abq_history)):
+        other_times = np.asarray([row["time"] for row in history])
+        if not np.allclose(times, other_times, rtol=0.0, atol=5.0e-7):
+            raise ValueError("3D {} time grid does not match HomiCSx".format(name))
+    end_stress = [row["macro_p12"] for row in end_to_end]
+    material_metrics = _curve_metrics(
+        [row["macro_p12"] for row in discrete], end_stress
+    )
+    abaqus_metrics = _curve_metrics(
+        end_stress, [row["macro_p12"] for row in abq_history]
+    )
+    max_j_error = max(
+        abs(row["mean_j"] - 1.0)
+        for history in (end_to_end, abq_history)
+        for row in history
+    )
+    limits = case["three_dimensional_acceptance"]
+    failures = []
+    for label, metrics in (("material_recurrence", material_metrics), ("abaqus", abaqus_metrics)):
+        for metric, key in (
+            ("peak_normalized_max_percent", "stress_curve_peak_normalized_max_percent"),
+            ("peak_normalized_rms_percent", "stress_curve_peak_normalized_rms_percent"),
+            ("endpoint_percent", "endpoint_stress_percent"),
+        ):
+            if metrics[metric] > limits[key]:
+                failures.append("{}:{}={:.6g}%".format(label, metric, metrics[metric]))
+    if max_j_error > limits["mean_j_absolute_error"]:
+        failures.append("mean_j_absolute_error={:.6g}".format(max_j_error))
+    return {
+        "passed": not failures,
+        "homi_end_to_end_vs_material_recurrence": material_metrics,
+        "abaqus_vs_homicsx_end_to_end": abaqus_metrics,
+        "maximum_mean_j_absolute_error": max_j_error,
+        "failures": failures,
+    }
+
+
 def main() -> int:
     summary = {
         "homogeneous": evaluate(),
         "heterogeneous": evaluate_heterogeneous(),
+        "three_dimensional": evaluate_3d(),
     }
-    summary["passed"] = summary["homogeneous"]["passed"] and summary["heterogeneous"]["passed"]
+    summary["passed"] = all(result["passed"] for result in summary.values())
     print(json.dumps(summary, indent=2, sort_keys=True))
     return 0 if summary["passed"] else 1
 

@@ -91,3 +91,11 @@ The test suite also runs a fast/slow-rate heterogeneous regression that
 requires different converged fluctuation fields. Stored result files, exact
 geometry and material manifests, independent solver scripts, and recomputable
 acceptance gates are under `validation/abaqus`.
+
+A 50-increment 3D homogeneous patch independently compares HomiCSx's periodic
+tetrahedral solve with an Abaqus `C3D10H` unit cube. The complete macro-`P12`
+history has 0.000671% peak-normalized maximum error and 0.0000028% endpoint
+error; maximum absolute mean-`J` error is below `3e-10`. A separate
+sphere-in-matrix 3D fast/slow-rate regression verifies that the heterogeneous
+fluctuation field responds to the Maxwell relaxation time. The latter is an
+automated regression, not an external Abaqus comparison.

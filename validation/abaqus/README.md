@@ -110,7 +110,7 @@ Two heterogeneous cases extend the same 100-increment relaxation protocol:
 
 Run them with `run_homicsx_viscoelastic_heterogeneous.py` and
 `run_abaqus_viscoelastic_heterogeneous.py`; `compare_viscoelastic.py` evaluates
-the homogeneous and heterogeneous suites together. On the refined independent
+the homogeneous, heterogeneous, and 3D suites together. On the refined independent
 meshes, the centered case has 1.22% maximum peak-normalized curve error, 0.93%
 RMS error, and 1.73% endpoint error. The periodic split case has 1.35%, 1.04%,
 and 1.97%, respectively. Maximum mean-`J` disagreement is `3.08e-6`.
@@ -122,6 +122,17 @@ converged viscous metrics remain fixed; state is committed only after global
 convergence. Thus the validation exercises time-dependent redistribution of
 the heterogeneous fluctuation field, rather than adding viscous stress only
 during post-processing.
+
+A separate 3D homogeneous unit-cube patch holds the same simple shear for 50
+increments. HomiCSx uses its periodic tetrahedral pipeline; Abaqus uses an
+independently meshed `C3D10H` solid with affine exterior displacements. Run it
+with `run_homicsx_viscoelastic_3d.py` and
+`run_abaqus_viscoelastic_3d.py`. The peak-normalized maximum macro-`P12` curve
+error is 0.000671%, the endpoint error is 0.0000028%, and maximum absolute
+mean-`J` error is below `3e-10`. A heterogeneous 3D sphere-in-matrix fast/slow
+rate regression additionally requires distinct converged fluctuation fields.
+That regression exercises 3D heterogeneous redistribution, but is not an
+external Abaqus comparison.
 
 Run the comparison without an Abaqus installation:
 

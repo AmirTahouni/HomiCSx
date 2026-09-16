@@ -26,6 +26,16 @@
       ]
     }
   ],
+  "three_dimensional_case": {
+    "case_id": "homogeneous_3d_shear_relaxation",
+    "domain": {"lx": 1.0, "ly": 1.0, "lz": 1.0},
+    "gamma12": 0.01,
+    "time_increment": 0.1,
+    "end_time": 5.0,
+    "homicsx_min_size": 0.10,
+    "homicsx_max_size": 0.18,
+    "abaqus_size": 0.12
+  },
   "compared_quantities": ["time", "macro_f12", "macro_p12", "mean_j"],
   "acceptance": {
     "stress_curve_peak_normalized_max_percent": 1.0,
@@ -38,5 +48,11 @@
     "stress_curve_peak_normalized_rms_percent": 1.5,
     "endpoint_stress_percent": 2.5,
     "mean_j_absolute_error": 1e-4
+  },
+  "three_dimensional_acceptance": {
+    "stress_curve_peak_normalized_max_percent": 1.0,
+    "stress_curve_peak_normalized_rms_percent": 0.5,
+    "endpoint_stress_percent": 1.0,
+    "mean_j_absolute_error": 1e-6
   }
 }

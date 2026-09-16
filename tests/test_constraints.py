@@ -62,6 +62,36 @@ def test_nonlinear_3d_constraints_use_each_domain_length(monkeypatch):
         assert locator(slave).item()
         np.testing.assert_allclose(relation(slave), master)
 
+    # Every positive-face edge must be assigned once and mapped directly to a
+    # canonical negative-face master (never to another slave edge).
+    edge_cases = (
+        (
+            0,
+            np.array([[lengths[0]], [lengths[1]], [2.0]]),
+            np.array([[0.0], [0.0], [2.0]]),
+        ),
+        (
+            0,
+            np.array([[lengths[0]], [1.5], [lengths[2]]]),
+            np.array([[0.0], [1.5], [0.0]]),
+        ),
+        (
+            1,
+            np.array([[0.0], [lengths[1]], [lengths[2]]]),
+            np.array([[0.0], [0.0], [0.0]]),
+        ),
+        (
+            2,
+            np.array([[0.0], [1.5], [lengths[2]]]),
+            np.array([[0.0], [1.5], [0.0]]),
+        ),
+    )
+    for owner, slave, master in edge_cases:
+        memberships = [locator(slave).item() for locator, unused in mpc.constraints]
+        assert memberships.count(True) == 1
+        assert memberships[owner]
+        np.testing.assert_allclose(mpc.constraints[owner][1](slave), master)
+
 
 def test_nonlinear_constraints_reject_invalid_domain_sizes():
     mesh = SimpleNamespace(geometry=SimpleNamespace(dim=3))

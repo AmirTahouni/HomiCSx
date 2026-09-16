@@ -4,6 +4,7 @@ from validation.abaqus.canonical_common import HERE, load_cases
 from validation.abaqus.compare_canonical import evaluate
 from validation.abaqus.compare_viscoelastic import (
     evaluate as evaluate_viscoelastic,
+    evaluate_3d as evaluate_viscoelastic_3d,
     evaluate_heterogeneous as evaluate_viscoelastic_heterogeneous,
 )
 
@@ -38,6 +39,8 @@ def test_viscoelastic_abaqus_reference_passes_all_gates():
     assert summary["passed"], summary["failures"]
     heterogeneous = evaluate_viscoelastic_heterogeneous()
     assert heterogeneous["passed"], heterogeneous["failures"]
+    three_dimensional = evaluate_viscoelastic_3d()
+    assert three_dimensional["passed"], three_dimensional["failures"]
 
 
 def test_viscoelastic_validation_uses_macro_history_only():

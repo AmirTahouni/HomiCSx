@@ -307,9 +307,10 @@ def build_constraints_nonlinear(
       8 corners are anchored using a helper function `build_anchor_bc`, In contrast
       to the linear anchoring strategy where only the node at origin is anchored.
       This strategy has shown to be more effective for nonlinear convergence.
-    - Face-only MPC: Periodic relations are applied strictly to the 
-      internal parts of the faces, excluding edges and corners to avoid 
-      over-constraining the degrees of freedom (DOFs).
+    - In 3D, positive-face edge nodes are owned hierarchically by the x, y,
+      then z relation and mapped directly to canonical negative-face masters.
+      This covers edges without duplicate or chained constraints. Corner DOFs
+      are handled by the anchor boundary conditions.
     """
     dim = mesh.geometry.dim
     lengths = np.asarray(domain_size, dtype=float).reshape(-1)
@@ -399,15 +400,17 @@ def build_constraints_nonlinear(
         def periodic_relation_left_right(x):
             out_x = np.zeros(x.shape)
             out_x[0] = x[0] - Lx
-            out_x[1] = x[1]
-            out_x[2] = x[2]
+            # Canonicalize positive-face edges directly to their negative-face
+            # master.  This avoids slave-to-slave chains at 3D edges.
+            out_x[1] = np.where(np.isclose(x[1], Ly, atol=atol), x[1] - Ly, x[1])
+            out_x[2] = np.where(np.isclose(x[2], Lz, atol=atol), x[2] - Lz, x[2])
             return out_x
         
         def periodic_relation_bottom_top(x):
             out_x = np.zeros(x.shape)
             out_x[0] = x[0]
             out_x[1] = x[1] - Ly
-            out_x[2] = x[2]
+            out_x[2] = np.where(np.isclose(x[2], Lz, atol=atol), x[2] - Lz, x[2])
             return out_x
         
         def periodic_relation_near_far(x):
@@ -419,33 +422,18 @@ def build_constraints_nonlinear(
         
         def right_boundary_locator(x):
             on_right = np.isclose(x[0], Lx, atol=atol)
-            on_left = np.isclose(x[0], 0.0, atol=atol)
-            on_top = np.isclose(x[1], Ly, atol=atol)
-            on_bottom = np.isclose(x[1], 0.0, atol=atol)
-            on_far = np.isclose(x[2], Lz, atol=atol)
-            on_near = np.isclose(x[2], 0.0, atol=atol)
-
-            return on_right & ~on_top & ~on_bottom & ~on_far & ~on_near
+            return on_right
 
         def top_boundary_locator(x):
             on_right = np.isclose(x[0], Lx, atol=atol)
-            on_left = np.isclose(x[0], 0.0, atol=atol)
             on_top = np.isclose(x[1], Ly, atol=atol)
-            on_bottom = np.isclose(x[1], 0.0, atol=atol)
-            on_far = np.isclose(x[2], Lz, atol=atol)
-            on_near = np.isclose(x[2], 0.0, atol=atol)
-
-            return on_top & ~on_right & ~on_left & ~on_far & ~on_near
+            return on_top & ~on_right
         
         def far_boundary_locator(x):
             on_right = np.isclose(x[0], Lx, atol=atol)
-            on_left = np.isclose(x[0], 0.0, atol=atol)
             on_top = np.isclose(x[1], Ly, atol=atol)
-            on_bottom = np.isclose(x[1], 0.0, atol=atol)
             on_far = np.isclose(x[2], Lz, atol=atol)
-            on_near = np.isclose(x[2], 0.0, atol=atol)
-
-            return on_far & ~on_right & ~on_left & ~on_top & ~on_bottom
+            return on_far & ~on_right & ~on_top
         
         mpc = dolfinx_mpc.MultiPointConstraint(V)
         mpc.create_periodic_constraint_geometrical(V, right_boundary_locator, periodic_relation_left_right, bcs)

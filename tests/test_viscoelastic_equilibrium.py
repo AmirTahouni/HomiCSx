@@ -97,3 +97,86 @@ def test_maxwell_branches_change_heterogeneous_equilibrium_field_with_rate():
     difference = np.linalg.norm(fast - slow)
     scale = max(np.linalg.norm(fast), np.linalg.norm(slow))
     assert difference / scale > 1.0e-2
+
+
+def _final_3d_fluctuation_for_rate(strain_rate):
+    geometry_input = GeometryInput(
+        dim=3,
+        dispersion="mono",
+        shape="sphere",
+        volume_fraction=0.04,
+        clearance=0.02,
+        domain_size=(1.0, 1.0, 1.0),
+        num_particles=1,
+        seed=11,
+    )
+    geometry = particulate_geometry_generator(geometry_input)
+    tags = PhysicalTags()
+    domain, cell_tags, facet_tags = generate_mesh(
+        geometry=geometry,
+        mesh_settings=MeshSettings(
+            min_size=0.18,
+            max_size=0.30,
+            physical_tags=tags,
+            verbosity=0,
+            periodic_mesh=True,
+        ),
+    )
+    matrix = ViscoelasticGeneralizedMaxwell(
+        equilibrium_material=NeoHookeanIsotropic(
+            young_modulus=10.0, poisson_ratio=0.25
+        ),
+        num_branches=1,
+        shear_moduli=[8.0],
+        relaxation_times=[0.1],
+    )
+    inclusion = NeoHookeanIsotropic(young_modulus=100.0, poisson_ratio=0.25)
+    driver = NonlinearHomogenizationDriver(
+        mesh_obj=domain,
+        cell_tags=cell_tags,
+        facet_tags=facet_tags,
+        assignment=MaterialAssignment(materials_by_phase={0: matrix, 1: inclusion}),
+        settings=ProblemSettings(
+            dim=3,
+            kinematics="finite_strain",
+            petsc_options={"snes_rtol": 1e-10, "snes_atol": 1e-12},
+        ),
+        physical_tags=tags,
+        domain_size=geometry_input.domain_size,
+        matrix_phase_id=0,
+        quad_degree=2,
+        enable_hooks=True,
+    )
+    captured = []
+    driver.add_post_convergence_hook(lambda data: captured.append(data.u.x.array.copy()))
+
+    def held_shear(unused_parameter):
+        deformation = np.eye(3)
+        deformation[0, 1] = 0.015
+        return deformation
+
+    driver.run(
+        strain_rate=strain_rate,
+        tangent_every=10_000,
+        max_strain=0.01,
+        custom_loads={"held_shear_3d": held_shear},
+        from_built_in_loads=[],
+        adaptive_settings=AdaptiveSettings(
+            initial_step_ratio=1.0,
+            min_step=0.01,
+            max_step_ratio=1.0,
+        ),
+        plot_summary=False,
+        plot_individual=False,
+        save_plots=False,
+    )
+    assert len(captured) == 1
+    return captured[0]
+
+
+def test_maxwell_branches_change_3d_heterogeneous_equilibrium_field_with_rate():
+    fast = _final_3d_fluctuation_for_rate(strain_rate=10.0)
+    slow = _final_3d_fluctuation_for_rate(strain_rate=0.01)
+    difference = np.linalg.norm(fast - slow)
+    scale = max(np.linalg.norm(fast), np.linalg.norm(slow))
+    assert difference / scale > 1.0e-2
