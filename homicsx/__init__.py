@@ -10,6 +10,7 @@ from .core import (
     LinearElasticIsotropic,
     NonlinearMaterialModel,
     NeoHookeanIsotropic,
+    ViscoelasticGeneralizedMaxwell,
     MaterialAssignment, 
 
     ProblemSettings,
@@ -62,6 +63,7 @@ __all__ = [
     "LinearElasticIsotropic",
     "NonlinearMaterialModel",
     "NeoHookeanIsotropic",
+    "ViscoelasticGeneralizedMaxwell",
     "MaterialAssignment", 
     "ProblemSettings",
     "LinearHomogenizationResult",

@@ -15,6 +15,7 @@ SUPPORTED_NONLINEAR_API = {
     "PostTangentData",
     "PostLoadCaseData",
     "StepFailureData",
+    "ViscoelasticGeneralizedMaxwell",
 }
 
 

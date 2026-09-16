@@ -63,3 +63,31 @@ python -m validation.abaqus.compare_reference
 ```
 
 The detailed scope, material and mesh settings, provenance, and limitations are stored under `validation/abaqus`. Abaqus is treated as an independent comparison implementation, not ground truth. Agreement on these selected aggregate metrics does not establish pointwise field identity, general mesh independence, or validation of features outside the documented scope.
+
+## Generalized-Maxwell comparison
+
+A deterministic 100-increment simple-shear relaxation suite verifies the
+finite-strain generalized-Maxwell implementation. The matrix contains two
+Maxwell branches with shear moduli 3 and 2 and relaxation times 0.2 and 1.0;
+its equilibrium Neo-Hookean branch has $E=10$ and $\nu=0.25$. The prescribed
+macroscopic shear is 0.01 over five time units.
+
+The homogeneous HomiCSx history agrees with direct evaluation of its
+exponential internal-state recurrence to within `1.6e-11`% peak-normalized
+maximum stress error. Abaqus/Standard uses an independently constructed
+`CPE6H` mesh and an equivalent time-domain Prony series; its homogeneous curve
+agrees within 0.000621%.
+
+Two heterogeneous cases place a hyperelastic inclusion with $E=100$ and
+$\nu=0.25$ in the viscoelastic matrix. The centered circle occupies 20% of the
+cell and gives 1.22% maximum peak-normalized stress-history error against
+Abaqus. A circle split across the periodic left/right boundary gives 1.35%.
+Their endpoint errors are 1.73% and 1.97%, respectively. These cases verify
+that nonequilibrium Maxwell stress participates in the nonlinear equilibrium
+residual and changes the time-dependent fluctuation field; it is not merely
+added during macroscopic post-processing.
+
+The test suite also runs a fast/slow-rate heterogeneous regression that
+requires different converged fluctuation fields. Stored result files, exact
+geometry and material manifests, independent solver scripts, and recomputable
+acceptance gates are under `validation/abaqus`.

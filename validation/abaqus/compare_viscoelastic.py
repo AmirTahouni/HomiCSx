@@ -74,8 +74,53 @@ def evaluate(
     }
 
 
+def evaluate_heterogeneous(
+    homicsx_path: Path = HERE / "viscoelastic_homicsx_heterogeneous_results.json",
+    abaqus_path: Path = HERE / "viscoelastic_abaqus_heterogeneous_results.json",
+) -> dict:
+    case = _load(HERE / "viscoelastic_case.json")
+    homicsx = {row["case_id"]: row for row in _load(homicsx_path)["cases"]}
+    abaqus = {row["case_id"]: row for row in _load(abaqus_path)["cases"]}
+    expected = {row["case_id"] for row in case["heterogeneous_cases"]}
+    if set(homicsx) != expected or set(abaqus) != expected:
+        raise ValueError("heterogeneous result case IDs do not match the manifest")
+    limits = case["heterogeneous_acceptance"]
+    failures = []
+    summaries = {}
+    for case_id in sorted(expected):
+        hx_history = homicsx[case_id]["history"]
+        abq_history = abaqus[case_id]["history"]
+        hx_times = np.asarray([row["time"] for row in hx_history])
+        abq_times = np.asarray([row["time"] for row in abq_history])
+        if not np.allclose(hx_times, abq_times, rtol=0.0, atol=5.0e-7):
+            raise ValueError("{} time grids do not match".format(case_id))
+        metrics = _curve_metrics(
+            [row["macro_p12"] for row in hx_history],
+            [row["macro_p12"] for row in abq_history],
+        )
+        j_error = max(
+            abs(hx["mean_j"] - abq["mean_j"])
+            for hx, abq in zip(hx_history, abq_history)
+        )
+        summaries[case_id] = dict(metrics, maximum_mean_j_absolute_error=j_error)
+        for metric, key in (
+            ("peak_normalized_max_percent", "stress_curve_peak_normalized_max_percent"),
+            ("peak_normalized_rms_percent", "stress_curve_peak_normalized_rms_percent"),
+            ("endpoint_percent", "endpoint_stress_percent"),
+        ):
+            if metrics[metric] > limits[key]:
+                failures.append("{}:{}={:.6g}%".format(case_id, metric, metrics[metric]))
+        if j_error > limits["mean_j_absolute_error"]:
+            failures.append("{}:mean_j={:.6g}".format(case_id, j_error))
+    return {"passed": not failures, "cases": summaries, "failures": failures}
+
+
 def main() -> int:
-    summary = evaluate()
+    summary = {
+        "homogeneous": evaluate(),
+        "heterogeneous": evaluate_heterogeneous(),
+    }
+    summary["passed"] = summary["homogeneous"]["passed"] and summary["heterogeneous"]["passed"]
     print(json.dumps(summary, indent=2, sort_keys=True))
     return 0 if summary["passed"] else 1
 

@@ -66,7 +66,7 @@ macro-shear-stress error is 0.000157%, and the mean-`J` error is below
 `1e-8`%. Abaqus is treated as an independent comparison implementation, not as
 ground truth.
 
-## Experimental viscoelastic verification
+## Viscoelastic verification
 
 `viscoelastic_case.json` defines an additional homogeneous, two-branch shear-
 relaxation benchmark. A simple shear of `gamma12=0.01` is held for five time
@@ -102,12 +102,26 @@ The Abaqus curve agrees with HomiCSx to within 0.000621% by the same measure;
 the endpoint stress error is 0.0000028%, and maximum absolute mean-`J` error is
 `1.12e-8`.
 
-This benchmark verifies homogeneous constitutive time evolution and driver
-state handling. It does **not** validate heterogeneous viscoelastic
-homogenization. At present, nonequilibrium Maxwell-branch stress is included in
-HomiCSx macroscopic post-processing but not in the nonlinear equilibrium
-residual that determines a heterogeneous fluctuation field. That capability
-therefore remains explicitly experimental.
+Two heterogeneous cases extend the same 100-increment relaxation protocol:
+
+- a centered hyperelastic circle at 20% area fraction in the viscoelastic
+  matrix; and
+- a hyperelastic circle split across the periodic left/right boundary.
+
+Run them with `run_homicsx_viscoelastic_heterogeneous.py` and
+`run_abaqus_viscoelastic_heterogeneous.py`; `compare_viscoelastic.py` evaluates
+the homogeneous and heterogeneous suites together. On the refined independent
+meshes, the centered case has 1.22% maximum peak-normalized curve error, 0.93%
+RMS error, and 1.73% endpoint error. The periodic split case has 1.35%, 1.04%,
+and 1.97%, respectively. Maximum mean-`J` disagreement is `3.08e-6`.
+
+For generalized-Maxwell phases, HomiCSx now inserts the algorithmically updated
+nonequilibrium branch stress directly into the weak equilibrium residual. The
+Newton Jacobian is obtained by automatic differentiation while the previous
+converged viscous metrics remain fixed; state is committed only after global
+convergence. Thus the validation exercises time-dependent redistribution of
+the heterogeneous fluctuation field, rather than adding viscous stress only
+during post-processing.
 
 Run the comparison without an Abaqus installation:
 

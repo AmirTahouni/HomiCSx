@@ -414,7 +414,12 @@ def _compute_average_P_and_energy_with_state(
                 #     W_q = material.psi_form(state, F_q, q)
                 # else:
                 #     W_q = material.psi_form(F_q)
-                W_q = material.evaluate_energy(F_q, dim)
+                if material.requires_history() and state is not None and hasattr(
+                    material, "get_quadrature_point_energy"
+                ):
+                    W_q = material.get_quadrature_point_energy(state, F_q, q)
+                else:
+                    W_q = material.evaluate_energy(F_q, dim)
 
                 # Jacobian
                 J_q = np.linalg.det(F_q)
@@ -523,6 +528,35 @@ def _update_all_material_states(
     return all_converged, stats
 
 
+def _sync_material_state_coefficients(
+    context: NonlinearFluctuationProblemContext,
+) -> None:
+    """Expose previous converged Maxwell states to the UFL residual.
+
+    HomiCSx currently evaluates deformation gradients cellwise (DG0) and
+    replicates them over the material-state quadrature samples. The residual
+    therefore uses the quadrature mean of each cell's identically evolved
+    viscous metric.
+    """
+    if context.dt_constant is not None:
+        context.dt_constant.value = PETSc.ScalarType(context.dt)
+    if not context.state_coefficients or context.material_states is None:
+        return
+
+    dim = int(context.metadata["dim"])
+    block_size = dim * dim
+    for phase_id, branch_functions in context.state_coefficients.items():
+        phase_states = context.material_states.get(phase_id, {})
+        for branch, coefficient in enumerate(branch_functions):
+            for cell_idx, state in phase_states.items():
+                dof = coefficient.function_space.dofmap.cell_dofs(cell_idx)[0]
+                values = state.get_state(f"Cv_{branch}")[:, :dim, :dim].mean(axis=0)
+                coefficient.x.array[
+                    dof * block_size : (dof + 1) * block_size
+                ] = values.reshape(-1)
+            coefficient.x.scatter_forward()
+
+
 def _solve_once_with_history(
     problem: Any,
     u: dolfinx.fem.Function,
@@ -536,8 +570,10 @@ def _solve_once_with_history(
     """
     Solve with state update after convergence.
     """
-    # Update macroscopic deformation gradient
+    # Update macroscopic deformation gradient and expose the previous
+    # converged material state to the algorithmic constitutive residual.
     F_macro.value[...] = Fbar
+    _sync_material_state_coefficients(context)
     
     # Set initial guess
     if initial_guess is not None:

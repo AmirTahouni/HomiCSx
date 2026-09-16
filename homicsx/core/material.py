@@ -479,8 +479,16 @@ class ViscoelasticGeneralizedMaxwell(NonlinearMaterialModel):
     metadata: Dict[str, Any] = field(default_factory=dict)
     
     def __post_init__(self):
-        assert len(self.shear_moduli) == self.num_branches
-        assert len(self.relaxation_times) == self.num_branches
+        if not isinstance(self.num_branches, int) or self.num_branches < 1:
+            raise ValueError("num_branches must be a positive integer")
+        if len(self.shear_moduli) != self.num_branches:
+            raise ValueError("shear_moduli length must equal num_branches")
+        if len(self.relaxation_times) != self.num_branches:
+            raise ValueError("relaxation_times length must equal num_branches")
+        if not all(np.isfinite(value) and value > 0.0 for value in self.shear_moduli):
+            raise ValueError("branch shear moduli must be finite and greater than zero")
+        if not all(np.isfinite(value) and value > 0.0 for value in self.relaxation_times):
+            raise ValueError("relaxation times must be finite and greater than zero")
         
     def requires_history(self) -> bool:
         return True
@@ -509,11 +517,34 @@ class ViscoelasticGeneralizedMaxwell(NonlinearMaterialModel):
     
     def evaluate_energy(self, F: np.ndarray, dim: int) -> float:
         """
-        Numeric evaluation of strain energy density.
-        For viscoelasticity, only the equilibrium part contributes to stored energy.
-        The non-equilibrium branches are dissipative.
+        Evaluate the equilibrium energy when no material state is available.
+
+        Use :meth:`get_quadrature_point_energy` when a state is available to
+        include recoverable energy in the Maxwell springs.
         """
         return self.equilibrium_material.evaluate_energy(F, dim)
+
+    def get_quadrature_point_energy(
+        self,
+        state: MaterialState,
+        F: np.ndarray,
+        quad_point_idx: int,
+    ) -> float:
+        """Return equilibrium plus recoverable Maxwell-branch energy."""
+        dim = F.shape[0]
+        C = F.T @ F
+        energy = self.equilibrium_material.evaluate_energy(F, dim)
+        for branch, shear_modulus in enumerate(self.shear_moduli):
+            Cv = state.get_state(f"Cv_{branch}")[
+                quad_point_idx, :dim, :dim
+            ]
+            elastic_metric = C @ np.linalg.inv(Cv)
+            energy += 0.5 * shear_modulus * (
+                np.trace(elastic_metric)
+                - dim
+                - np.log(np.linalg.det(elastic_metric))
+            )
+        return float(energy)
     
     def update_state(
         self, 
@@ -586,74 +617,6 @@ class ViscoelasticGeneralizedMaxwell(NonlinearMaterialModel):
             
         return P
     
-    def _update_state_for_perturbation(
-        self,
-        state: MaterialState,
-        F: np.ndarray,
-        F_perturbed: np.ndarray,
-        dt: float,
-        quad_point_idx: int
-    ):
-        """Update state for a perturbation (used in tangent computation)."""
-        dim = F.shape[0]
-        C = F.T @ F
-        C_pert = F_perturbed.T @ F_perturbed
-        
-        for branch in range(self.num_branches):
-            tau = self.relaxation_times[branch]
-            alpha = np.exp(-dt / tau)
-            
-            Cv = state.get_state(f"Cv_{branch}")[quad_point_idx, :dim, :dim]
-            Cv_pert = alpha * Cv + (1 - alpha) * C_pert
-            
-            state.get_state(f"Cv_{branch}")[quad_point_idx, :dim, :dim] = Cv_pert
-
-        def get_algorithmic_tangent(
-            self,
-            state: MaterialState,
-            F: np.ndarray,
-            quad_point_idx: int,
-            dt: float
-        ) -> np.ndarray:
-            """
-            Compute viscoelastic tangent using central difference with state update.
-            """
-            dim = F.shape[0]
-            voigt_size = 3 if dim == 2 else 6
-            eps = 1e-5  # Optimal step size for finite difference
-            
-            tangent = np.zeros((voigt_size, voigt_size))
-            
-            import copy
-            
-            for i in range(voigt_size):
-                dF = _voigt_to_tensor_perturbation(i, dim, eps)
-                
-                Fp = F + dF
-                Fm = F - dF
-                
-                # Deep copy states for perturbation
-                state_p = copy.deepcopy(state)
-                state_m = copy.deepcopy(state)
-                
-                # Update states with perturbed F
-                self._update_state_for_perturbation(state_p, F, Fp, dt, quad_point_idx)
-                self._update_state_for_perturbation(state_m, F, Fm, dt, quad_point_idx)
-                
-                # Compute perturbed stresses
-                Pp = self.get_quadrature_point_stress(state_p, Fp, quad_point_idx)
-                Pm = self.get_quadrature_point_stress(state_m, Fm, quad_point_idx)
-                
-                Pp_voigt = _flatten_tensor(Pp)
-                Pm_voigt = _flatten_tensor(Pm)
-                
-                tangent[:, i] = (Pp_voigt - Pm_voigt) / (2 * eps)
-            
-            # Enforce symmetry
-            tangent = 0.5 * (tangent + tangent.T)
-            
-            return tangent
-
 # =============================================================================
 # Plastic Materials with Return Mapping
 # =============================================================================

@@ -7,9 +7,10 @@ may be used for discovery, but compatibility guarantees apply to top-level
 imports rather than private names beginning with an underscore.
 
 The publication-supported top-level API covers geometry inputs and results,
-mesh settings and generation, linear and Neo-Hookean materials, material
-assignment, problem settings, linear and nonlinear homogenization drivers and
-results, adaptive settings, simulation state, and typed hook data objects.
+mesh settings and generation, linear, Neo-Hookean, and generalized-Maxwell
+materials, material assignment, problem settings, linear and nonlinear
+homogenization drivers and results, adaptive settings, simulation state, and
+typed hook data objects.
 
 The following top-level compatibility exports remain experimental:
 

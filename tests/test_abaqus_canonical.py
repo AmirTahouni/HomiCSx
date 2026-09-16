@@ -2,7 +2,10 @@ import json
 
 from validation.abaqus.canonical_common import HERE, load_cases
 from validation.abaqus.compare_canonical import evaluate
-from validation.abaqus.compare_viscoelastic import evaluate as evaluate_viscoelastic
+from validation.abaqus.compare_viscoelastic import (
+    evaluate as evaluate_viscoelastic,
+    evaluate_heterogeneous as evaluate_viscoelastic_heterogeneous,
+)
 
 
 def test_canonical_abaqus_reference_passes_all_gates():
@@ -33,6 +36,8 @@ def test_canonical_result_case_ids_match_manifest():
 def test_viscoelastic_abaqus_reference_passes_all_gates():
     summary = evaluate_viscoelastic()
     assert summary["passed"], summary["failures"]
+    heterogeneous = evaluate_viscoelastic_heterogeneous()
+    assert heterogeneous["passed"], heterogeneous["failures"]
 
 
 def test_viscoelastic_validation_uses_macro_history_only():

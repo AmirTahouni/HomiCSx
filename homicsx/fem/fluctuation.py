@@ -12,7 +12,12 @@ from dolfinx_mpc import LinearProblem
 
 from homicsx.core.mesh import PhysicalTags
 from homicsx.core.fem import ProblemSettings
-from homicsx.core.material import MaterialAssignment, QuadraturePointEvaluator, MaterialState
+from homicsx.core.material import (
+    MaterialAssignment,
+    MaterialState,
+    QuadraturePointEvaluator,
+    ViscoelasticGeneralizedMaxwell,
+)
 from homicsx.materials.coefficients import _build_linear_elastic_coefficients
 
 from .assembly import build_displacement_space
@@ -56,6 +61,8 @@ class NonlinearFluctuationProblemContext:
     fluctuation_field: fem.Function
     quad_evaluator: QuadraturePointEvaluator
     material_states: Optional[Dict[int, Dict[int, MaterialState]]] = None
+    state_coefficients: Optional[Dict[int, list[fem.Function]]] = None
+    dt_constant: Optional[fem.Constant] = None
     time: float = 0.0
     dt: float = 1.0
     metadata: Dict[str, Any] = field(default_factory=dict)
@@ -246,22 +253,59 @@ def build_nonlinear_periodic_fluctuation_problem_with_quadrature(
     F = ufl.variable(F_macro + ufl.grad(u))
     dx = ufl.Measure("dx", domain=mesh_obj, subdomain_data=cell_tags, 
                      metadata={"quadrature_degree": quad_degree})
-    
-    # Build energy functional
-    Pi = None
-    for phase in assignment.materials_by_phase.keys():
-        material_model = assignment.materials_by_phase[phase]
-        psi = material_model.psi_form(F=F)
-        tag = physical_tags.cell_tag_for_phase(phase)
-        
-        if Pi is None:
-            Pi = psi * dx(tag)
-        else:
-            Pi += psi * dx(tag)
-    
+
     v = ufl.TestFunction(V)
     du = ufl.TrialFunction(V)
-    Residual = ufl.derivative(Pi, u, v)
+    dt_constant = fem.Constant(mesh_obj, PETSc.ScalarType(0.0))
+    state_coefficients: Dict[int, list[fem.Function]] = {}
+
+    # Build the first-Piola residual phase by phase. History-independent phases
+    # use their hyperelastic energy. Generalized-Maxwell phases use the
+    # algorithmically updated viscous metric in both residual and Jacobian,
+    # while the coefficient itself remains the previous converged state.
+    Residual = None
+    for phase in assignment.materials_by_phase.keys():
+        material_model = assignment.materials_by_phase[phase]
+        tag = physical_tags.cell_tag_for_phase(phase)
+
+        if isinstance(material_model, ViscoelasticGeneralizedMaxwell):
+            equilibrium_energy = material_model.equilibrium_material.psi_form(F=F)
+            phase_stress = ufl.diff(equilibrium_energy, F)
+            C = F.T * F
+            C_inverse = ufl.inv(C)
+            coefficient_space = fem.functionspace(
+                mesh_obj, ("DG", 0, (settings.dim, settings.dim))
+            )
+            branch_coefficients = []
+            for branch, (shear_modulus, relaxation_time) in enumerate(
+                zip(material_model.shear_moduli, material_model.relaxation_times)
+            ):
+                previous_cv = fem.Function(
+                    coefficient_space, name=f"Cv_phase_{phase}_branch_{branch}"
+                )
+                previous_cv.x.array[:] = 0.0
+                block_size = settings.dim * settings.dim
+                local_cells = mesh_obj.topology.index_map(mesh_obj.topology.dim).size_local
+                identity = np.eye(settings.dim, dtype=PETSc.ScalarType).reshape(-1)
+                for cell_index in range(local_cells):
+                    dof = coefficient_space.dofmap.cell_dofs(cell_index)[0]
+                    previous_cv.x.array[
+                        dof * block_size : (dof + 1) * block_size
+                    ] = identity
+                previous_cv.x.scatter_forward()
+                branch_coefficients.append(previous_cv)
+                alpha = ufl.exp(-dt_constant / relaxation_time)
+                updated_cv = alpha * previous_cv + (1.0 - alpha) * C
+                branch_pk2 = shear_modulus * (ufl.inv(updated_cv) - C_inverse)
+                phase_stress += F * branch_pk2
+            state_coefficients[phase] = branch_coefficients
+        else:
+            phase_energy = material_model.psi_form(F=F)
+            phase_stress = ufl.diff(phase_energy, F)
+
+        phase_residual = ufl.inner(phase_stress, ufl.grad(v)) * dx(tag)
+        Residual = phase_residual if Residual is None else Residual + phase_residual
+
     Jacobian = ufl.derivative(Residual, u, du)
     
     if petsc_options is None:
@@ -291,6 +335,8 @@ def build_nonlinear_periodic_fluctuation_problem_with_quadrature(
         fluctuation_field=u,
         quad_evaluator=quad_evaluator,
         material_states=material_states,
+        state_coefficients=state_coefficients or None,
+        dt_constant=dt_constant,
         # dt=dt,
         metadata={
             "dim": settings.dim,

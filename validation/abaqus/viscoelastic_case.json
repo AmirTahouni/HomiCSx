@@ -3,18 +3,40 @@
   "case_id": "homogeneous_two_branch_shear_relaxation",
   "description": "Homogeneous finite-strain simple-shear hold for the experimental generalized-Maxwell model.",
   "domain": {"lx": 2.0, "ly": 0.75},
-  "mesh": {"homicsx_min_size": 0.05, "homicsx_max_size": 0.1, "abaqus_size": 0.1},
+  "mesh": {"homicsx_min_size": 0.025, "homicsx_max_size": 0.05, "abaqus_size": 0.04},
   "equilibrium_material": {"young_modulus": 10.0, "poisson_ratio": 0.25},
+  "inclusion_material": {"young_modulus": 100.0, "poisson_ratio": 0.25},
   "branch_shear_moduli": [3.0, 2.0],
   "relaxation_times": [0.2, 1.0],
   "gamma12": 0.01,
   "time_increment": 0.05,
   "end_time": 5.0,
+  "heterogeneous_cases": [
+    {
+      "case_id": "visco_centered_circle_vf20",
+      "description": "Viscoelastic matrix with a centered hyperelastic circular inclusion at 20 percent area fraction.",
+      "circles": [{"center": [1.0, 0.375], "radius": 0.3090193616185517, "periodic_source_id": null}]
+    },
+    {
+      "case_id": "visco_periodic_split_circle",
+      "description": "Viscoelastic matrix with one hyperelastic circle split across the left/right periodic boundary.",
+      "circles": [
+        {"center": [0.0, 0.375], "radius": 0.22, "periodic_source_id": null},
+        {"center": [2.0, 0.375], "radius": 0.22, "periodic_source_id": 0}
+      ]
+    }
+  ],
   "compared_quantities": ["time", "macro_f12", "macro_p12", "mean_j"],
   "acceptance": {
     "stress_curve_peak_normalized_max_percent": 1.0,
     "stress_curve_peak_normalized_rms_percent": 0.5,
     "endpoint_stress_percent": 1.0,
     "mean_j_absolute_error": 1e-6
+  },
+  "heterogeneous_acceptance": {
+    "stress_curve_peak_normalized_max_percent": 2.0,
+    "stress_curve_peak_normalized_rms_percent": 1.5,
+    "endpoint_stress_percent": 2.5,
+    "mean_j_absolute_error": 1e-4
   }
 }

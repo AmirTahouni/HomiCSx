@@ -14,10 +14,10 @@ from homicsx import (
     NonlinearHomogenizationDriver,
     PhysicalTags,
     ProblemSettings,
+    ViscoelasticGeneralizedMaxwell,
     generate_mesh,
 )
 from homicsx.core.homogenization import AdaptiveSettings
-from homicsx.core.material import ViscoelasticGeneralizedMaxwell
 
 from .canonical_common import HERE
 from .run_homicsx_canonical import make_geometry
@@ -68,17 +68,15 @@ def discrete_material_history(case: dict) -> list[dict]:
     return history
 
 
-def run_end_to_end(case: dict) -> list[dict]:
+def run_end_to_end(case: dict, geometry_case: dict | None = None) -> list[dict]:
     """Exercise meshing, periodic constraints, state updates, and averaging."""
-    circle_case = {
+    circle_case = geometry_case or {
         "case_id": case["case_id"],
-        "circles": [
-            {
-                "center": [case["domain"]["lx"] / 2.0, case["domain"]["ly"] / 2.0],
-                "radius": 0.18,
-                "periodic_source_id": None,
-            }
-        ],
+        "circles": [{
+            "center": [case["domain"]["lx"] / 2.0, case["domain"]["ly"] / 2.0],
+            "radius": 0.18,
+            "periodic_source_id": None,
+        }],
     }
     geometry = make_geometry(circle_case, case["domain"])
     tags = PhysicalTags()
@@ -105,11 +103,23 @@ def run_end_to_end(case: dict) -> list[dict]:
             relaxation_times=list(case["relaxation_times"]),
         )
 
+    if geometry_case is None:
+        phase_materials = {0: material(), 1: material()}
+    else:
+        inclusion_data = case["inclusion_material"]
+        phase_materials = {
+            0: material(),
+            1: NeoHookeanIsotropic(
+                young_modulus=inclusion_data["young_modulus"],
+                poisson_ratio=inclusion_data["poisson_ratio"],
+            ),
+        }
+
     driver = NonlinearHomogenizationDriver(
         mesh_obj=domain,
         cell_tags=cell_tags,
         facet_tags=facet_tags,
-        assignment=MaterialAssignment(materials_by_phase={0: material(), 1: material()}),
+        assignment=MaterialAssignment(materials_by_phase=phase_materials),
         settings=ProblemSettings(
             dim=2,
             kinematics="finite_strain",
@@ -168,6 +178,25 @@ def main(output_path: Path = HERE / "viscoelastic_homicsx_results.json") -> int:
         "case_id": case["case_id"],
         "end_to_end_history": run_end_to_end(case),
         "discrete_material_history": discrete_material_history(case),
+    }
+    output_path.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
+    print("Wrote {}".format(output_path))
+    return 0
+
+
+def heterogeneous_main(
+    output_path: Path = HERE / "viscoelastic_homicsx_heterogeneous_results.json",
+) -> int:
+    case = load_case()
+    output = {
+        "schema_version": case["schema_version"],
+        "cases": [
+            {
+                "case_id": geometry_case["case_id"],
+                "history": run_end_to_end(case, geometry_case),
+            }
+            for geometry_case in case["heterogeneous_cases"]
+        ],
     }
     output_path.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
     print("Wrote {}".format(output_path))

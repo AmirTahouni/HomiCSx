@@ -5,8 +5,8 @@
 HomiCSx 0.1.0 supports the documented end-to-end workflow for periodic
 particulate geometry generation, Gmsh meshing and tagging, multiphase
 linear-elastic homogenization, finite-strain Neo-Hookean homogenization,
-custom nonlinear materials, hook-based workflow customization, and essential
-result extraction.
+finite-strain generalized-Maxwell homogenization, custom nonlinear materials,
+hook-based workflow customization, and essential result extraction.
 
 Generated meshes are periodic-conforming by default: Gmsh copies each master
 boundary mesh to its translated opposite boundary. This requires geometrically
@@ -28,13 +28,13 @@ work but are not currently part of the verification matrix.
 - Overlapping-void and open-cell-foam workflows lack publication-level tests.
 - Imported external meshes are outside the publication-supported workflow.
   Such meshes are not automatically made periodic-conforming.
-- Finite-strain viscoelasticity and state evolution remain experimental. A
-  homogeneous two-branch shear-relaxation history is verified against Abaqus,
-  but heterogeneous viscoelastic homogenization is not yet validated. The
-  current nonlinear equilibrium residual uses the equilibrium hyperelastic
-  branch; nonequilibrium Maxwell-branch stress is included in macroscopic
-  post-processing but does not yet determine the heterogeneous fluctuation
-  field.
+- Generalized-Maxwell validation currently covers two-dimensional plane-strain
+  simple-shear relaxation for homogeneous, centered-inclusion, and periodic
+  boundary-split cells. Other loading paths, three-dimensional viscoelasticity,
+  and non-Maxwell history-dependent laws have not yet received equivalent
+  external validation. Internal viscous metrics are represented cellwise using
+  DG0 coefficients, matching the current cellwise deformation-gradient/state
+  update implementation.
 - Advanced post-processing beyond essential result and XDMF extraction is not
   part of the supported core.
 

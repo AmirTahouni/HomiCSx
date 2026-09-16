@@ -8,6 +8,7 @@ from homicsx.core.material import (
     LinearElasticIsotropic,
     NeoHookeanIsotropic,
     MaterialAssignment,
+    ViscoelasticGeneralizedMaxwell,
 )
 from homicsx.materials.assignment import (
     _validate_material_assignment as validate_material_assignment,
@@ -65,6 +66,29 @@ def test_isotropic_materials_reject_invalid_elastic_constants(
 ):
     with pytest.raises(ValueError):
         material_type(young_modulus=young_modulus, poisson_ratio=poisson_ratio)
+
+
+@pytest.mark.parametrize(
+    "num_branches, shear_moduli, relaxation_times",
+    [
+        (0, [], []),
+        (1, [], [1.0]),
+        (1, [1.0], []),
+        (1, [0.0], [1.0]),
+        (1, [1.0], [0.0]),
+        (1, [np.nan], [1.0]),
+    ],
+)
+def test_generalized_maxwell_rejects_invalid_branch_data(
+    num_branches, shear_moduli, relaxation_times
+):
+    with pytest.raises(ValueError):
+        ViscoelasticGeneralizedMaxwell(
+            equilibrium_material=NeoHookeanIsotropic(10.0, 0.25),
+            num_branches=num_branches,
+            shear_moduli=shear_moduli,
+            relaxation_times=relaxation_times,
+        )
 
 
 def test_material_assignment_and_coefficients():
@@ -173,4 +197,27 @@ def test_neo_hookean_reference_configuration_is_stress_and_energy_free(dim):
     assert material.evaluate_energy(identity, dim) == pytest.approx(0.0, abs=1e-14)
     stress = material.get_quadrature_point_stress(None, identity, 0)
     np.testing.assert_allclose(stress, np.zeros((dim, dim)), atol=1e-14)
+
+
+def test_generalized_maxwell_recoverable_energy_relaxes_toward_equilibrium():
+    equilibrium = NeoHookeanIsotropic(young_modulus=10.0, poisson_ratio=0.25)
+    material = ViscoelasticGeneralizedMaxwell(
+        equilibrium_material=equilibrium,
+        num_branches=1,
+        shear_moduli=[3.0],
+        relaxation_times=[0.5],
+    )
+    state = material.initialize_state(1)
+    deformation = np.array([[1.0, 0.1], [0.0, 1.0]])
+    initial_energy = material.get_quadrature_point_energy(state, deformation, 0)
+    material.update_state(
+        state,
+        deformation[np.newaxis, :, :],
+        dt=2.5,
+        quad_weights=np.ones(1),
+        cell_idx=0,
+    )
+    relaxed_energy = material.get_quadrature_point_energy(state, deformation, 0)
+    equilibrium_energy = equilibrium.evaluate_energy(deformation, dim=2)
+    assert initial_energy > relaxed_energy > equilibrium_energy
 
