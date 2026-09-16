@@ -7,7 +7,7 @@ It is an open-source numerical homogenization software, inheriting the advantage
 ## Feature list
 
 - Generation of random periodic particulate geometries with a reproducible RSA-based workflow
-- Gmsh-based meshing with automatic cell and facet tagging
+- Gmsh-based periodic-conforming meshing with automatic cell and facet tagging
 - Multi-phase material assignment
 - Built-in isotropic linear-elastic and Neo-Hookean material models
 - Extensible nonlinear material models through the public material interface
@@ -35,7 +35,7 @@ It is made to be completely modular, including the:
     <img src="images/geometry.png" width="500">
 </div>
 
-- Mesh module: The mesh module utilizes `gmsh` to generate the mesh, facet tags, and cell tags. It supports tri/quad elements for 2D meshes and tet/hex for 3D meshes.
+- Mesh module: The mesh module uses `gmsh` to generate the mesh, facet tags, and cell tags. By default, opposite RVE boundaries receive matching node patterns through Gmsh periodic constraints. Set `MeshSettings(periodic_mesh=False, ...)` only when a legacy nonmatching mesh is intentionally required. Triangular and tetrahedral meshes form the publication-supported path; forced quad/hex meshing remains experimental.
 
 <div align="center">
     <img src="images/mesh.png" width="500">

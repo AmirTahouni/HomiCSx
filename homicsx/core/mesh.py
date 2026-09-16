@@ -181,6 +181,9 @@ class MeshSettings:
     quad_hex: bool, optional
         Whether quad/hex mesh is to be forced during mesh generation.
         Defaults to False.
+    periodic_mesh: bool, optional
+        If ``True``, require matching node patterns on each pair of opposite
+        RVE boundaries using Gmsh periodic constraints. Defaults to ``True``.
     view : bool, optional
         If ``True``, open the Gmsh GUI viewer after mesh generation on the
         model-owning rank. Defaults to ``False``.
@@ -201,6 +204,7 @@ class MeshSettings:
     optimize: bool = True
     smoothing_steps: int = 10
     quad_hex: bool = False
+    periodic_mesh: bool = True
     view: bool = False
     finalize: bool = True
 
