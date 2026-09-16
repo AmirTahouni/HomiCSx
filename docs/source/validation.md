@@ -6,9 +6,24 @@ HomiCSx uses complementary verification and validation checks:
 - internal consistency checks assess stiffness symmetry and finite outputs; and
 - geometry-matched Abaqus comparisons assess agreement with an independent implementation.
 
-## Analytical linear verification
+## Analytical verification
 
-The automated test suite assigns identical isotropic linear-elastic properties to the matrix and inclusion phases of a geometrically heterogeneous plane-strain mesh. The computed homogenized stiffness must agree with the analytical isotropic stiffness within 0.5% in relative Frobenius norm. This checks the public workflow from geometry generation through meshing, material assignment, periodic constraints, solution, and homogenized result extraction.
+The automated test suite assigns identical isotropic linear-elastic properties
+to the matrix and inclusion phases of geometrically heterogeneous meshes. In
+2D plane strain, the homogenized stiffness must agree with the analytical
+isotropic tensor within 0.5% in relative Frobenius norm. A full six-load-case
+3D patch test uses a 1.5% limit to accommodate the deterministic unstructured
+test mesh. These tests exercise geometry generation, meshing, material
+assignment, periodic constraints, solution, and homogenized result extraction.
+
+For finite strain, numerical central differences of the compressible
+Neo-Hookean strain energy are compared component-by-component with the
+implemented first Piola--Kirchhoff stress in both 2D and 3D. The undeformed
+configuration is also required to have zero energy and zero stress.
+
+Hook tests verify registration order, shared-state propagation, load-case and
+persistent state scopes, and the documented behavior when a hook raises an
+exception.
 
 ## Abaqus finite-strain comparison
 

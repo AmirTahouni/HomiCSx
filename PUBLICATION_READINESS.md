@@ -17,7 +17,7 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 - ABAQUS 2022 is installed locally on Windows.
 - WSL2 with Ubuntu and Conda is available locally.
 - A clean `homicsx_dev` Conda environment can be created from `environment-dev.yml` under WSL2.
-- Baseline result on 2026-09-15: 51 tests passed under Python 3.10 and DOLFINx 0.9.0, with 40% total statement coverage.
+- Current result on 2026-09-16: 61 tests pass under Python 3.10 and DOLFINx 0.9.0. The suite includes analytical 2D/3D linear patch tests, nonlinear constitutive consistency, hook semantics, and the compact Abaqus macroscopic-reference checks.
 - Homogeneous plane-strain verification recovers the analytical stiffness within a 0.5% relative-norm tolerance on the fine test mesh. An initial four-level diagnostic reduced the error from 2.54% on the coarsest mesh to 0.21% on the finest, although independently generated unstructured meshes did not produce monotonic intermediate errors. A controlled mesh and periodic-constraint convergence study remains necessary.
 - The repository now contains a compact nine-case HomiCSx--Abaqus macroscopic energy, stress, and deformation reference suite with machine-readable provenance and executable acceptance checks. Research-specific localization statistics remain in the associated study, which also retains the full calculations, scripts, meshes, solver inputs, ODB files, and extracted element data.
 
@@ -52,7 +52,7 @@ The stochastic and visualization modules are explicitly experimental and exclude
 
 ### P0 Submission blockers
 
-1. **The homogenization solvers still lack adequate regression and verification coverage.** The first end-to-end linear tests now check finite output, approximate stiffness symmetry, and recovery of an analytical homogeneous plane-strain stiffness. Mesh convergence, three-dimensional linear verification, nonlinear analytical verification, and hook behavior remain open.
+1. **Core analytical coverage substantially expanded.** End-to-end linear tests now check finite output, stiffness symmetry, and analytical homogeneous stiffness recovery in 2D plane strain and full six-load-case 3D. Neo-Hookean PK1 stress is checked against the numerical energy gradient in 2D and 3D, and hook ordering, shared state, scope, and failure isolation are tested. A controlled mesh/periodic-constraint convergence study and an end-to-end homogeneous nonlinear patch test remain open.
 2. **Packaging metadata completed for the source-release workflow.** `pyproject.toml` now records authorship, license, readme, classifiers, URLs, Python support, and optional test/docs dependencies. The Conda environment is explicitly authoritative for the compiled FEniCSx/PETSc/MPI runtime stack rather than making an unreliable PyPI dependency claim.
 3. **Archival maintenance guidance completed.** `CONTRIBUTING.md`, `SUPPORT.md`, and `SECURITY.md` now document issue reporting, contribution expectations, availability-dependent maintenance, and license-enabled continuity through community forks.
 4. **JOSS public-history timing is not yet favorable.** The first public commit is dated 2026-05-05. A submission should not be attempted before at least six months of genuine public history and a fresh venue check.

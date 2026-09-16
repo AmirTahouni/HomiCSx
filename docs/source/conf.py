@@ -52,6 +52,7 @@ source_suffix = {
 }
 
 autosummary_generate = True
+autosummary_generate_overwrite = False
 
 templates_path = ['_templates/autosummary']
 exclude_patterns = []
