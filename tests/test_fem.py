@@ -166,15 +166,15 @@ def test_homogeneous_3d_recovers_analytical_stiffness():
     assert relative_error < 2e-2
 
 
-def test_homogeneous_finite_strain_recovers_neo_hookean_response():
-    """A one-step homogeneous RVE must recover analytical W, PK1, and J."""
+def test_homogeneous_finite_strain_recovers_neo_hookean_response_on_nonunit_domain():
+    """A non-unit RVE must recover analytical W, PK1, and J."""
     geometry_input = GeometryInput(
         dim=2,
         dispersion="mono",
         shape="circle",
         volume_fraction=0.05,
         clearance=0.01,
-        domain_size=(1.0, 1.0),
+        domain_size=(2.0, 0.75),
         num_particles=1,
         seed=42,
     )

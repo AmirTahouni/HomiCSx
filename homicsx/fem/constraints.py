@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from itertools import product
 
 import numpy as np
 from dolfinx import fem
@@ -311,19 +312,30 @@ def build_constraints_nonlinear(
       over-constraining the degrees of freedom (DOFs).
     """
     dim = mesh.geometry.dim
+    lengths = np.asarray(domain_size, dtype=float).reshape(-1)
+    if len(lengths) != dim:
+        raise ValueError(
+            f"domain_size must have length {dim}, got {len(lengths)}."
+        )
+    if not np.all(np.isfinite(lengths)) or np.any(lengths <= 0.0):
+        raise ValueError("domain_size entries must be finite and greater than zero")
     
     if dim==2:
         def bot_left(x):
-            return np.isclose(x[0], 0.0) & np.isclose(x[1], 0.0)
+            return np.isclose(x[0], 0.0, atol=atol) & np.isclose(
+                x[1], 0.0, atol=atol
+            )
+
+        Lx, Ly = lengths
 
         def top_right(x):
-            return np.isclose(x[0], 1.0) & np.isclose(x[1], 1.0)
+            return np.isclose(x[0], Lx, atol=atol) & np.isclose(x[1], Ly, atol=atol)
 
         def top_left(x):
-            return np.isclose(x[0], 0.0) & np.isclose(x[1], 1.0)
+            return np.isclose(x[0], 0.0, atol=atol) & np.isclose(x[1], Ly, atol=atol)
 
         def bot_right(x):
-            return np.isclose(x[0], 1.0) & np.isclose(x[1], 0.0)
+            return np.isclose(x[0], Lx, atol=atol) & np.isclose(x[1], 0.0, atol=atol)
 
         # Fix displacement at all corners
         dofs_bl = fem.locate_dofs_geometrical(V, bot_left)
@@ -341,28 +353,28 @@ def build_constraints_nonlinear(
         # Link Left <-> Right and Bottom <-> Top
         def periodic_relation_left_right(x):
             out_x = np.zeros(x.shape)
-            out_x[0] = x[0] - 1.0
+            out_x[0] = x[0] - Lx
             out_x[1] = x[1]
             return out_x
 
         def periodic_relation_bottom_top(x):
             out_x = np.zeros(x.shape)
             out_x[0] = x[0]
-            out_x[1] = x[1] - 1.0
+            out_x[1] = x[1] - Ly
             return out_x
 
         def right_boundary_locator(x):
-            on_right = np.isclose(x[0], 1.0)
-            on_top = np.isclose(x[1], 1.0)
-            on_left = np.isclose(x[0], 0.0)
-            on_bottom = np.isclose(x[1], 0.0)
+            on_right = np.isclose(x[0], Lx, atol=atol)
+            on_top = np.isclose(x[1], Ly, atol=atol)
+            on_left = np.isclose(x[0], 0.0, atol=atol)
+            on_bottom = np.isclose(x[1], 0.0, atol=atol)
             return on_right & ~on_top & ~on_bottom
 
         def top_boundary_locator(x):
-            on_right = np.isclose(x[0], 1.0)
-            on_top = np.isclose(x[1], 1.0)
-            on_left = np.isclose(x[0], 0.0)
-            on_bottom = np.isclose(x[1], 0.0)
+            on_right = np.isclose(x[0], Lx, atol=atol)
+            on_top = np.isclose(x[1], Ly, atol=atol)
+            on_left = np.isclose(x[0], 0.0, atol=atol)
+            on_bottom = np.isclose(x[1], 0.0, atol=atol)
             return on_top & ~on_left & ~on_right
 
         mpc = dolfinx_mpc.MultiPointConstraint(V)
@@ -371,16 +383,8 @@ def build_constraints_nonlinear(
         mpc.finalize()
     
     elif dim==3:
-        corners = [
-            (0, 0, 0),
-            (1, 0, 0),
-            (0, 1, 0),
-            (0, 0, 1),
-            (1, 1, 0),
-            (1, 0, 1),
-            (0, 1, 1),
-            (1, 1, 1)
-        ]
+        Lx, Ly, Lz = lengths
+        corners = list(product((0.0, Lx), (0.0, Ly), (0.0, Lz)))
 
         bcs = []
         for anchor_point in corners:
@@ -394,7 +398,7 @@ def build_constraints_nonlinear(
         
         def periodic_relation_left_right(x):
             out_x = np.zeros(x.shape)
-            out_x[0] = x[0] - 1.0
+            out_x[0] = x[0] - Lx
             out_x[1] = x[1]
             out_x[2] = x[2]
             return out_x
@@ -402,7 +406,7 @@ def build_constraints_nonlinear(
         def periodic_relation_bottom_top(x):
             out_x = np.zeros(x.shape)
             out_x[0] = x[0]
-            out_x[1] = x[1] - 1.0
+            out_x[1] = x[1] - Ly
             out_x[2] = x[2]
             return out_x
         
@@ -410,36 +414,36 @@ def build_constraints_nonlinear(
             out_x = np.zeros(x.shape)
             out_x[0] = x[0]
             out_x[1] = x[1]
-            out_x[2] = x[2] - 1.0
+            out_x[2] = x[2] - Lz
             return out_x
         
         def right_boundary_locator(x):
-            on_right = np.isclose(x[0], 1.0)
-            on_left = np.isclose(x[0], 0.0)
-            on_top = np.isclose(x[1], 1.0)
-            on_bottom = np.isclose(x[1], 0.0)
-            on_far = np.isclose(x[2], 1.0)
-            on_near = np.isclose(x[2], 0.0)
+            on_right = np.isclose(x[0], Lx, atol=atol)
+            on_left = np.isclose(x[0], 0.0, atol=atol)
+            on_top = np.isclose(x[1], Ly, atol=atol)
+            on_bottom = np.isclose(x[1], 0.0, atol=atol)
+            on_far = np.isclose(x[2], Lz, atol=atol)
+            on_near = np.isclose(x[2], 0.0, atol=atol)
 
             return on_right & ~on_top & ~on_bottom & ~on_far & ~on_near
 
         def top_boundary_locator(x):
-            on_right = np.isclose(x[0], 1.0)
-            on_left = np.isclose(x[0], 0.0)
-            on_top = np.isclose(x[1], 1.0)
-            on_bottom = np.isclose(x[1], 0.0)
-            on_far = np.isclose(x[2], 1.0)
-            on_near = np.isclose(x[2], 0.0)
+            on_right = np.isclose(x[0], Lx, atol=atol)
+            on_left = np.isclose(x[0], 0.0, atol=atol)
+            on_top = np.isclose(x[1], Ly, atol=atol)
+            on_bottom = np.isclose(x[1], 0.0, atol=atol)
+            on_far = np.isclose(x[2], Lz, atol=atol)
+            on_near = np.isclose(x[2], 0.0, atol=atol)
 
             return on_top & ~on_right & ~on_left & ~on_far & ~on_near
         
         def far_boundary_locator(x):
-            on_right = np.isclose(x[0], 1.0)
-            on_left = np.isclose(x[0], 0.0)
-            on_top = np.isclose(x[1], 1.0)
-            on_bottom = np.isclose(x[1], 0.0)
-            on_far = np.isclose(x[2], 1.0)
-            on_near = np.isclose(x[2], 0.0)
+            on_right = np.isclose(x[0], Lx, atol=atol)
+            on_left = np.isclose(x[0], 0.0, atol=atol)
+            on_top = np.isclose(x[1], Ly, atol=atol)
+            on_bottom = np.isclose(x[1], 0.0, atol=atol)
+            on_far = np.isclose(x[2], Lz, atol=atol)
+            on_near = np.isclose(x[2], 0.0, atol=atol)
 
             return on_far & ~on_right & ~on_left & ~on_top & ~on_bottom
         
