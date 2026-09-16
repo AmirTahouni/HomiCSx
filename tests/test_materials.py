@@ -55,6 +55,18 @@ def create_simple_test_mesh():
     return domain, cell_tags
 
 
+@pytest.mark.parametrize("material_type", [LinearElasticIsotropic, NeoHookeanIsotropic])
+@pytest.mark.parametrize(
+    "young_modulus, poisson_ratio",
+    [(0.0, 0.3), (-1.0, 0.3), (1.0, -1.0), (1.0, 0.5), (np.nan, 0.3)],
+)
+def test_isotropic_materials_reject_invalid_elastic_constants(
+    material_type, young_modulus, poisson_ratio
+):
+    with pytest.raises(ValueError):
+        material_type(young_modulus=young_modulus, poisson_ratio=poisson_ratio)
+
+
 def test_material_assignment_and_coefficients():
     """
     Test:

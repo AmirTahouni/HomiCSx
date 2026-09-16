@@ -11,6 +11,7 @@ HomiCSx is a python homogenization framework based on the problem solving interf
    experimental
    limitations
    validation
+   loading_conventions
    support
    demos
    api/homicsx

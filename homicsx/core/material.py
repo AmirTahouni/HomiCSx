@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+import logging
 
 from ufl import ln, tr, det
 
@@ -18,7 +19,17 @@ import dolfinx
 
 from .mesh import PhysicalTags
 
+logger = logging.getLogger(__name__)
+
 # helpers
+def _validate_isotropic_elastic_constants(young_modulus: float, poisson_ratio: float) -> None:
+    """Reject elastic constants that make the isotropic law singular or nonphysical."""
+    if not np.isfinite(young_modulus) or young_modulus <= 0:
+        raise ValueError("young_modulus must be finite and greater than zero")
+    if not np.isfinite(poisson_ratio) or not (-1.0 < poisson_ratio < 0.5):
+        raise ValueError("poisson_ratio must be finite and satisfy -1 < nu < 0.5")
+
+
 def _flatten_tensor(P: np.ndarray) -> np.ndarray:
     """
     Flatten a tensor to vector in STANDARD Voigt notation.
@@ -383,6 +394,9 @@ class NeoHookeanIsotropic(HyperelasticMaterial):
     name: str = 'NeoHookeanIsotropic'
     metadata: dict[str, Any] = field(default_factory=dict)
 
+    def __post_init__(self):
+        _validate_isotropic_elastic_constants(self.young_modulus, self.poisson_ratio)
+
     @property
     def mu(self):
         """Shear modulus"""
@@ -441,6 +455,9 @@ class LinearElasticIsotropic:
     young_modulus: float
     poisson_ratio: float
     metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        _validate_isotropic_elastic_constants(self.young_modulus, self.poisson_ratio)
 
 
 # =============================================================================
@@ -856,7 +873,11 @@ class J2Plasticity(NonlinearMaterialModel):
                 total_iterations += iterations
             else:
                 all_converged = False
-                print(f"    Warning: Return mapping failed at cell {cell_idx}, qp {q}")
+                logger.warning(
+                    "Return mapping failed at cell %s, quadrature point %s",
+                    cell_idx,
+                    q,
+                )
                 
         return all_converged, total_iterations
     

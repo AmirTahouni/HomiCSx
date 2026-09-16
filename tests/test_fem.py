@@ -209,16 +209,23 @@ def test_homogeneous_finite_strain_recovers_neo_hookean_response():
         domain_size=geometry_input.domain_size,
         matrix_phase_id=0,
         quad_degree=4,
-        enable_hooks=False,
+        enable_hooks=True,
     )
 
     applied_strain = 0.10
+    modified_strain = 0.08
 
     def uniaxial_tension(load):
         return np.diag([1.0 + load, 1.0])
 
+    def modify_target_and_skip_tangent(data):
+        data.F_macro_target[0, 0] = 1.0 + modified_strain
+        data.skip_tangent = True
+
+    driver.add_pre_step_hook(modify_target_and_skip_tangent)
+
     result = driver.run(
-        tangent_every=2,
+        tangent_every=1,
         max_strain=applied_strain,
         custom_loads={"uniaxial_tension": uniaxial_tension},
         from_built_in_loads=[],
@@ -236,7 +243,7 @@ def test_homogeneous_finite_strain_recovers_neo_hookean_response():
     assert len(history["load_param"]) == 1
     assert history["converged"][0] > 0
 
-    expected_F = np.diag([1.0 + applied_strain, 1.0])
+    expected_F = np.diag([1.0 + modified_strain, 1.0])
     expected_energy = material.evaluate_energy(expected_F, dim=2)
     expected_stress = material.get_quadrature_point_stress(None, expected_F, 0)
     expected_J = np.linalg.det(expected_F)
@@ -245,3 +252,4 @@ def test_homogeneous_finite_strain_recovers_neo_hookean_response():
     np.testing.assert_allclose(history["Wbar"][-1], expected_energy, rtol=5e-3)
     np.testing.assert_allclose(history["Pbar"][-1], expected_stress, rtol=5e-3, atol=5e-5)
     np.testing.assert_allclose(history["Jbar"][-1], expected_J, rtol=5e-3)
+    assert history["Ceff"][-1] is None

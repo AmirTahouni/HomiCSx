@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Optional, Dict, Tuple, List, Callable
 
+import logging
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -41,6 +42,8 @@ from dolfinx.io import XDMFFile
 from petsc4py import PETSc
 
 from dataclasses import dataclass
+
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # Kinematics and Utilities
@@ -571,7 +574,9 @@ def _solve_once_with_history(
         )
         
         if not all_converged:
-            print(f"    Warning: Local return mapping failed for {stats['failed_cells']} cells")
+            logger.warning(
+                "Local return mapping failed for %s cells", stats["failed_cells"]
+            )
         elif stats['total_iterations'] > 0:
             pass  # Silent for perturbation solves
     
@@ -639,7 +644,10 @@ def _compute_Ceff_fd_with_state(
         )
         
         if converged <= 0:
-            print(f"    Warning: Perturbed solve failed at col {a}, using central difference fallback...")
+            logger.warning(
+                "Perturbed solve failed at column %s; using central-difference fallback",
+                a,
+            )
             # Try backward perturbation
             Fm = _perturb_F(Fbar, a, -delta)
             
@@ -781,6 +789,7 @@ def _run_one_load_case_with_history(
 
         # --- PRE-STEP HOOK ---
         force_reduction = False
+        skip_tangent = False
         if _hook_data and _hook_data.get('pre_step'):
             from homicsx.homogenization.driver import PreStepData
             driver = _hook_data.get('driver')
@@ -802,8 +811,15 @@ def _run_one_load_case_with_history(
                 state=state,
             )
             _execute_hooks(_hook_data['pre_step'], pre_data, "Pre-step")
-        #     Fbar = pre_data.F_macro_target
+            Fbar = np.asarray(pre_data.F_macro_target, dtype=PETSc.ScalarType)
+            if Fbar.shape != (dim, dim) or not np.all(np.isfinite(Fbar)):
+                raise ValueError(
+                    f"Pre-step hook produced an invalid F_macro_target; "
+                    f"expected a finite {(dim, dim)} array, got {Fbar.shape}."
+                )
+            Fbar = Fbar.copy()
             force_reduction = pre_data.force_adaptive_step_reduction
+            skip_tangent = pre_data.skip_tangent
         
         if force_reduction:
             old_da = da
@@ -847,7 +863,11 @@ def _run_one_load_case_with_history(
                     )
                     _execute_hooks(_hook_data['on_step_failure'], failure_data, "Step-failure")
 
-                print(f"   SOLVER FAILED: Reason code {converged} after {iters} iterations.")
+                logger.warning(
+                    "Solver failed with reason code %s after %s iterations",
+                    converged,
+                    iters,
+                )
                 raise RuntimeError(f"Base solve failed with convergence code {converged}")
             
             # --- POST-CONVERGENCE HOOK ---
@@ -925,7 +945,7 @@ def _run_one_load_case_with_history(
             
             # Compute tangent stiffness if requested
             Ceff = None
-            if (step_idx % tangent_every) == 0:
+            if not skip_tangent and (step_idx % tangent_every) == 0:
                 print(f"   Computing Tangent stiffness...")
                 try:
                     Ceff = _compute_Ceff_fd_with_state(
@@ -942,10 +962,8 @@ def _run_one_load_case_with_history(
                         delta=1e-6,
                     )
                     print("   Done.")
-                except Exception as e:
-                    print(f"   Failed! ({e})")
-                    import traceback
-                    traceback.print_exc()
+                except Exception:
+                    logger.exception("Tangent stiffness computation failed")
                     Ceff = None
             
             # --- POST-TANGENT HOOK ---
@@ -991,12 +1009,12 @@ def _run_one_load_case_with_history(
                     print(f"   Decreasing step size: {old_da:.2e} -> {da:.2e}")
                     
         except RuntimeError as e:
-            print(f"   RETRYING: Reducing step size... (Error: {e})")
+            logger.warning("Retrying with a reduced step after error: %s", e)
             da *= settings.cutback_factor
             
             if da < da_min:
                 print("\n" + "!"*70)
-                print(f"FATAL ERROR: Could not converge at load {next_a:.6f}")
+                logger.error("Could not converge at load %.6f", next_a)
                 print(f"   Step size {da:.2e} is below minimum {da_min:.2e}.")
                 print("   Suggestion: Check mesh quality or material stability at this strain.")
                 print("!"*70 + "\n")
@@ -1285,10 +1303,8 @@ def _execute_hooks(hook_list: List[Callable], data: Any, hook_name: str) -> None
     for hook in hook_list:
         try:
             hook(data)
-        except Exception as e:
-            print(f"    Warning: {hook_name} hook failed: {e}")
-            import traceback
-            traceback.print_exc()
+        except Exception:
+            logger.exception("%s hook failed", hook_name)
 
 
 # =============================================================================

@@ -84,7 +84,7 @@ def _material_family(material: object) -> str:
     if isinstance(material, NeoHookeanIsotropic):
         return "hyperelastic"
 
-    print(f"WARNING: nsupported/custom material type: {type(material)}")
+    raise TypeError(f"Unsupported/custom material type: {type(material)!r}")
 
 
 def _validate_material(material: object) -> None:
@@ -110,6 +110,9 @@ def _validate_material(material: object) -> None:
     if isinstance(material, NeoHookeanIsotropic):
         _validate_young_poisson(material.young_modulus, material.poisson_ratio)
         return
-    
+
+    raise TypeError(f"Unsupported/custom material type: {type(material)!r}")
+
+
 __all__ = [
-]    
+]
