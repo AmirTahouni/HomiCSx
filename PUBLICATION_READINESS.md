@@ -53,18 +53,18 @@ The stochastic and visualization modules are explicitly experimental and exclude
 ### P0 Submission blockers
 
 1. **The homogenization solvers still lack adequate regression and verification coverage.** The first end-to-end linear tests now check finite output, approximate stiffness symmetry, and recovery of an analytical homogeneous plane-strain stiffness. Mesh convergence, three-dimensional linear verification, nonlinear analytical verification, and hook behavior remain open.
-2. **Packaging metadata is incomplete.** `pyproject.toml` lacks authors, license metadata, readme, classifiers, URLs, dependencies or dependency strategy, optional development dependencies, and other release metadata expected of a reusable Python package.
-3. **The project lacks contribution, support, issue-reporting, and maintenance guidance.** This is especially important for an archival maintenance posture.
+2. **Packaging metadata completed for the source-release workflow.** `pyproject.toml` now records authorship, license, readme, classifiers, URLs, Python support, and optional test/docs dependencies. The Conda environment is explicitly authoritative for the compiled FEniCSx/PETSc/MPI runtime stack rather than making an unreliable PyPI dependency claim.
+3. **Archival maintenance guidance completed.** `CONTRIBUTING.md`, `SUPPORT.md`, and `SECURITY.md` now document issue reporting, contribution expectations, availability-dependent maintenance, and license-enabled continuity through community forks.
 4. **JOSS public-history timing is not yet favorable.** The first public commit is dated 2026-05-05. A submission should not be attempted before at least six months of genuine public history and a fresh venue check.
 
 The publication-preparation branch now defines the supported scope and provides a GitHub Actions workflow for pull requests, pushes to `main`, and manual runs. The first hosted run passed all 49 tests on 2026-09-15; these changes remain subject to review and merge.
 
 ### P1 High-priority quality risks
 
-1. **Documentation and solver environments diverge.** Read the Docs targets Python 3.13 while the solver environment targets Python 3.10.
+1. **Documentation and solver environments aligned.** Read the Docs and the solver environment now target Python 3.10.
 2. **Documentation imports are heavily mocked.** A successful documentation build does not establish that documented public imports work against the real scientific dependencies.
-3. **Dependency specifications are split and inconsistent.** `environment.yml`, `docs/requirements.txt`, and `pyproject.toml` do not express one coherent support policy.
-4. **The documentation dependency file appears generated and over-pinned.** It includes many unrelated or transitive packages and duplicates incompatible Sphinx and MyST constraints.
+3. **Dependency roles are now explicit.** Conda owns the compiled runtime stack; `pyproject.toml` describes the package and optional pure-Python tooling; `docs/requirements.txt` contains only direct documentation dependencies.
+4. **The documentation dependency file has been reduced to direct, bounded requirements.** A local HTML build completes, but a strict warnings-as-errors build still reports 43 pre-existing API-docstring, duplicate-index, static-path, and orphan-page warnings that require cleanup.
 5. **The public API and compatibility policy are not stated.** Top-level exports exist, but stability expectations and deprecation rules are absent.
 6. **Several advertised branches explicitly raise `NotImplementedError`.** These need clear documentation, tests for the expected failure, implementation, or removal from release claims.
 7. **Runtime output relies heavily on direct `print` calls.** Library-level diagnostics should be reviewed and generally routed through logging or explicit result objects.

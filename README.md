@@ -6,24 +6,17 @@ It is an open-source numerical homogenization software, inheriting the advantage
 
 ## Feature list
 
-- Generation of random periodic inclusion/void based geometries, including custom geometries of this type
-- Usage of RSA algorithm for packing
-- Supporting circular/spherical and elliptical/ellipsoidal inclusions in 2D/3D geometries
-- Option for intersecting voids to mimic the structure of open-cell foams
-- GMSH meshing backend, with support for tri/quad and tet/hex elements
-- Automatic tagging of cells and facets
+- Generation of random periodic particulate geometries with a reproducible RSA-based workflow
+- Gmsh-based meshing with automatic cell and facet tagging
 - Multi-phase material assignment
-- Prebuilt linear and capability of writing custom nonlinear material classes by inheriting from the abstract nonlinear material class
-- Ability to inherit from the hyperelastic and viscoelastic base material classes to create custom nonlinear materials of such types
-- Capability of assigning different material types to different phases
-- Tracking of material states in time-history-dependent problems at integration points
+- Built-in isotropic linear-elastic and Neo-Hookean material models
+- Extensible nonlinear material models through the public material interface
 - Automatic linear and nonlinear formulation of the periodic fluctuation problem
 - Automatic handling of periodic boundary conditions via MPCs
-- Usage of dolfinx nonlinear solver tailored for MPC problems
-- Built-in adaptive stepping nonlinear solver, with full control over solver hyper-parameters
+- Nonlinear solution with adaptive load stepping and configurable solver parameters
 - Linear and nonlinear homogenization via built-in and custom load cases
-- Customizable homogenization procedure via 7 callable hook entry points during the homogenization process
-- Output load/time history data and Jacobian/energy/PK1/tangent graphs against load history in nonlinear homogenization
+- Customizable homogenization procedures through callable hook entry points
+- Macroscopic stress, strain, energy, and tangent response histories
 - Ability to export XDMF files for Paraview post processing
 
 The `homicsx.stochastic` and `homicsx.visualization` modules are experimental. They are not part of the publication-supported API and may change or be removed before version 1.0.
@@ -95,39 +88,49 @@ The documentation can be viewed [here](https://homicsx.readthedocs.io/en/latest/
 
 HomiCSx is currently only accessible via installation from source.
 
-HomiCSx has been tested on macOS with Apple silicon chips. Since it uses dolfinx and dolfinx_mpc as backbone, it is currently only available on macOS and Linux. For windows, WSL2 is recommended.
+HomiCSx 0.1.0 is tested on Linux with Python 3.10, DOLFINx 0.9.0, and
+`dolfinx_mpc` 0.9.0. On Windows, use WSL2. Other environments, including
+macOS, may work but are outside the current tested support envelope.
 
-It is recommended to use [conda](https://docs.conda.io/en/latest/) environments for the installation. An `environment.yml` file, including the versioned dependencies is provided in the repo, which can be directly use to prepare an environment which is ready to be used for HomiCSx installation. To do this, simply do:
+Clone the repository, then use its versioned Conda environment specification:
 
 ```bash
+git clone https://github.com/AmirTahouni/HomiCSx.git
+cd HomiCSx
 conda env create -f environment.yml
 conda activate homicsx_env
 ```
 
 By doing so, a ready-to-use environment with all of the prerequisites installed named `homicsx_env` will be created.
 
-Then, clone the repository:
+Then install HomiCSx itself from the repository root:
 
 ```bash
-git clone https://github.com/AmirTahouni/HomiCSx.git
-cd homicsx
+python -m pip install --no-deps -e .
 ```
 
-And lastly, use `pip install` while in the `homicsx_env` environment at the repository root to install HomiCSx from source:
-
-```bash
-pip install -e .
-```
-
-For a source installation such as HomiCSx, editable mode is convenient because users can pull updates without reinstalling.
+The Conda environment is the authoritative dependency specification;
+`--no-deps` prevents `pip` from attempting to replace the compiled FEniCSx,
+PETSc, and MPI stack. Editable mode is convenient for a source checkout.
 
 To verify the installation, run:
 
 ```bash
-python -c "import homicsx; print('HomiCSx imported successfully.')"
+python -c "import homicsx; print(homicsx.__version__)"
 ```
 
 Note that HomiCSx has only been tested with the provided versions of the dependencies. Using other versions may work, but is not supported.
+
+## Validation, citation, and support
+
+The [validation suite](validation/abaqus/README.md) compares conventional
+macroscopic energy, stress, and volume-change measures against geometry-matched
+Abaqus reference analyses. Local-tail metrics used in application research are
+deliberately excluded from package verification.
+
+Citation metadata is provided in [`CITATION.cff`](CITATION.cff). See
+[`SUPPORT.md`](SUPPORT.md) for the maintenance policy and
+[`CONTRIBUTING.md`](CONTRIBUTING.md) for contribution guidance.
 
 ## Quickstart
 
