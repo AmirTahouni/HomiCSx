@@ -31,7 +31,8 @@ paper.
 ### Support boundary
 
 - Plane strain is supported in 2D; plane stress is not implemented.
-- Triangle and tetrahedron meshes form the supported discretization path.
+- Triangle, tetrahedron, and tested 2D all-quadrilateral meshes form the
+  supported discretization path; general 3D hexahedral meshing is rejected.
 - Stochastic convenience and visualization modules remain experimental.
 - Maintenance is best-effort archival support without a guaranteed response
   time or feature schedule.

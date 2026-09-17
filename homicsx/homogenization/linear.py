@@ -4,6 +4,7 @@ from typing import Any
 
 import numpy as np
 from dolfinx import fem
+from mpi4py import MPI
 import ufl
 
 from homicsx.core.fem import ProblemSettings
@@ -119,12 +120,16 @@ def _average_stress_vector(mesh_obj, stress, dim: int) -> np.ndarray:
     """
     Compute the volume-averaged stress vector in Voigt notation.
     """
-    volume = fem.assemble_scalar(fem.form(1.0 * ufl.dx(domain=mesh_obj)))
+    volume_local = fem.assemble_scalar(fem.form(1.0 * ufl.dx(domain=mesh_obj)))
+    volume = mesh_obj.comm.allreduce(volume_local, op=MPI.SUM)
     components = _stress_to_voigt_components(stress, dim)
 
     averaged = np.zeros(len(components), dtype=float)
     for i, comp in enumerate(components):
-        numerator = fem.assemble_scalar(fem.form(comp * ufl.dx(domain=mesh_obj)))
+        numerator_local = fem.assemble_scalar(
+            fem.form(comp * ufl.dx(domain=mesh_obj))
+        )
+        numerator = mesh_obj.comm.allreduce(numerator_local, op=MPI.SUM)
         averaged[i] = numerator / volume
 
     return averaged

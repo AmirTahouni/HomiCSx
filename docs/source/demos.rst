@@ -1,7 +1,32 @@
 Demos
 =====
 
-Here you'll find examples demonstrating various features of HomiCSx:
+Start with the deterministic examples below. Their ``run_example`` functions
+are executed by the automated test suite, so they stay aligned with the public
+API and supported solver behavior.
+
+.. list-table:: Tested examples
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Demo
+     - Description
+   * - :doc:`demos/geometry_generation`
+     - Seeded particulate geometry generation
+   * - :doc:`demos/homogenization_linear_2D`
+     - Linear periodic homogenization in 2D
+   * - :doc:`demos/homogenization_linear_3D`
+     - Linear periodic homogenization in 3D
+   * - :doc:`demos/nonlinear_hyperelastic`
+     - Built-in Neo-Hookean finite-strain homogenization
+   * - :doc:`demos/nonlinear_viscoelastic`
+     - Heterogeneous generalized-Maxwell relaxation and typed hooks
+
+Extended and experimental notebooks
+-----------------------------------
+
+These notebooks illustrate research-oriented or experimental workflows. They
+are retained as useful examples but are not all automated release gates.
 
 .. list-table::
    :header-rows: 1
@@ -9,26 +34,16 @@ Here you'll find examples demonstrating various features of HomiCSx:
 
    * - Demo
      - Description
-   * - :doc:`demos/geometry_generation`
-     - Learn how to generate RVE geometries with inclusions
-   * - :doc:`demos/homogenization_linear_2D`
-     - Linear homogenization for 2D problems
-   * - :doc:`demos/homogenization_linear_3D`
-     - Linear homogenization for 3D problems
-   * - :doc:`demos/nonlinear_hyperelastic`
-     - Nonlinear homogenization with hyperelastic materials
-   * - :doc:`demos/nonlinear_viscoelastic`
-     - Nonlinear homogenization with viscoelastic materials
    * - :doc:`demos/damage_with_hook`
-     - Damage modeling with custom hooks
+     - A custom damage-hook pattern, not a built-in damage constitutive model
    * - :doc:`demos/ensemble_homogenization`
-     - Statistical analysis using ensemble homogenization
+     - Experimental stochastic ensemble convenience API
    * - :doc:`demos/sweep_studies`
-     - Parameter sweep studies for homogenization
+     - Experimental parameter-sweep convenience API
    * - :doc:`demos/convergence_mesh_size`
-     - Convergence study with respect to mesh size
+     - Exploratory mesh-size convergence workflow
    * - :doc:`demos/convergence_num_particles`
-     - Convergence study with respect to number of particles
+     - Exploratory particle-count convergence workflow
 
 .. toctree::
    :hidden:

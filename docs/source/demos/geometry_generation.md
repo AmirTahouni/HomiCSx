@@ -45,6 +45,35 @@ geometry = particulate_geometry_generator(geometry_input)
 visualize_geometry(geometry)
 ```
 
+## Prescribed rotated inclusions
+
+Explicitly constructed ellipses and ellipsoids can be rotated. Two-dimensional
+orientations are counter-clockwise angles in radians; three-dimensional
+orientations are rotations about the global X, Y, and Z axes, in that order.
+
+```python
+import numpy as np
+from homicsx import Inclusion, RVEGeometry
+
+geometry = RVEGeometry(
+    dim=2,
+    domain_size=(1.0, 1.0),
+    inclusions=[
+        Inclusion(
+            center=(0.5, 0.5),
+            phase_id=1,
+            shape="ellipse",
+            radii=(0.22, 0.08),
+            orientation=np.pi / 6,
+        )
+    ],
+)
+```
+
+The random RSA generators currently keep ellipses and ellipsoids axis-aligned.
+Random independent orientations are deliberately deferred until an exact,
+validated orientation-aware collision and clearance algorithm is available.
+
 Generate 3D mono-disperse unit-cell geometry with axis-aligned ellipsoidal inclusions
 
 ```python

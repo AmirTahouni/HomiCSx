@@ -12,8 +12,9 @@ computational homogenization of heterogeneous materials. It treats geometry
 generation, periodic-conforming meshing, material assignment, finite-element
 formulation, linear or finite-strain homogenization, workflow customization,
 and essential result extraction as one reproducible pipeline. The supported
-core includes two- and three-dimensional particulate cells, triangular or
-tetrahedral Gmsh meshes, multiphase linear elasticity, compressible
+core includes two- and three-dimensional particulate cells, triangular,
+tetrahedral, and tested two-dimensional all-quadrilateral Gmsh meshes,
+multiphase linear elasticity, compressible
 Neo-Hookean materials, and a finite-strain generalized-Maxwell model. Periodic
 fluctuation constraints are imposed through DOLFINx multipoint constraints;
 user-defined load cases, nonlinear materials, and hooks allow research-specific
@@ -67,7 +68,8 @@ offer limited intervention in the solution sequence.
 The workflow has five cooperating layers. The geometry layer creates seeded,
 periodic particulate cells or accepts explicitly constructed inclusions. The
 mesh layer builds the corresponding OpenCASCADE model, assigns physical tags,
-and generates triangular or tetrahedral meshes. Opposite boundaries are meshed
+and generates triangular, tetrahedral, or supported two-dimensional
+all-quadrilateral meshes. Opposite boundaries are meshed
 with translated Gmsh periodic constraints so their nodes match. The material
 layer maps phase identifiers to constitutive objects. The finite-element layer
 constructs linear or nonlinear periodic fluctuation problems and applies
@@ -76,12 +78,14 @@ user-defined macroscopic load cases and return macroscopic histories and
 optional fields.
 
 The core geometry types include circular and elliptical inclusions in 2D and
-spherical and spheroidal inclusions in 3D, with monodisperse or polydisperse
+spherical and ellipsoidal inclusions in 3D, with monodisperse or polydisperse
 sampling and clearance control. Periodic images retain source identity so that
 boundary-split particles are represented consistently. Geometry generation is
-seedable for reproducibility. The publication-supported discretization path
-uses triangles or tetrahedra; forced quad/hex workflows are outside the current
-support boundary.
+seedable for reproducibility. Explicitly prescribed ellipses and ellipsoids may
+be rotated; random nonspherical packing remains axis-aligned. The
+publication-supported discretization path uses triangles, tetrahedra, or the
+tested two-dimensional all-quadrilateral option. General three-dimensional
+hexahedral meshing is outside the current support boundary.
 
 ### 2.2. Homogenization formulation
 
@@ -225,8 +229,10 @@ and continuation.
 
 The tested environment is Linux, including Linux under WSL2, with Python 3.10,
 DOLFINx 0.9.0, and dolfinx_mpc 0.9.0. Two-dimensional FEM uses plane strain;
-plane stress is not implemented. The supported meshing path uses triangles and
-tetrahedra. Imported meshes, overlapping-void and open-cell workflows,
+plane stress is not implemented. The supported meshing path uses triangles,
+tetrahedra, and tested 2D all-quadrilateral meshes; general 3D hexahedral
+meshing is not implemented. Imported meshes, independently oriented random
+nonspherical packing, overlapping-void and open-cell workflows,
 advanced visualization, and stochastic convenience modules are outside the
 publication-supported core. The latter two modules are explicitly experimental.
 
@@ -235,6 +241,11 @@ guaranteed support response is promised. Reproducibility, documentation,
 correctness fixes as resources permit, versioned releases, and preservation
 are prioritized. The permissive license allows community forks and continued
 development if active maintenance changes.
+
+Distributed execution is smoke-tested with two MPI ranks for the linear
+periodic workflow. This establishes functional distributed execution, not
+parallel scalability; nonlinear and history-dependent MPI runs are not yet an
+advertised validation claim.
 
 ## 7. Availability and reproducibility
 

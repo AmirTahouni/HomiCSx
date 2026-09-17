@@ -69,7 +69,7 @@ mesh_settings = MeshSettings(
     min_size=0.02,
     max_size=0.04,
     physical_tags=physical_tags,
-    quad_hex=True,
+    periodic_mesh=True,
 )
 
 domain, ct, ft = generate_mesh(

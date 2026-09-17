@@ -433,7 +433,14 @@ class NeoHookeanIsotropic(HyperelasticMaterial):
     
     def evaluate_energy(self, F: np.ndarray, dim: int) -> float:
         """Numeric evaluation matching psi_form."""
+        F = np.asarray(F, dtype=float)
+        if F.shape != (dim, dim):
+            raise ValueError(f"F must have shape ({dim}, {dim}).")
+        if not np.all(np.isfinite(F)):
+            raise ValueError("Neo-Hookean energy requires a finite deformation gradient.")
         J = np.linalg.det(F)
+        if not np.isfinite(J) or J <= 0.0:
+            raise ValueError("Neo-Hookean energy requires det(F) > 0.")
         C = F.T @ F
         I1 = np.trace(C)
         return (self.mu / 2) * (I1 - dim - 2 * np.log(J)) + (self.lmbda / 2) * (J - 1) ** 2
@@ -441,8 +448,15 @@ class NeoHookeanIsotropic(HyperelasticMaterial):
     def get_quadrature_point_stress(self, state: MaterialState, F: np.ndarray, 
                                     quad_point_idx: int) -> np.ndarray:
         """Compute PK1 stress at quadrature point."""
+        F = np.asarray(F, dtype=float)
+        if F.ndim != 2 or F.shape[0] != F.shape[1] or F.shape[0] not in (2, 3):
+            raise ValueError("F must be a square 2D or 3D deformation gradient.")
+        if not np.all(np.isfinite(F)):
+            raise ValueError("Neo-Hookean stress requires a finite deformation gradient.")
         dim = F.shape[0]
         J = np.linalg.det(F)
+        if not np.isfinite(J) or J <= 0.0:
+            raise ValueError("Neo-Hookean stress requires det(F) > 0.")
         Finv = np.linalg.inv(F)
         
         P = self.mu * (F - Finv.T) + self.lmbda * J * (J - 1) * Finv.T

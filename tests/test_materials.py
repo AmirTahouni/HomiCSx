@@ -199,6 +199,49 @@ def test_neo_hookean_reference_configuration_is_stress_and_energy_free(dim):
     np.testing.assert_allclose(stress, np.zeros((dim, dim)), atol=1e-14)
 
 
+def test_neo_hookean_is_objective_under_superposed_rotation():
+    material = NeoHookeanIsotropic(young_modulus=7.5, poisson_ratio=0.32)
+    F = np.array([[1.18, 0.17], [0.03, 0.91]])
+    angle = 0.63
+    rotation = np.array(
+        [[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]]
+    )
+
+    energy = material.evaluate_energy(F, dim=2)
+    rotated_energy = material.evaluate_energy(rotation @ F, dim=2)
+    stress = material.get_quadrature_point_stress(None, F, 0)
+    rotated_stress = material.get_quadrature_point_stress(None, rotation @ F, 0)
+
+    assert rotated_energy == pytest.approx(energy, rel=1e-13, abs=1e-13)
+    np.testing.assert_allclose(rotated_stress, rotation @ stress, rtol=1e-12, atol=1e-12)
+
+
+def test_neo_hookean_plane_strain_matches_embedded_3d_response():
+    material = NeoHookeanIsotropic(young_modulus=7.5, poisson_ratio=0.32)
+    F2 = np.array([[1.16, 0.09], [0.02, 0.94]])
+    F3 = np.eye(3)
+    F3[:2, :2] = F2
+
+    assert material.evaluate_energy(F2, dim=2) == pytest.approx(
+        material.evaluate_energy(F3, dim=3), rel=1e-13, abs=1e-13
+    )
+    P2 = material.get_quadrature_point_stress(None, F2, 0)
+    P3 = material.get_quadrature_point_stress(None, F3, 0)
+    np.testing.assert_allclose(P2, P3[:2, :2], rtol=1e-12, atol=1e-12)
+
+
+@pytest.mark.parametrize(
+    "bad_F",
+    [np.diag([-1.0, 1.0]), np.zeros((2, 2)), np.full((2, 2), np.nan)],
+)
+def test_neo_hookean_rejects_nonphysical_deformation_gradients(bad_F):
+    material = NeoHookeanIsotropic(young_modulus=7.5, poisson_ratio=0.32)
+    with pytest.raises(ValueError, match=r"finite deformation gradient|det\(F\) > 0"):
+        material.evaluate_energy(bad_F, dim=2)
+    with pytest.raises(ValueError, match=r"finite deformation gradient|det\(F\) > 0"):
+        material.get_quadrature_point_stress(None, bad_F, 0)
+
+
 def test_generalized_maxwell_recoverable_energy_relaxes_toward_equilibrium():
     equilibrium = NeoHookeanIsotropic(young_modulus=10.0, poisson_ratio=0.25)
     material = ViscoelasticGeneralizedMaxwell(

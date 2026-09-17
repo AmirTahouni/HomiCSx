@@ -64,6 +64,20 @@ python -m validation.abaqus.compare_reference
 
 The detailed scope, material and mesh settings, provenance, and limitations are stored under `validation/abaqus`. Abaqus is treated as an independent comparison implementation, not ground truth. Agreement on these selected aggregate metrics does not establish pointwise field identity, general mesh independence, or validation of features outside the documented scope.
 
+## MPI smoke test
+
+The release gate includes a genuine two-rank run of the periodic mesh
+distribution, multipoint constraints, linear solves, and global reductions:
+
+```bash
+PYTHONPATH=. mpiexec -n 2 python examples/mpi_linear_smoke.py
+```
+
+The script requires every rank to recover the same homogenized stiffness trace.
+This is a smoke test for distributed execution, not a strong-scaling benchmark.
+The explicit `PYTHONPATH` ensures a source-checkout validation uses the checkout
+rather than an older installed HomiCSx build.
+
 ## Generalized-Maxwell comparison
 
 A deterministic 100-increment simple-shear relaxation suite verifies the

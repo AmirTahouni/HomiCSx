@@ -95,6 +95,14 @@ def _assert_translated_boundary_nodes_match(
     np.testing.assert_allclose(slave, shifted, rtol=0.0, atol=1e-10)
 
 
+def test_generate_mesh_rejects_general_3d_hex_request(simple_sphere_geom):
+    with pytest.raises(NotImplementedError, match="3D hexahedral"):
+        generate_mesh(
+            simple_sphere_geom,
+            MeshSettings(min_size=0.08, max_size=0.15, quad_hex=True),
+        )
+
+
 # ------------------------------------------------------------
 # fixtures
 # ------------------------------------------------------------
@@ -170,6 +178,7 @@ def manual_multiphase_geom_2d():
                 phase_id=2,
                 shape="ellipse",
                 radii=np.array([0.08, 0.05]),
+                orientation=np.pi / 5,
             ),
         ],
     )
@@ -199,6 +208,7 @@ def manual_multiphase_geom_3d():
                 phase_id=2,
                 shape="ellipsoid",
                 radii=np.array([0.08, 0.05, 0.06]),
+                orientation=(0.2, -0.3, 0.4),
             ),
         ],
     )

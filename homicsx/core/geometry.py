@@ -40,6 +40,10 @@ class Inclusion:
     periodic_source_id : int | None, optional
         The ID of the original inclusion if this instance is a periodic image 
         across the RVE boundaries. Default is None.
+    orientation : float or tuple of three floats, optional
+        Rotation in radians. In 2D this is one counter-clockwise angle. In 3D
+        it is a sequence of rotations about the global X, Y, and Z axes.
+        Defaults to zero. Rotation has no geometric effect on circles or spheres.
     metadata : dict[str, Any], optional
         Additional user-defined data associated with the inclusion.
 
@@ -56,6 +60,7 @@ class Inclusion:
     interphase_phase_id: int | None = None
     periodic_source_id: int | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+    orientation: float | tuple[float, float, float] = 0.0
 
     def __post_init__(self) -> None:
         self.center = np.asarray(self.center, dtype=float).reshape(-1)
@@ -91,6 +96,20 @@ class Inclusion:
 
         if self.interphase_thickness_ratio > 0.0 and self.interphase_phase_id is None:
             self.interphase_phase_id = self.phase_id + 100
+
+        if self.dim == 2:
+            if not np.isscalar(self.orientation) or not np.isfinite(self.orientation):
+                raise ValueError("A 2D orientation must be one finite angle in radians.")
+            self.orientation = float(self.orientation)
+        else:
+            angles = np.asarray(self.orientation, dtype=float).reshape(-1)
+            if angles.size == 1 and angles[0] == 0.0:
+                angles = np.zeros(3, dtype=float)
+            if angles.size != 3 or not np.all(np.isfinite(angles)):
+                raise ValueError(
+                    "A 3D orientation must contain three finite XYZ Euler angles in radians."
+                )
+            self.orientation = tuple(float(value) for value in angles)
 
     @property
     def dim(self) -> int:

@@ -37,7 +37,7 @@ It is made to be completely modular, including the:
     <img src="images/geometry.png" width="500">
 </div>
 
-- Mesh module: The mesh module uses `gmsh` to generate the mesh, facet tags, and cell tags. By default, opposite RVE boundaries receive matching node patterns through Gmsh periodic constraints. Set `MeshSettings(periodic_mesh=False, ...)` only when a legacy nonmatching mesh is intentionally required. Triangular and tetrahedral meshes form the publication-supported path; forced quad/hex meshing remains experimental.
+- Mesh module: The mesh module uses `gmsh` to generate the mesh, facet tags, and cell tags. By default, opposite RVE boundaries receive matching node patterns through Gmsh periodic constraints. Set `MeshSettings(periodic_mesh=False, ...)` only when a legacy nonmatching mesh is intentionally required. Triangles, tetrahedra, and tested two-dimensional all-quadrilateral meshes form the publication-supported path; general three-dimensional hexahedral meshing is not supported.
 
 <div align="center">
     <img src="images/mesh.png" width="500">

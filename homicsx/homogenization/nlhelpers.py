@@ -287,9 +287,9 @@ def _compute_phase_volumes(
     for phase_id in material_assignment.materials_by_phase.keys():
         tag = physical_tags.cell_tag_for_phase(phase_id)
         vol_local = fem.assemble_scalar(fem.form(1.0 * dx(tag)))
-        # vol = domain.comm.allreduce(vol_local, op=MPI.SUM)
-        phase_volumes[phase_id] = vol_local
-        total_volume += vol_local
+        volume = domain.comm.allreduce(vol_local, op=MPI.SUM)
+        phase_volumes[phase_id] = volume
+        total_volume += volume
     
     return phase_volumes, total_volume
 

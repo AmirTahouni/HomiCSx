@@ -19,7 +19,7 @@ from homicsx import (
 )
 
 
-def run_example() -> dict:
+def run_example(*, quadrilateral: bool = False) -> dict:
     geometry = RVEGeometry(
         dim=2,
         domain_size=(1.0, 1.0),
@@ -36,6 +36,7 @@ def run_example() -> dict:
             max_size=0.16,
             physical_tags=tags,
             periodic_mesh=True,
+            quad_hex=quadrilateral,
             verbosity=0,
         ),
     )
@@ -67,6 +68,7 @@ def run_example() -> dict:
         "shape": list(stiffness.shape),
         "trace": float(np.trace(stiffness)),
         "relative_symmetry_error": relative_symmetry_error,
+        "cell_type": domain.topology.cell_type.name,
     }
 
 

@@ -179,7 +179,8 @@ class MeshSettings:
         Number of mesh smoothing iterations requested from Gmsh.
         Defaults to 10.
     quad_hex: bool, optional
-        Whether quad/hex mesh is to be forced during mesh generation.
+        Request an all-quadrilateral Gmsh mesh in 2D. General three-dimensional
+        hexahedral meshing is not supported and raises ``NotImplementedError``.
         Defaults to False.
     periodic_mesh: bool, optional
         If ``True``, require matching node patterns on each pair of opposite

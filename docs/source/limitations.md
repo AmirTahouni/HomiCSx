@@ -24,7 +24,13 @@ work but are not currently part of the verification matrix.
 
 - Two-dimensional FEM is plane strain only. Plane stress raises a deliberate
   `NotImplementedError` with guidance to use plane strain or a 3D model.
-- Quad and hex meshing are not supported across the advertised geometry range.
+- Two-dimensional all-quadrilateral meshing is supported for the documented
+  periodic workflow. General three-dimensional hexahedral meshing is not
+  supported; requesting it raises `NotImplementedError`.
+- Prescribed ellipses and ellipsoids may be rotated. The random RSA generators
+  currently generate axis-aligned nonspherical particles; independently
+  oriented random packing is deferred because it requires a validated exact
+  collision-and-clearance algorithm.
 - Overlapping-void and open-cell-foam workflows lack publication-level tests.
 - Imported external meshes are outside the publication-supported workflow.
   Such meshes are not automatically made periodic-conforming.
@@ -39,6 +45,8 @@ work but are not currently part of the verification matrix.
   deformation-gradient/state update implementation.
 - Advanced post-processing beyond essential result and XDMF extraction is not
   part of the supported core.
+- MPI verification currently covers the two-rank linear periodic workflow.
+  Nonlinear and history-dependent distributed runs are not yet a release claim.
 
 Private defensive branches in geometry helpers may raise `NotImplementedError`
 for shapes that cannot pass the validated public inputs. These are not

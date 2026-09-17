@@ -131,7 +131,10 @@ def _add_inclusion(dim: int, inclusion: Inclusion, use_inner: bool = False) -> i
     x, y = map(float, inclusion.center[:2])
     if dim == 2:
         r1, r2 = (radii[0], radii[0]) if inclusion.shape == "circle" else radii
-        return occ.addDisk(x, y, 0.0, r1, r2)
+        tag = occ.addDisk(x, y, 0.0, r1, r2)
+        if inclusion.shape == "ellipse" and inclusion.orientation != 0.0:
+            occ.rotate([(2, tag)], x, y, 0.0, 0.0, 0.0, 1.0, inclusion.orientation)
+        return tag
     else:
         x, y, z = map(float, inclusion.center)
         if inclusion.shape == "sphere":
@@ -139,6 +142,12 @@ def _add_inclusion(dim: int, inclusion: Inclusion, use_inner: bool = False) -> i
         else:  # ellipsoid
             tag = occ.addSphere(x, y, z, 1.0)
             occ.dilate([(3, tag)], x, y, z, radii[0], radii[1], radii[2])
+            for axis, angle in zip(
+                ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)),
+                inclusion.orientation,
+            ):
+                if angle != 0.0:
+                    occ.rotate([(3, tag)], x, y, z, *axis, angle)
             return tag
 
 
@@ -725,6 +734,12 @@ def generate_mesh(
     --------
     homicsx.core.MeshSettings
     """
+    if mesh_settings.quad_hex and int(geometry.dim) != 2:
+        raise NotImplementedError(
+            "quad_hex=True is supported only for 2D all-quadrilateral meshes; "
+            "general 3D hexahedral meshing is not supported."
+        )
+
     gmsh.initialize()
     try:
         if mesh_settings.comm.rank == mesh_settings.model_rank:
