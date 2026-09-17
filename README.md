@@ -105,8 +105,7 @@ documentation provides the corresponding narrative tutorials.
 The [verification documentation](docs/source/validation.md) summarizes
 analytical tests, mesh-refinement gates, the MPI smoke test, and independent
 Abaqus comparisons based on conventional macroscopic stress, strain, energy,
-Jacobian, and stiffness measures. Application-specific local-tail metrics are
-deliberately excluded.
+Jacobian, and stiffness measures.
 
 - [Documentation](https://homicsx.readthedocs.io/en/latest/)
 - [Abaqus comparison suite](validation/abaqus/README.md)
