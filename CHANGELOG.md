@@ -3,7 +3,7 @@
 All notable changes to HomiCSx are documented here. The project follows
 semantic versioning for its publication-supported public API.
 
-## 1.0.0 - Unreleased
+## 1.0.0 - 2026-09-17
 
 First archival research-software release prepared for the SoftwareX software
 paper.
@@ -41,5 +41,5 @@ paper.
 - Maintenance is best-effort archival support without a guaranteed response
   time or feature schedule.
 
-The release date, Git tag, and Zenodo identifiers will be added when the
-archival release is published.
+The archival identifiers are added to the repository after the tagged release
+is deposited.
