@@ -8,10 +8,12 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 
 ## Current baseline
 
-- Release-candidate version: 1.0.0 (not yet tagged or archived).
+- Published and archived version: 1.0.0.
 - License: MIT.
 - Public repository history begins on 2026-05-05.
-- Public history currently contains 53 commits and no tagged release visible in the local clone.
+- Version 1.0.0 is tagged and published on GitHub and archived by Zenodo with
+  version DOI `10.5281/zenodo.22811694` and concept DOI
+  `10.5281/zenodo.22811693`.
 - Documentation is published through Read the Docs.
 - Supported solver environment is described by `environment.yml` and targets Python 3.10, DOLFINx 0.9.0, and dolfinx_mpc 0.9.0.
 - ABAQUS 2022 is installed locally on Windows.
@@ -59,11 +61,10 @@ it prevents stronger support claims than the evidence justifies.
 1. **Core analytical verification implemented.** End-to-end linear tests check finite output, stiffness symmetry, analytical homogeneous stiffness recovery in 2D plane strain and full six-load-case 3D, and deterministic coarse-to-fine error reduction. The nonlinear periodic solver recovers analytical homogeneous Neo-Hookean macroscopic energy, PK1 stress, and mean J; the constitutive PK1 is independently checked against the numerical energy gradient in 2D and 3D. Hook ordering, shared state, scope, and failure isolation are tested. Further convergence studies can broaden evidence but are no longer a submission blocker for the documented core.
 2. **Packaging metadata completed for the source-release workflow.** `pyproject.toml` now records authorship, license, readme, classifiers, URLs, Python support, and optional test/docs dependencies. The Conda environment is explicitly authoritative for the compiled FEniCSx/PETSc/MPI runtime stack rather than making an unreliable PyPI dependency claim.
 3. **Archival maintenance guidance completed.** `CONTRIBUTING.md`, `SUPPORT.md`, and `SECURITY.md` now document issue reporting, contribution expectations, availability-dependent maintenance, and license-enabled continuity through community forks.
-4. **Archival release metadata remains a blocker.** Version 1.0.0, author
-   affiliation, no-ORCID submission, no-funding declaration, and
-   no-competing-interest declaration are resolved. The publication release
-   still needs a Git tag, GitHub release, Zenodo DOI synchronization, and a
-   final comparison with the official SoftwareX template offered at submission.
+4. **Archival release metadata completed.** Version 1.0.0, author affiliation,
+   no-ORCID submission, no-funding declaration, no-competing-interest
+   declaration, Git tag, GitHub release, and Zenodo identifiers are resolved.
+   Reconfirm the live SoftwareX instructions immediately before submission.
 
 The publication-preparation work is merged into `main`. GitHub Actions covers
 pull requests, pushes to `main`, and manual runs; local release gates provide
@@ -223,13 +224,11 @@ Before submission of the scientific paper, produce at minimum an immutable HomiC
 
 ### Gate D Publication release
 
-Do not tag 1.0.0 until the clean environment, core test suite, validation suite, documentation build, citation metadata, release notes, and archival contents have all been reviewed.
+Version 1.0.0 was tagged after the clean environment, core test suite, validation suite, documentation build, citation metadata, release notes, and archival contents were reviewed.
 
 ## Immediate next actions
 
-1. Obtain the author's approval of the exact release candidate and manuscript.
-2. Create the annotated `v1.0.0` tag and GitHub release.
-3. Archive that immutable release in Zenodo.
-4. Synchronize the version DOI and concept DOI across citation metadata,
-   README, manuscript, and release notes.
-5. Rebuild the final manuscript and complete the live submission-system checks.
+1. Obtain the author's approval of the exact submission files.
+2. Verify every bibliographic reference against its publisher record.
+3. Complete the live submission-system identity, residence, sanctions,
+   payment, and upload checks.

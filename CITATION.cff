@@ -13,6 +13,15 @@ authors:
 
 version: "1.0.0"
 
+date-released: 2026-09-17
+
+doi: 10.5281/zenodo.22811694
+
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.22811694
+    description: "HomiCSx v1.0.0 archived release"
+
 license: MIT
 
 repository-code: "https://github.com/AmirTahouni/HomiCSx"

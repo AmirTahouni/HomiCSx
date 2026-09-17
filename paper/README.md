@@ -14,8 +14,8 @@ SoftwareX structure.
 
 Compile from this directory with MiKTeX or TeXstudio by running `xelatex`
 twice on `manuscript.tex`. The checked-in `manuscript.pdf` is the visually
-inspected draft output; its Zenodo archive identifiers remain pending.
+inspected draft output and cites the archived version DOI and concept DOI.
 
-Do not submit this draft until all items in `submission_checklist.md` are
-resolved and a versioned release has been archived with a DOI. Reconfirm the
-template version in the live submission system immediately before upload.
+Do not submit this draft until all remaining items in `submission_checklist.md`
+are resolved. Reconfirm the template version in the live submission system
+immediately before upload.

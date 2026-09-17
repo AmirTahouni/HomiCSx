@@ -41,5 +41,5 @@ paper.
 - Maintenance is best-effort archival support without a guaranteed response
   time or feature schedule.
 
-The archival identifiers are added to the repository after the tagged release
-is deposited.
+Version DOI: https://doi.org/10.5281/zenodo.22811694
+Concept DOI: https://doi.org/10.5281/zenodo.22811693

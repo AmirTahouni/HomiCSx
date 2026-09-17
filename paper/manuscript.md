@@ -268,7 +268,8 @@ studies while keeping its archival maintenance commitment realistic.
 - Documentation: https://homicsx.readthedocs.io/en/latest/
 - License: MIT
 - Version described: 1.0.0
-- Archive DOI: [ZENODO DOI REQUIRED]
+- Version DOI: https://doi.org/10.5281/zenodo.22811694
+- Concept DOI: https://doi.org/10.5281/zenodo.22811693
 
 The repository contains pinned Conda environment specifications, installation
 instructions, automated tests, benchmark manifests, independent Abaqus runner
@@ -295,8 +296,8 @@ paper.
 ## Data availability
 
 The software, validation manifests, scripts, and compact numerical results are
-available in the public repository and will be preserved in the archived
-release identified above. Large proprietary Abaqus working databases are not
+available in the public repository and are preserved in the archived release
+identified above. Large proprietary Abaqus working databases are not
 required to evaluate the committed comparison results and are not distributed.
 
 ## Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
@@ -335,4 +336,4 @@ the publication.
    European Journal of Mechanics - A/Solids 78 (2019) 103825.
    https://doi.org/10.1016/j.euromechsol.2019.103825.
 7. A. R. Tahouni, HomiCSx, version 1.0.0, Zenodo (2026).
-   [ZENODO DOI REQUIRED].
+   https://doi.org/10.5281/zenodo.22811694.

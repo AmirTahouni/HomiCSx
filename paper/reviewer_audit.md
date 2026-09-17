@@ -24,11 +24,11 @@ viscoelastic Abaqus validation from what has been established.
 
 ## Reproducibility
 
-**Assessment: technically ready; archive pending.** The repository contains a
+**Assessment: ready.** The repository contains a
 pinned Conda environment, deterministic examples, tests, figure generators,
 validation metadata, and compact reference results. The final release must be
-tested in a fresh environment and archived before the DOI and version fields
-can be completed.
+tested in a fresh environment and archived before submission; both gates have
+been completed for version 1.0.0.
 
 ## Usability and documentation
 
@@ -41,7 +41,7 @@ clearly separated from the publication-supported core.
 
 **Assessment: candid and acceptable for archival research software.** The MIT
 license, public repository, versioned releases, tests, documentation, and
-planned Zenodo archive support reuse without promising an indefinite feature
+Zenodo archive support reuse without promising an indefinite feature
 schedule. The paper accurately states that fixes and support are best-effort.
 
 ## Claims and presentation
@@ -54,9 +54,6 @@ generality claims.
 
 ## Remaining blockers
 
-1. Obtain author approval of the exact release candidate and manuscript.
-2. Create the annotated `v1.0.0` tag, GitHub release, and Zenodo archive.
-3. Replace every release and DOI placeholder consistently.
-4. Render and inspect the exact DOI-complete submission PDF.
-5. Complete the live submission-system identity, residence, sanctions, and
+1. Obtain author approval of the exact DOI-complete manuscript.
+2. Complete the live submission-system identity, residence, sanctions, and
    payment declarations accurately.

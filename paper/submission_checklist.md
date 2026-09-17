@@ -19,11 +19,11 @@
 - [x] Finish the release notes and public API freeze.
 - [x] Run the full clean-environment test, strict documentation, validation,
   package-build, and installed-wheel matrix for the 1.0.0 release candidate.
-- [ ] Create and push the signed or annotated Git tag.
-- [ ] Create the GitHub release.
-- [ ] Archive the release in Zenodo and obtain the version DOI and concept DOI.
-- [ ] Add DOI and release metadata to `CITATION.cff`, README, and manuscript.
-- [ ] Verify that the permanent repository/release link contains the README,
+- [x] Create and push the signed or annotated Git tag.
+- [x] Create the GitHub release.
+- [x] Archive the release in Zenodo and obtain the version DOI and concept DOI.
+- [x] Add DOI and release metadata to `CITATION.cff`, README, and manuscript.
+- [x] Verify that the permanent repository/release link contains the README,
   open-source license, source code, environment specification, tests, and
   validation data.
 
@@ -38,8 +38,8 @@
   main body is approximately 1750 words; the abstract is separate.
 - [x] Use no more than six figures. The current manuscript has four.
 - [x] Complete the required C1--C8 software metadata table. C2 uses the
-  mandatory GitHub repository; the Zenodo DOI remains a release-dependent
-  software citation.
+  mandatory GitHub repository; the Zenodo version DOI is used for the software
+  citation.
 - [x] Prepare a workflow/component figure from a reproducible source.
 - [x] Prepare one reproducible ParaView field figure illustrating stress and
   strain-energy output without using localization/Q statistics.
@@ -49,7 +49,7 @@
   SoftwareX-specific cover letter; reconfirm upload requirements in the live
   submission system.
 - [ ] Verify every reference and DOI against its publisher record.
-- [ ] Add the archived HomiCSx software citation as a software reference.
+- [x] Add the archived HomiCSx software citation as a software reference.
 - [x] Retain the generative-AI disclosure because AI assisted code review,
   validation preparation, documentation, and manuscript drafting.
 - [ ] Complete the submission-system declarations and sanctions/payment checks
@@ -63,9 +63,9 @@
 - [x] Reviewer-form audit: architecture and experimental setting are clear.
 - [x] Reviewer-form audit: empirical evidence supports every advertised core
   feature, or the limitation is stated.
-- [ ] Reviewer-form audit: release-dependent metadata tables are complete and
+- [x] Reviewer-form audit: release-dependent metadata tables are complete and
   consistent.
-- [ ] Render and visually inspect the final PDF.
+- [x] Render and visually inspect the final PDF.
 - [x] Compile and visually inspect every page of the pre-release LaTeX PDF.
 - [ ] Obtain author approval of the exact files before submission.
 - [x] Confirm the declaration of no competing interests.

@@ -43,9 +43,8 @@ states the software’s current limitations and archival maintenance model.
 
 This manuscript is original, is not under consideration elsewhere, and has one
 author. The author declares no competing interests, and no specific funding
-supported the software. A versioned archival DOI and exact release identifier
-will be
-inserted before submission. The author confirms responsibility for the work
+supported the software. Version 1.0.0 is preserved at
+https://doi.org/10.5281/zenodo.22811694. The author confirms responsibility for the work
 and for the disclosed use of an AI-assisted coding tool during code review,
 validation preparation, documentation editing, and manuscript drafting.
 
