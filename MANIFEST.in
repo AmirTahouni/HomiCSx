@@ -1,0 +1,17 @@
+include CHANGELOG.md
+include CITATION.cff
+include CONTRIBUTING.md
+include PUBLIC_API.md
+include SECURITY.md
+include SUPPORT.md
+include environment.yml
+include environment-dev.yml
+
+recursive-include examples *.py *.md
+recursive-include tests *.py
+recursive-include validation *.py *.json *.csv *.md
+recursive-include docs *.py *.rst *.md *.txt
+
+prune docs/build
+prune docs/_build
+global-exclude __pycache__ *.py[cod]

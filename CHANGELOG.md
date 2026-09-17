@@ -29,6 +29,8 @@ paper.
   internal metrics are committed only after converged increments.
 - Package metadata, CI, environment specifications, and citation metadata are
   aligned for an archival release.
+- Runnable examples, compact validation data, tests, and supporting project
+  documents are included in the source distribution.
 
 ### Support boundary
 
