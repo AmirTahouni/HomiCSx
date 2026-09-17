@@ -62,6 +62,6 @@ advertised user workflows.
 ## Experimental modules
 
 The stochastic ensemble/sweep conveniences and visualization helpers are
-retained for compatibility but excluded from publication claims. They may
-change or be removed before 1.0. See {doc}`experimental` and the repository's
-`PUBLIC_API.md` for details.
+retained for evaluation but excluded from publication claims and the 1.x
+compatibility guarantee. They may change or be removed in a future release.
+See {doc}`experimental` and the repository's `PUBLIC_API.md` for details.

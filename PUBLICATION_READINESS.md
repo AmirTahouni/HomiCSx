@@ -17,7 +17,7 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 - ABAQUS 2022 is installed locally on Windows.
 - WSL2 with Ubuntu and Conda is available locally.
 - A clean `homicsx_dev` Conda environment can be created from `environment-dev.yml` under WSL2.
-- Current release-gate result on 2026-09-17: 111 tests pass under Python 3.10 and DOLFINx 0.9.0; the strict Sphinx build passes; the two-rank linear MPI smoke test passes; all committed Abaqus-reference acceptance checks pass; and the 1.0.0 source distribution and wheel build successfully. Two-rank nonlinear Neo-Hookean and generalized-Maxwell trials terminate with a PETSc fault and are explicitly unsupported. The suite includes analytical 2D/3D linear patch tests, finite-strain and viscoelastic solver tests, scriptable example workflows, nonlinear constitutive consistency, 2D/3D periodic-constraint checks, hook semantics, public API checks, and compact Abaqus macroscopic-reference checks.
+- Current release-gate result on 2026-09-17: 113 tests pass under Python 3.10 and DOLFINx 0.9.0; the strict Sphinx build passes; the two-rank linear MPI smoke test passes; all committed Abaqus-reference acceptance checks pass; and the 1.0.0 source distribution and wheel build successfully. Two-rank nonlinear Neo-Hookean and generalized-Maxwell trials terminate with a PETSc fault and are explicitly unsupported. The suite includes analytical 2D/3D linear patch tests, finite-strain and viscoelastic solver tests, scriptable example workflows, nonlinear constitutive consistency, 2D/3D periodic-constraint checks, hook semantics, public API checks, and compact Abaqus macroscopic-reference checks.
 - Homogeneous plane-strain verification now includes a deterministic two-level convergence gate on one fixed seeded geometry. Relative stiffness error falls from 2.543% at minimum/maximum mesh sizes 0.08/0.16 to 0.211% at 0.025/0.05, a 12.0-fold reduction. CI requires coarse error below 5%, fine error below 0.5%, and at least a factor-two reduction; no claim of monotonic intermediate convergence is made for independently regenerated unstructured meshes.
 - The repository now contains a compact nine-case HomiCSx--Abaqus macroscopic energy, stress, and deformation reference suite with machine-readable provenance and executable acceptance checks. Research-specific localization statistics remain in the associated study, which also retains the full calculations, scripts, meshes, solver inputs, ODB files, and extracted element data.
 
@@ -46,7 +46,11 @@ These features require additional evidence before they are included in the publi
 - Imported external-mesh workflows.
 - Advanced post-processing beyond essential result extraction.
 
-The stochastic and visualization modules are explicitly experimental and excluded from publication claims. They are initially retained for compatibility. Before 1.0, they will either receive a focused rework with adequate tests or be deprecated and removed from the public release. Experimental classification is not a judgment that every feature is defective; it prevents stronger support claims than the evidence justifies.
+The stochastic and visualization modules are explicitly experimental and
+excluded from publication claims and the 1.x compatibility guarantee. They are
+retained for evaluation and may change or be removed in a future release.
+Experimental classification is not a judgment that every feature is defective;
+it prevents stronger support claims than the evidence justifies.
 
 ## Findings by priority
 
@@ -71,11 +75,15 @@ the full solver, documentation, validation, package, and MPI checks.
 2. **Documentation imports are heavily mocked.** A successful documentation build does not establish that documented public imports work against the real scientific dependencies.
 3. **Dependency roles are now explicit.** Conda owns the compiled runtime stack; `pyproject.toml` describes the package and optional pure-Python tooling; `docs/requirements.txt` contains only direct documentation dependencies.
 4. **The documentation dependency file has been reduced to direct, bounded requirements.** Malformed API docstrings, duplicate indexing, the missing static path, and orphan demo pages have been corrected. The Sphinx build now passes with warnings treated as errors and is enforced in CI.
-5. **Public API and compatibility policy documented.** `PUBLIC_API.md` defines top-level supported imports, experimental compatibility exports, pre-1.0 stability expectations, and deprecation practice. Nonlinear settings, results, simulation state, and typed hook data are now available from the top-level package and covered by regression tests.
+5. **Public API and compatibility policy documented.** `PUBLIC_API.md` defines top-level supported imports, explicitly non-guaranteed experimental exports, and deprecation practice. Nonlinear settings, results, simulation state, and typed hook data are available from the top-level package and covered by regression tests.
 6. **Unsupported branches classified and documented.** Plane stress now raises a tested, actionable `NotImplementedError`; other unsupported workflows are listed on the limitations page. Remaining `NotImplementedError` paths are private defensive shape branches or belong to explicitly experimental stochastic helpers.
 7. **Runtime output relies heavily on direct `print` calls.** Library-level diagnostics should be reviewed and generally routed through logging or explicit result objects.
-8. **Examples are notebook-heavy.** Important publication examples need deterministic, scriptable counterparts that can run in automated checks.
-9. **The repository contains two notebooks larger than 1 MB.** Notebook outputs and embedded data should be reviewed for reproducibility, noise, and repository size.
+8. **Runnable examples consolidated.** The root-level notebook collection was
+   removed; five deterministic serial workflows and one linear-MPI smoke script
+   now form the single maintained `examples/` surface.
+9. **Notebook repository noise removed.** Stale, experimental, and
+   research-specific notebooks remain recoverable in Git history but are not
+   distributed as supported release examples.
 10. **Citation metadata lacks an ORCID and release/archive identifiers.** These should be added when available and synchronized with the publication release.
 
 ### P2 Documentation and presentation improvements
@@ -185,7 +193,8 @@ This posture must be checked against the target journal immediately before submi
 - Complete core solver verification.
 - Add the compact ABAQUS comparison suite.
 - Add validation documentation and machine-readable reference results.
-- Convert essential notebooks into deterministic scripts or tested documentation examples.
+- Consolidate essential workflows into deterministic scripts and tested
+  documentation examples. **Completed.**
 
 ### Milestone 1.0.0
 

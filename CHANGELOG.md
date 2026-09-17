@@ -16,7 +16,8 @@ paper.
 - Finite-strain homogenization with a built-in Neo-Hookean law, a public
   user-defined hyperelastic-energy interface, and generalized-Maxwell response.
 - Custom material interfaces, load callables, and typed nonlinear hooks.
-- Deterministic linear and heterogeneous viscoelastic example scripts.
+- Deterministic geometry, 2D/3D linear, hyperelastic, heterogeneous
+  viscoelastic, and linear-MPI example scripts.
 - Analytical, regression, mesh-refinement, and Abaqus comparison suites.
 - Documentation for theory, loading conventions, validation, limitations,
   experimental modules, support, and the public API.

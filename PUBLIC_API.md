@@ -25,9 +25,9 @@ The following top-level compatibility exports remain experimental:
 - `sweep_volume_fraction_linear`; and
 - `sweep_stiffness_contrast_linear`.
 
-The `homicsx.stochastic` and `homicsx.visualization` modules may change or be
-removed before 1.0. Their presence does not place them in the
-publication-supported API.
+The `homicsx.stochastic` and `homicsx.visualization` modules carry no 1.x
+compatibility guarantee and may change or be removed in a future release.
+Their presence does not place them in the publication-supported API.
 
 For the supported API, bug fixes and compatible additions may appear in patch
 releases. A breaking change should be documented in the changelog and, when

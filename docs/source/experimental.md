@@ -6,7 +6,7 @@ Experimental features:
 
 - may have incomplete test coverage;
 - may not receive compatibility-preserving changes;
-- may change or be removed before HomiCSx 1.0; and
+- may change or be removed in a future release; and
 - should not currently be relied on for unattended or long-lived research workflows.
 
 The random geometry generators used by the supported geometry workflow are not classified as experimental merely because their algorithms are stochastic. This status applies to the higher-level ensemble, parameter-sweep, plotting, and interactive visualization conveniences.

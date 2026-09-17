@@ -5,6 +5,13 @@ come from the seeded periodic random sequential adsorption (RSA) generator or
 be constructed explicitly from `Inclusion` objects. The resulting object is
 independent of Gmsh and can be inspected before meshing.
 
+Run the compact, tested generated-and-prescribed workflow from the repository
+root with:
+
+```bash
+python examples/geometry_generation.py
+```
+
 ## Random periodic geometries
 
 `GeometryInput` selects dimension, dispersity, shape, target volume fraction,
@@ -124,5 +131,12 @@ with the matrix phase first.
 - The optional visualization helpers are experimental; geometry generation
   itself is part of the supported core.
 
+The complete maintained script is included below.
+
+```{literalinclude} ../../../examples/geometry_generation.py
+:language: python
+:linenos:
+```
+
 See {doc}`../limitations` for the complete support boundary and
-{doc}`homogenization_linear_2D` for an end-to-end generated-cell example.
+{doc}`homogenization_linear_2D` for an end-to-end meshed-cell example.

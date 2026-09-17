@@ -80,19 +80,19 @@ python -c "import homicsx; print(homicsx.__version__)"
 Other dependency versions and native Windows/macOS installations may work but
 are outside the current verification matrix.
 
-## Tested example
+## Tested examples
 
-This compact end-to-end example is exercised by the test suite and can be run
-from a source checkout:
+The maintained examples are exercised by the test suite. Start with the compact
+2D linear workflow from a source checkout:
 
 ```bash
 python examples/linear_periodic_2d.py
 ```
 
 The [`examples/`](examples/) directory contains deterministic, non-interactive
-linear, hyperelastic, viscoelastic, and MPI workflows. They are the single
-maintained entry point for runnable examples; the documentation provides the
-corresponding narrative tutorials.
+geometry, 2D and 3D linear, hyperelastic, viscoelastic, and linear-MPI
+workflows. It is the single maintained entry point for runnable examples; the
+documentation provides the corresponding narrative tutorials.
 
 <p align="center">
   <img src="paper/figures/paraview_fields.png" width="850" alt="HomiCSx finite-element fields rendered in ParaView">

@@ -1,7 +1,11 @@
 HomiCSx documentation
 =====================
 
-HomiCSx is a python homogenization framework based on the problem solving interface of the FeniCS project. It is developed on `Github <https://github.com/AmirTahouni/HomiCSx>`_.
+HomiCSx is an open-source Python framework for first-order finite-element
+computational homogenization with FEniCSx. It connects particulate geometry,
+periodic-conforming meshing, material models, linear and finite-strain solvers,
+custom hooks, and essential outputs in one reproducible workflow. Source code
+is available on `GitHub <https://github.com/AmirTahouni/HomiCSx>`_.
 
 .. toctree::
    :maxdepth: 1
@@ -13,7 +17,7 @@ HomiCSx is a python homogenization framework based on the problem solving interf
    validation
    loading_conventions
    support
-   demos
+   examples
    api/homicsx
    theory
 

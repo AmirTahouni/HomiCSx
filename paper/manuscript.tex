@@ -172,12 +172,11 @@ external post-processing.
 
 \section{Illustrative examples}
 
-The documentation includes tutorials for geometry generation, 2D and 3D
-linear homogenization, nonlinear hyperelasticity, generalized-Maxwell
-homogenization, mesh convergence, and hook-based field processing. A single
-repository-level examples directory provides compact deterministic linear,
-hyperelastic, heterogeneous viscoelastic, and linear-MPI workflows; the three
-serial scripts are executed by the test suite. The linear script creates a
+The documentation demonstrates geometry generation, 2D and 3D linear solves,
+hyperelasticity, generalized-Maxwell response, and typed hooks. A single
+repository-level examples directory provides compact deterministic geometry,
+2D/3D linear, hyperelastic, heterogeneous viscoelastic, and linear-MPI
+workflows; all five serial scripts are executed by the test suite. The linear script creates a
 fixed geometry, generates a periodic-conforming mesh, assigns phase materials,
 and passes these objects to the linear driver. The viscoelastic script exercises
 nonlinear equilibrium, state evolution, and a typed macro-stress hook. The same

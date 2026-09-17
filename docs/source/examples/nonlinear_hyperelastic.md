@@ -2,8 +2,7 @@
 
 This deterministic example solves a two-phase periodic cell in finite simple
 shear. Both phases use the built-in compressible `NeoHookeanIsotropic` law, so
-the example exercises the publication-supported material path rather than a
-notebook-only substitute.
+the example exercises the publication-supported material path directly.
 
 The nonlinear assembly is not limited to this formula. Subclass
 `HyperelasticMaterial` to provide a UFL `psi_form(F)` and matching numerical
