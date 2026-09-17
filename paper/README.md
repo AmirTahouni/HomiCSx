@@ -19,3 +19,7 @@ inspected draft output and cites the archived version DOI and concept DOI.
 Do not submit this draft until all remaining items in `submission_checklist.md`
 are resolved. Reconfirm the template version in the live submission system
 immediately before upload.
+
+`reference_audit.md` records bibliographic verification, and
+`submission_manifest.md` maps the prepared files to likely portal roles and
+separates author-only declarations from repository work.

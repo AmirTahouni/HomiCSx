@@ -33,7 +33,7 @@
   template, Version 6 (March 2026), and retain its required section and metadata
   structure in the selected LaTeX source.
 - [x] Select LaTeX and produce a compiling `elsarticle` manuscript draft.
-- [ ] Transfer `manuscript.md` without altering the template formatting.
+- [x] Keep `manuscript.md` synchronized with the submission LaTeX source.
 - [x] Keep the main text within the template's 4000-word limit. The current
   main body is approximately 1750 words; the abstract is separate.
 - [x] Use no more than six figures. The current manuscript has four.
@@ -48,7 +48,8 @@
 - [x] Draft compliant highlights, an optional graphical abstract, and a
   SoftwareX-specific cover letter; reconfirm upload requirements in the live
   submission system.
-- [ ] Verify every reference and DOI against its publisher record.
+- [x] Verify every reference and DOI against its publisher or authoritative
+  repository record; retain the audit in `reference_audit.md`.
 - [x] Add the archived HomiCSx software citation as a software reference.
 - [x] Retain the generative-AI disclosure because AI assisted code review,
   validation preparation, documentation, and manuscript drafting.

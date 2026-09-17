@@ -316,7 +316,8 @@ the publication.
    (2025). https://doi.org/10.5281/zenodo.18101307.
 2. M. S. Alnæs, A. Logg, K. B. Ølgaard, M. E. Rognes, G. N. Wells, Unified Form
    Language: A domain-specific language for weak formulations of partial
-   differential equations, ACM Transactions on Mathematical Software 40 (2014).
+   differential equations, ACM Transactions on Mathematical Software 40 (2)
+   (2014), Article 9, 1–37.
    https://doi.org/10.1145/2566630.
 3. C. Geuzaine, J.-F. Remacle, Gmsh: A 3-D finite element mesh generator with
    built-in pre- and post-processing facilities, International Journal for
