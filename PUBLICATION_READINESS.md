@@ -17,7 +17,7 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 - ABAQUS 2022 is installed locally on Windows.
 - WSL2 with Ubuntu and Conda is available locally.
 - A clean `homicsx_dev` Conda environment can be created from `environment-dev.yml` under WSL2.
-- Current release-gate result on 2026-09-16: 103 tests pass under Python 3.10 and DOLFINx 0.9.0; the strict Sphinx build passes; all committed Abaqus-reference acceptance checks pass; and the 1.0.0 source distribution and wheel build successfully. The suite includes analytical 2D/3D linear patch tests, finite-strain and viscoelastic solver tests, scriptable example workflows, nonlinear constitutive consistency, 2D/3D periodic-constraint checks, hook semantics, public API checks, and compact Abaqus macroscopic-reference checks.
+- Current release-gate result on 2026-09-17: 111 tests pass under Python 3.10 and DOLFINx 0.9.0; the strict Sphinx build passes; the two-rank linear MPI smoke test passes; all committed Abaqus-reference acceptance checks pass; and the 1.0.0 source distribution and wheel build successfully. Two-rank nonlinear Neo-Hookean and generalized-Maxwell trials terminate with a PETSc fault and are explicitly unsupported. The suite includes analytical 2D/3D linear patch tests, finite-strain and viscoelastic solver tests, scriptable example workflows, nonlinear constitutive consistency, 2D/3D periodic-constraint checks, hook semantics, public API checks, and compact Abaqus macroscopic-reference checks.
 - Homogeneous plane-strain verification now includes a deterministic two-level convergence gate on one fixed seeded geometry. Relative stiffness error falls from 2.543% at minimum/maximum mesh sizes 0.08/0.16 to 0.211% at 0.025/0.05, a 12.0-fold reduction. CI requires coarse error below 5%, fine error below 0.5%, and at least a factor-two reduction; no claim of monotonic intermediate convergence is made for independently regenerated unstructured meshes.
 - The repository now contains a compact nine-case HomiCSx--Abaqus macroscopic energy, stress, and deformation reference suite with machine-readable provenance and executable acceptance checks. Research-specific localization statistics remain in the associated study, which also retains the full calculations, scripts, meshes, solver inputs, ODB files, and extracted element data.
 
@@ -38,7 +38,8 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 
 These features require additional evidence before they are included in the publication-supported core:
 
-- Quad and hex meshing across the advertised geometry range.
+- General 3D hexahedral meshing. Tested 2D all-quadrilateral meshing is in the
+  supported core.
 - Overlapping-void and open-cell-foam workflows.
 - Stochastic sweep and ensemble convenience functions.
 - Visualization helpers.
@@ -60,7 +61,9 @@ The stochastic and visualization modules are explicitly experimental and exclude
    still needs a Git tag, GitHub release, Zenodo DOI synchronization, and a
    final comparison with the official SoftwareX template offered at submission.
 
-The publication-preparation branch now defines the supported scope and provides a GitHub Actions workflow for pull requests, pushes to `main`, and manual runs. The first hosted run passed all 49 tests on 2026-09-15; these changes remain subject to review and merge.
+The publication-preparation work is merged into `main`. GitHub Actions covers
+pull requests, pushes to `main`, and manual runs; local release gates provide
+the full solver, documentation, validation, package, and MPI checks.
 
 ### P1 High-priority quality risks
 
@@ -77,13 +80,16 @@ The publication-preparation branch now defines the supported scope and provides 
 
 ### P2 Documentation and presentation improvements
 
-1. Rewrite the README around a precise statement of need, supported scope, minimal example, installation path, documentation, validation status, citation, and support expectations.
+1. **README completed.** It now states the need, supported scope, minimal
+   example, installation path, validation status, citation, and support limits.
 2. Add conceptual documentation for conventions, periodicity, stress and strain measures, averaging, load cases, hooks, and result interpretation.
 3. Maintain the limitations page so unsupported behavior remains distinct from planned or experimental behavior.
 4. Add reproducible tutorials for linear homogenization, nonlinear homogenization, custom materials, and hooks.
 5. Add a verification and validation section containing benchmark definitions, software versions, tolerances, reference values, and regeneration instructions.
 6. Correct spelling, terminology, and inconsistent capitalization throughout the README and documentation.
-7. Replace screenshots or decorative result plots with figures that communicate architecture, conventions, or verified behavior.
+7. **Publication figures completed.** Reproducible figures communicate the
+   architecture, periodic meshes, conventional validation histories, and
+   ParaView fields.
 
 ## Test and verification programme
 
@@ -212,8 +218,9 @@ Do not tag 1.0.0 until the clean environment, core test suite, validation suite,
 
 ## Immediate next actions
 
-1. Resolve the author metadata requested in `paper/submission_checklist.md`.
-2. Review and revise the SoftwareX manuscript draft against the author's intended scientific emphasis.
-3. Replace notebook-only essential examples with deterministic scriptable counterparts where needed.
-4. Freeze the release API, prepare release notes, and run the clean release matrix.
-5. Tag and archive the publication release, then synchronize its DOI and version across the repository and manuscript.
+1. Obtain the author's approval of the exact release candidate and manuscript.
+2. Create the annotated `v1.0.0` tag and GitHub release.
+3. Archive that immutable release in Zenodo.
+4. Synchronize the version DOI and concept DOI across citation metadata,
+   README, manuscript, and release notes.
+5. Rebuild the final manuscript and complete the live submission-system checks.

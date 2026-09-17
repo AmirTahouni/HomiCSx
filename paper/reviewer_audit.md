@@ -54,10 +54,9 @@ generality claims.
 
 ## Remaining blockers
 
-1. Select and approve the public release version.
-2. Run the clean-environment test, documentation, and validation gates.
-3. Create the GitHub release and Zenodo archive.
-4. Replace every release and DOI placeholder consistently.
-5. Transfer the text to the current official SoftwareX template.
-6. Render and inspect the exact submission PDF.
-7. Confirm the competing-interest declaration and final submission files.
+1. Obtain author approval of the exact release candidate and manuscript.
+2. Create the annotated `v1.0.0` tag, GitHub release, and Zenodo archive.
+3. Replace every release and DOI placeholder consistently.
+4. Render and inspect the exact DOI-complete submission PDF.
+5. Complete the live submission-system identity, residence, sanctions, and
+   payment declarations accurately.

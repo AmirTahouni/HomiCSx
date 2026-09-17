@@ -1,6 +1,6 @@
 # Public API and compatibility policy
 
-HomiCSx 0.1.x is pre-1.0 research software. The supported public API is the
+HomiCSx 1.0 defines a publication-supported research-software API. The supported public API is the
 set of names exported from the top-level `homicsx` package, except for the
 explicitly experimental stochastic names listed below. Public submodule paths
 may be used for discovery, but compatibility guarantees apply to top-level

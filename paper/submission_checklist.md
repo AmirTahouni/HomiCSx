@@ -29,13 +29,17 @@
 
 ## Manuscript and submission files
 
-- [ ] Download the current official SoftwareX Original Software Publication
-  template and confirm it against the selected LaTeX source.
+- [x] Compare against the official SoftwareX Original Software Publication
+  template, Version 6 (March 2026), and retain its required section and metadata
+  structure in the selected LaTeX source.
 - [x] Select LaTeX and produce a compiling `elsarticle` manuscript draft.
 - [ ] Transfer `manuscript.md` without altering the template formatting.
-- [ ] Keep main text, abstract, captions, and footnotes within 3000 words.
-- [ ] Use no more than six figures.
-- [ ] Complete the required software metadata table.
+- [x] Keep the main text within the template's 4000-word limit. The current
+  main body is approximately 1750 words; the abstract is separate.
+- [x] Use no more than six figures. The current manuscript has four.
+- [x] Complete the required C1--C8 software metadata table. C2 uses the
+  mandatory GitHub repository; the Zenodo DOI remains a release-dependent
+  software citation.
 - [x] Prepare a workflow/component figure from a reproducible source.
 - [x] Prepare one reproducible ParaView field figure illustrating stress and
   strain-energy output without using localization/Q statistics.

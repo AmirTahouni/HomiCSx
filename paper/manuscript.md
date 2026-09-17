@@ -7,32 +7,34 @@
 
 ## Abstract
 
-HomiCSx is an open-source Python framework for first-order finite-element
-computational homogenization of heterogeneous materials. It treats geometry
-generation, periodic-conforming meshing, material assignment, finite-element
-formulation, linear or finite-strain homogenization, workflow customization,
-and essential result extraction as one reproducible pipeline. The supported
-core includes two- and three-dimensional particulate cells, triangular,
-tetrahedral, and tested two-dimensional all-quadrilateral Gmsh meshes,
+HomiCSx is an open-source FEniCSx framework that connects particulate geometry,
+periodic-conforming Gmsh meshing, material assignment, linear and finite-strain
+periodic homogenization, hooks, and essential outputs in one reproducible
+pipeline. Its supported core includes two- and three-dimensional cells,
 multiphase linear elasticity, user-defined hyperelastic energies with a
-built-in compressible Neo-Hookean model, and finite-strain generalized-Maxwell
-viscoelasticity. Periodic
-fluctuation constraints are imposed through DOLFINx multipoint constraints;
-user-defined load cases, nonlinear materials, and hooks allow research-specific
-extensions without rewriting the driver. Verification combines analytical
-homogeneous patch tests, constitutive energy-gradient checks, mesh-refinement
-gates, and deterministic regression tests. Independent Abaqus comparisons use
-conventional macroscopic quantities and cover linear heterogeneous cells,
-finite-strain hyperelastic shear, and homogeneous and heterogeneous
-viscoelastic relaxation. Maximum discrepancies in the canonical linear suite
-are below 0.55%; heterogeneous viscoelastic stress-history discrepancies are
-below 1.36% by the peak-normalized maximum measure for the tested cells.
-HomiCSx is intended to make customized computational-homogenization studies
-easier to construct, inspect, reproduce, and extend while stating a deliberately
-bounded support and maintenance scope.
+built-in Neo-Hookean model, and generalized-Maxwell viscoelasticity.
+Verification combines analytical tests, constitutive checks, mesh refinement,
+regression gates, and independent Abaqus comparisons using conventional
+macroscopic quantities. Canonical linear discrepancies remain below 0.55%, and
+tested heterogeneous viscoelastic histories remain within 1.36%. HomiCSx
+targets inspectable, customizable computational-homogenization studies with an
+explicitly bounded support and maintenance scope.
 
 **Keywords:** computational homogenization; finite element method; FEniCSx;
 representative volume element; composite materials; viscoelasticity
+
+## Software metadata
+
+| Nr | Code metadata description | Metadata |
+|---|---|---|
+| C1 | Current code version | v1.0.0 |
+| C2 | Permanent link to code/repository used for this code version | https://github.com/AmirTahouni/HomiCSx |
+| C3 | Legal code license | MIT |
+| C4 | Code versioning system used | Git |
+| C5 | Software code languages, tools and services used | Python, UFL, Gmsh API, MPI |
+| C6 | Compilation requirements, operating environments and dependencies | Conda; Python 3.10; DOLFINx 0.9.0; dolfinx_mpc 0.9.0; Linux or WSL2 |
+| C7 | Link to developer documentation/manual | https://homicsx.readthedocs.io/en/latest/ |
+| C8 | Support email for questions | tahouniamirreza@gmail.com |
 
 ## 1. Motivation and significance
 
@@ -250,7 +252,17 @@ Heterogeneous hyperelastic and generalized-Maxwell trials terminate with a
 PETSc fault during the nonlinear MPC solve, including with distributed
 GMRES/block Jacobi. Nonlinear MPI is therefore unsupported; use one rank.
 
-## 7. Availability and reproducibility
+## 7. Conclusions
+
+HomiCSx provides a tested, inspectable path from periodic particulate geometry
+to homogenized linear, hyperelastic, and generalized-Maxwell response. Its
+principal value is integration with explicit research extension points rather
+than a new homogenization theory. The release combines a bounded supported
+core, conventional analytical and Abaqus evidence, reproducible environments,
+and candid limitations. This makes the software suitable for customized RVE
+studies while keeping its archival maintenance commitment realistic.
+
+## 8. Availability and reproducibility
 
 - Source code: https://github.com/AmirTahouni/HomiCSx
 - Documentation: https://homicsx.readthedocs.io/en/latest/
@@ -286,20 +298,6 @@ The software, validation manifests, scripts, and compact numerical results are
 available in the public repository and will be preserved in the archived
 release identified above. Large proprietary Abaqus working databases are not
 required to evaluate the committed comparison results and are not distributed.
-
-## Software metadata
-
-| Field | Value |
-|---|---|
-| Current code version | 1.0.0 |
-| Permanent link to code/repository | [ZENODO DOI REQUIRED] |
-| Code repository | https://github.com/AmirTahouni/HomiCSx |
-| Legal software license | MIT |
-| Code versioning system | Git |
-| Software code languages/tools | Python, UFL, Gmsh API |
-| Compilation requirements | Conda environment; Python 3.10; DOLFINx 0.9.0; dolfinx_mpc 0.9.0 |
-| Operating environment | Linux; WSL2 tested |
-| Support email | tahouniamirreza@gmail.com |
 
 ## Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
 
