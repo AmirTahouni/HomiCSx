@@ -1,6 +1,6 @@
 # HomiCSx
 
-[![DOI](https://zenodo.org/badge/1229314152.svg)](https://doi.org/10.5281/zenodo.22811693)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22811693.svg)](https://doi.org/10.5281/zenodo.22811693)
 
 HomiCSx is an open-source Python framework for first-order finite-element
 computational homogenization on FEniCSx. It connects particulate geometry,
