@@ -5,6 +5,13 @@ shear. Both phases use the built-in compressible `NeoHookeanIsotropic` law, so
 the example exercises the publication-supported material path rather than a
 notebook-only substitute.
 
+The nonlinear assembly is not limited to this formula. Subclass
+`HyperelasticMaterial` to provide a UFL `psi_form(F)` and matching numerical
+energy and first-Piola stress methods for macroscopic post-processing. HomiCSx
+automatically differentiates the UFL energy in the equilibrium residual. The
+built-in law is the externally validated reference implementation; users must
+verify their own constitutive functions.
+
 The built-in strain-energy density is
 
 $$
@@ -24,6 +31,9 @@ python examples/hyperelastic_periodic_2d.py
 
 The test suite executes the same `run_example()` function and checks the step
 count and finite positive macroscopic shear stress and energy.
+
+Run this example on one MPI rank. Nonlinear multipoint-constraint solves are
+not currently supported in distributed execution; see {doc}`../limitations`.
 
 ```{literalinclude} ../../../examples/hyperelastic_periodic_2d.py
 :language: python

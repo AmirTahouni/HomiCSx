@@ -18,7 +18,7 @@ API and supported solver behavior.
    * - :doc:`demos/homogenization_linear_3D`
      - Linear periodic homogenization in 3D
    * - :doc:`demos/nonlinear_hyperelastic`
-     - Built-in Neo-Hookean finite-strain homogenization
+     - Energy-based hyperelastic interface and built-in Neo-Hookean example
    * - :doc:`demos/nonlinear_viscoelastic`
      - Heterogeneous generalized-Maxwell relaxation and typed hooks
 

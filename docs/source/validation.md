@@ -78,6 +78,15 @@ This is a smoke test for distributed execution, not a strong-scaling benchmark.
 The explicit `PYTHONPATH` ensures a source-checkout validation uses the checkout
 rather than an older installed HomiCSx build.
 
+Two-rank trials were also performed for the deterministic heterogeneous
+Neo-Hookean and generalized-Maxwell examples. Both terminate with a PETSc
+segmentation fault during the nonlinear multipoint-constraint solve. Replacing
+the default direct solver with distributed GMRES and block Jacobi did not make
+the hyperelastic case operational. These negative tests establish the current
+boundary: linear MPI is supported, while nonlinear MPI is not. They are not
+included as automated tests because the failure aborts the MPI process rather
+than producing a catchable Python exception.
+
 ## Generalized-Maxwell comparison
 
 A deterministic 100-increment simple-shear relaxation suite verifies the

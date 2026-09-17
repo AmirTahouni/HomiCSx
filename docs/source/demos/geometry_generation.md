@@ -1,61 +1,79 @@
----
-jupyter:
-  jupytext:
-    formats: ipynb,md
-    text_representation:
-      extension: .md
-      format_name: markdown
-      format_version: '1.3'
-      jupytext_version: 1.19.1
-  kernelspec:
-    display_name: testEnv
-    language: python
-    name: python3
----
+# Geometry generation
 
-# Geometry generation demo
+HomiCSx represents a particulate unit cell with `RVEGeometry`. A geometry may
+come from the seeded periodic random sequential adsorption (RSA) generator or
+be constructed explicitly from `Inclusion` objects. The resulting object is
+independent of Gmsh and can be inspected before meshing.
 
-The generation is performed vis:
-1-  Making a `GeometryInput` data object
-2-  Feeding the data to the respective function to generate the corresponding inclusion/void centers and radii, respecting the periodicity of the geometry. The geometry is later fed to `gmsh` for meshing.
+## Random periodic geometries
 
-In this demo, the code for generation of many different geometry types is presented.
+`GeometryInput` selects dimension, dispersity, shape, target volume fraction,
+clearance, domain size, and random seed. The supported random shapes are:
+
+| Dimension | Round | Nonspherical |
+|---|---|---|
+| 2D | circle | axis-aligned ellipse |
+| 3D | sphere | axis-aligned ellipsoid |
+
+Monodisperse generation uses a fixed particle count and derives a common size
+from the target volume fraction:
 
 ```python
-from homicsx import GeometryInput
-from homicsx.geometry import particulate_geometry_generator
-from homicsx.visualization import visualize_geometry
-```
+from homicsx import GeometryInput, particulate_geometry_generator
 
-Generate 3D mono-disperse unit-cell geometry with spherical inclusions
-
-```python
-geometry_input = GeometryInput(
-    dim=3,
+settings = GeometryInput(
+    dim=2,
     dispersion="mono",
-    volume_fraction=0.1,
-    num_particles=3,
-    clearance=0.015,
-    domain_size=(1, 1, 1),
-    shape="sphere",
+    shape="circle",
+    volume_fraction=0.20,
+    num_particles=20,
+    clearance=0.01,
+    domain_size=(1.0, 1.0),
+    seed=42,
 )
-
-geometry = particulate_geometry_generator(geometry_input)
-
-visualize_geometry(geometry)
+geometry = particulate_geometry_generator(settings)
 ```
 
-## Prescribed rotated inclusions
+For polydisperse circles or spheres, provide `min_radius` and `max_radius`. For
+polydisperse ellipses or ellipsoids, provide `axis_ratios`, `min_scale`, and
+`max_scale` as well as the radius bounds required by the current validated
+input schema:
 
-Explicitly constructed ellipses and ellipsoids can be rotated. Two-dimensional
-orientations are counter-clockwise angles in radians; three-dimensional
-orientations are rotations about the global X, Y, and Z axes, in that order.
+```python
+settings = GeometryInput(
+    dim=3,
+    dispersion="poly",
+    shape="ellipsoid",
+    volume_fraction=0.12,
+    volume_fraction_tolerance=0.01,
+    clearance=0.01,
+    domain_size=(1.0, 1.0, 1.0),
+    axis_ratios=(1.0, 1.5, 2.0),
+    min_radius=0.03,
+    max_radius=0.10,
+    min_scale=0.03,
+    max_scale=0.10,
+    seed=7,
+)
+geometry = particulate_geometry_generator(settings)
+```
+
+The generator stores each original particle and any translated periodic images
+required when it crosses a cell boundary. A fixed seed makes placement
+reproducible for a fixed HomiCSx and NumPy version.
+
+## Prescribed and rotated inclusions
+
+Explicit construction is appropriate for benchmark cells, imported particle
+descriptions, or orientations not supplied by the random generator. A 2D
+orientation is one counter-clockwise angle in radians. A 3D orientation is a
+tuple of rotations about the global X, Y, and Z axes, applied in that order.
 
 ```python
 import numpy as np
 from homicsx import Inclusion, RVEGeometry
 
-geometry = RVEGeometry(
+geometry_2d = RVEGeometry(
     dim=2,
     domain_size=(1.0, 1.0),
     inclusions=[
@@ -68,178 +86,43 @@ geometry = RVEGeometry(
         )
     ],
 )
-```
 
-The random RSA generators currently keep ellipses and ellipsoids axis-aligned.
-Random independent orientations are deliberately deferred until an exact,
-validated orientation-aware collision and clearance algorithm is available.
-
-Generate 3D mono-disperse unit-cell geometry with axis-aligned ellipsoidal inclusions
-
-```python
-geometry_input = GeometryInput(
+geometry_3d = RVEGeometry(
     dim=3,
-    dispersion="mono",
-    volume_fraction=0.1,
-    num_particles=5,
-    clearance=0.015,
-    domain_size=(1, 1, 1),
-    shape="ellipsoid",
-    axis_ratios=(1, 2, 3)
+    domain_size=(1.0, 1.0, 1.0),
+    inclusions=[
+        Inclusion(
+            center=(0.5, 0.5, 0.5),
+            phase_id=1,
+            shape="ellipsoid",
+            radii=(0.22, 0.12, 0.08),
+            orientation=(0.2, -0.1, 0.4),
+        )
+    ],
 )
-
-geometry = particulate_geometry_generator(geometry_input)
-
-visualize_geometry(geometry)
 ```
 
-Generate 3D poly-disperse unit-cell geometry with spherical inclusions
+When a prescribed inclusion crosses a periodic boundary, the caller must also
+provide its translated image inclusions and set `periodic_source_id`. The
+random generator creates these images automatically.
 
-```python
-geometry_input = GeometryInput(
-    dim=3,
-    dispersion="poly",
-    volume_fraction=0.1,
-    volume_fraction_tolerance=0.01,
-    clearance=0.015,
-    domain_size=(1, 1, 1),
-    shape="sphere",
-    min_radius=0.05,
-    max_radius=0.2,
-    min_scale=0.1,
-    max_scale=0.2
-)
+## Interphases and multiple phases
 
-geometry = particulate_geometry_generator(geometry_input)
+`interphase_thickness_ratio` adds a concentric inner/outer construction, and
+`interphase_phase_id` assigns its material phase. Separate inclusions may use
+different `phase_id` values; `RVEGeometry.phase_ids` should list all phases,
+with the matrix phase first.
 
-visualize_geometry(geometry)
-```
+## Current limitations
 
-Generate 3D poly-disperse unit-cell geometry with axis-aligned ellipsoidal inclusions
+- Independently oriented random ellipses and ellipsoids are not generated. The
+  existing RSA clearance approximation is axis-aligned and must not be reused
+  for arbitrary rotations.
+- The outer RVE is an axis-aligned rectangle or cuboid beginning at the origin.
+- Open-cell and overlapping-particle generation uses an approximate volume
+  fraction correction and is outside the publication-supported core.
+- The optional visualization helpers are experimental; geometry generation
+  itself is part of the supported core.
 
-```python
-geometry_input = GeometryInput(
-    dim=3,
-    dispersion="poly",
-    volume_fraction=0.1,
-    volume_fraction_tolerance=0.01,
-    clearance=0.015,
-    domain_size=(1, 1, 1),
-    shape="ellipsoid",
-    axis_ratios=(1, 2, 1),
-    min_radius=0.05,
-    max_radius=0.2,
-    min_scale=0.1,
-    max_scale=0.3
-)
-
-geometry = particulate_geometry_generator(geometry_input)
-
-visualize_geometry(geometry)
-```
-
-Generate 2D mono-disperse unit-cell geometry with circular inclusions
-
-```python
-geometry_input = GeometryInput(
-    dim=2,
-    dispersion="mono",
-    volume_fraction=0.2,
-    num_particles=5,
-    clearance=0.015,
-    domain_size=(1, 1),
-    shape="circle",
-)
-
-geometry = particulate_geometry_generator(geometry_input)
-
-visualize_geometry(geometry)
-```
-
-Generate 2D mono-disperse unit-cell geometry with axis-aligned elliptical inclusions
-
-```python
-geometry_input = GeometryInput(
-    dim=2,
-    dispersion="mono",
-    volume_fraction=0.2,
-    num_particles=5,
-    clearance=0.02,
-    domain_size=(1, 1),
-    shape="ellipse",
-    axis_ratios=(2, 1), # GMSH occ limitation: major radius rx must be larger than minor radius ry.
-)
-
-geometry = particulate_geometry_generator(geometry_input)
-
-visualize_geometry(geometry)
-```
-
-Generate 2D poly-disperse unit-cell geometry with circular inclusions
-
-```python
-geometry_input = GeometryInput(
-    dim=2,
-    dispersion="poly",
-    volume_fraction=0.2,
-    volume_fraction_tolerance=0.01,
-    clearance=0.015,
-    domain_size=(1, 1),
-    shape="circle",
-    min_radius=0.05,
-    max_radius=0.15,
-    min_scale=0.1,
-    max_scale=0.2
-)
-
-geometry = particulate_geometry_generator(geometry_input)
-
-visualize_geometry(geometry)
-```
-
-Generate 2D poly-disperse unit-cell geometry with axis-aligned elliptical inclusions
-
-```python
-geometry_input = GeometryInput(
-    dim=2,
-    dispersion="poly",
-    volume_fraction=0.2,
-    volume_fraction_tolerance=0.01,
-    clearance=0.015,
-    domain_size=(1, 1),
-    shape="ellipse",
-    axis_ratios=(2, 1),
-    min_radius=0.02,
-    max_radius=0.1,
-    min_scale=0.1,
-    max_scale=0.5
-)
-
-geometry = particulate_geometry_generator(geometry_input)
-
-visualize_geometry(geometry)
-```
-
-Open-cell foam geometry generation
-
-```python
-geometry_input = GeometryInput(
-    dim=2,
-    dispersion="poly",
-    volume_fraction=0.85,
-    volume_fraction_tolerance=0.01,
-    clearance=0.005,
-    domain_size=(1, 1),
-    shape="ellipse",
-    axis_ratios=(1.4, 1),
-    min_radius=0.02,
-    max_radius=0.1,
-    min_scale=0.02,
-    max_scale=0.04,
-    allow_overlap=True,
-)
-
-geometry = particulate_geometry_generator(geometry_input)
-
-visualize_geometry(geometry)
-```
+See {doc}`../limitations` for the complete support boundary and
+{doc}`homogenization_linear_2D` for an end-to-end generated-cell example.

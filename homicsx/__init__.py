@@ -9,6 +9,7 @@ from .core import (
 
     LinearElasticIsotropic,
     NonlinearMaterialModel,
+    HyperelasticMaterial,
     NeoHookeanIsotropic,
     ViscoelasticGeneralizedMaxwell,
     MaterialAssignment, 
@@ -62,6 +63,7 @@ __all__ = [
     "MeshSettings",
     "LinearElasticIsotropic",
     "NonlinearMaterialModel",
+    "HyperelasticMaterial",
     "NeoHookeanIsotropic",
     "ViscoelasticGeneralizedMaxwell",
     "MaterialAssignment", 

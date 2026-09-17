@@ -17,9 +17,13 @@ generation, periodic-conforming Gmsh meshing, DOLFINx finite-element models,
 linear and finite-strain homogenization, and field and macroscopic output in a
 single customizable workflow. Its publication-supported core covers two- and
 three-dimensional particulate composites, linear elasticity, compressible
-Neo-Hookean response, and generalized-Maxwell viscoelasticity. Typed hooks,
-custom load histories, and material interfaces allow researchers to extend the
-workflow without replacing its principal drivers.
+Neo-Hookean response as a tested built-in hyperelastic model, user-defined
+hyperelasticity through UFL strain-energy functions and the public material
+interface, and generalized-Maxwell viscoelasticity. Typed hooks and custom load
+histories allow researchers to extend the workflow without replacing its
+principal drivers. External hyperelastic comparison currently exercises the
+built-in Neo-Hookean model; custom energies share the same nonlinear assembly
+path but are the user's constitutive responsibility.
 
 The manuscript is supported by automated analytical and regression tests and
 by an independent Abaqus comparison suite based on conventional macroscopic

@@ -30,8 +30,9 @@ formulation, linear or finite-strain homogenization, workflow customization,
 and essential result extraction as one reproducible pipeline. The supported
 core includes two- and three-dimensional particulate cells, triangular,
 tetrahedral, and tested two-dimensional all-quadrilateral Gmsh meshes,
-multiphase linear elasticity, compressible
-Neo-Hookean materials, and a finite-strain generalized-Maxwell model. Periodic
+multiphase linear elasticity, user-defined hyperelastic energies with a
+built-in compressible Neo-Hookean model, and finite-strain generalized-Maxwell
+viscoelasticity. Periodic
 fluctuation constraints are imposed through DOLFINx multipoint constraints;
 user-defined load cases, nonlinear materials, and hooks allow research-specific
 extensions without rewriting the driver. Verification combines analytical
@@ -123,8 +124,10 @@ driver solves incremental equilibrium with adaptive stepping and records
 volume-averaged first Piola--Kirchhoff stress, energy, deformation Jacobian,
 and optional tangent information.
 
-Built-in nonlinear behavior includes compressible Neo-Hookean elasticity and a
-generalized-Maxwell solid. Each Maxwell branch stores a cellwise viscous metric
+Hyperelastic material objects provide a UFL strain-energy density and matching
+numerical post-processing methods. Compressible Neo-Hookean elasticity is the
+built-in, externally compared implementation; custom laws remain the user's
+validation responsibility. The generalized-Maxwell solid stores a cellwise viscous metric
 and advances it with an exponential recurrence based on the current right
 Cauchy--Green tensor and branch relaxation time. The resulting algorithmic
 nonequilibrium stress participates directly in the weak residual, and its
@@ -263,10 +266,10 @@ correctness fixes as resources permit, versioned releases, and preservation
 are prioritized. The permissive license allows community forks and continued
 development if active maintenance changes.
 
-Distributed execution is smoke-tested with two MPI ranks for the linear
-periodic workflow. This establishes functional distributed execution, not
-parallel scalability; nonlinear and history-dependent MPI runs are not yet an
-advertised validation claim.
+Two-rank MPI smoke tests support the linear periodic workflow, not scalability.
+Heterogeneous hyperelastic and generalized-Maxwell trials terminate with a
+PETSc fault during the nonlinear MPC solve, including with distributed
+GMRES/block Jacobi. Nonlinear MPI is therefore unsupported; use one rank.
 
 \section{Availability and reproducibility}
 

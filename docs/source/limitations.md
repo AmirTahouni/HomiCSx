@@ -4,7 +4,8 @@
 
 HomiCSx 1.0.0 supports the documented end-to-end workflow for periodic
 particulate geometry generation, Gmsh meshing and tagging, multiphase
-linear-elastic homogenization, finite-strain Neo-Hookean homogenization,
+linear-elastic homogenization, finite-strain hyperelastic homogenization
+through a public energy-based material interface and built-in Neo-Hookean law,
 finite-strain generalized-Maxwell homogenization, custom nonlinear materials,
 hook-based workflow customization, and essential result extraction.
 
@@ -45,8 +46,14 @@ work but are not currently part of the verification matrix.
   deformation-gradient/state update implementation.
 - Advanced post-processing beyond essential result and XDMF extraction is not
   part of the supported core.
-- MPI verification currently covers the two-rank linear periodic workflow.
-  Nonlinear and history-dependent distributed runs are not yet a release claim.
+- MPI verification covers the two-rank linear periodic workflow. Two-rank
+  heterogeneous Neo-Hookean and generalized-Maxwell trials currently terminate
+  with a PETSc segmentation fault during the nonlinear MPC solve, including
+  with distributed Krylov/block-Jacobi options. Nonlinear MPI execution is not
+  supported in this release; use one rank for nonlinear workflows.
+- External hyperelastic validation exercises the built-in Neo-Hookean law.
+  User-defined energies use the same assembly interface, but their constitutive
+  correctness remains the user's responsibility.
 
 Private defensive branches in geometry helpers may raise `NotImplementedError`
 for shapes that cannot pass the validated public inputs. These are not

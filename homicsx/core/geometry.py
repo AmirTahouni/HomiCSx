@@ -283,6 +283,11 @@ class GeometryInput:
     The underlying algorithm uses Random Sequential Adsorption (RSA) with 
     periodic boundary conditions.
 
+    Ellipse and ellipsoid generation is axis-aligned. Use explicitly
+    constructed :class:`Inclusion` objects for prescribed rotations; arbitrary
+    random orientations are not generated because the RSA clearance check is
+    not orientation-aware.
+
     Raises
     ------
     ValueError
@@ -307,13 +312,6 @@ class GeometryInput:
     ...     clearance=0.02, domain_size=1.0,
     ... )
     
-    >>> # 2D open-cell foam (overlapping circles)
-    >>> geo_input = GeometryInput(
-    ...     dim=2, dispersion="poly", shape="circle",
-    ...     volume_fraction=0.4, volume_fraction_tolerance=0.02,
-    ...     min_radius=0.03, max_radius=0.10,
-    ...     clearance=0.0, allow_overlap=True,
-    ... )
     """
     dim: int
     dispersion: str
@@ -323,7 +321,7 @@ class GeometryInput:
     domain_size: float | tuple[float, float, float] | list[float] | np.ndarray = 1
     volume_fraction_tolerance: float | None = None
     num_particles: int | None = None
-    axis_ratios: tuple[int] | None = None
+    axis_ratios: tuple[float, ...] | None = None
     min_radius: float | None = None
     max_radius: float | None = None
     min_scale: float | None = None

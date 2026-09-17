@@ -2,6 +2,6 @@ Highlights
 
 • End-to-end FEM homogenization spans geometry, meshing, solves, and outputs.
 • Periodic-conforming 2D and 3D meshes support split inclusions.
-• Linear, hyperelastic, and viscoelastic composite responses are supported.
+• Built-in and user-defined hyperelastic energies enable finite-strain studies.
 • Typed hooks enable custom loads, materials, and field processing.
 • Viscoelastic Abaqus comparisons differ by at most 1.36% in canonical tests.

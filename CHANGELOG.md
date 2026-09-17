@@ -13,7 +13,8 @@ paper.
 - Periodic particulate geometry generation in two and three dimensions.
 - Periodic-conforming Gmsh meshes with phase and boundary tagging.
 - Linear periodic homogenization for multiphase isotropic elasticity.
-- Finite-strain Neo-Hookean and generalized-Maxwell homogenization.
+- Finite-strain homogenization with a built-in Neo-Hookean law, a public
+  user-defined hyperelastic-energy interface, and generalized-Maxwell response.
 - Custom material interfaces, load callables, and typed nonlinear hooks.
 - Deterministic linear and heterogeneous viscoelastic example scripts.
 - Analytical, regression, mesh-refinement, and Abaqus comparison suites.

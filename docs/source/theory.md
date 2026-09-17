@@ -106,17 +106,33 @@ Analogous to the linear case, it decomposes as:
 
 $$\mathbf{F}(\mathbf{X}) = \bar{\mathbf{F}} + \tilde{\mathbf{F}}(\mathbf{X}), \quad \langle \tilde{\mathbf{F}} \rangle = \mathbf{0}$$
 
-### Hyperelasticity: Neo-Hookean Model
+### Hyperelasticity and the built-in Neo-Hookean model
 
-HomiCSx provides a built-in compressible Neo-Hookean model. The strain energy density is $\Psi(\mathbf{F})$. The first Piola-Kirchhoff stress is also:
+For a user-defined hyperelastic material, `psi_form(F)` supplies the UFL
+strain-energy density. HomiCSx obtains the first Piola--Kirchhoff stress and
+Newton Jacobian by automatic differentiation in the nonlinear weak form.
+Matching numerical energy and stress methods support macroscopic result
+extraction.
 
-$$\mathbf{P} = \frac{\partial \Psi}{\partial \mathbf{F}} = \mu(\mathbf{F} - \mathbf{F}^{-T}) + \lambda (\ln J) \mathbf{F}^{-T}$$
+The built-in compressible Neo-Hookean implementation uses
+
+$$
+\Psi(\mathbf F)=\frac{\mu}{2}\left(I_1-d-2\ln J\right)
++\frac{\lambda}{2}(J-1)^2,
+$$
+
+and therefore
+
+$$\mathbf{P} = \frac{\partial \Psi}{\partial \mathbf{F}} = \mu(\mathbf{F} - \mathbf{F}^{-T}) + \lambda J(J-1) \mathbf{F}^{-T}.$$
 
 The nominal tangent modulus for Newton-Raphson iterations is:
 
 $$\mathbb{A} = \frac{\partial \mathbf{P}}{\partial \mathbf{F}} = \frac{\partial^2 \Psi}{\partial \mathbf{F} \partial \mathbf{F}}$$
 
-A custom nonlinear material model can be provided by subclassing the abstract material class and implementing $\Psi(\mathbf{F})$, $\mathbf{P}(\mathbf{F})$, and $\mathbb{A}(\mathbf{F})$.
+A custom hyperelastic law is provided by subclassing `HyperelasticMaterial`.
+The built-in Neo-Hookean law is the validated reference implementation;
+constitutive verification of a user-defined energy remains the user's
+responsibility.
 
 ### Finite Strain Viscoelasticity
 

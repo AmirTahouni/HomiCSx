@@ -7,10 +7,16 @@ may be used for discovery, but compatibility guarantees apply to top-level
 imports rather than private names beginning with an underscore.
 
 The publication-supported top-level API covers geometry inputs and results,
-mesh settings and generation, linear, Neo-Hookean, and generalized-Maxwell
+mesh settings and generation, linear elasticity, the hyperelastic material
+interface and built-in Neo-Hookean implementation, generalized-Maxwell
 materials, material assignment, problem settings, linear and nonlinear
 homogenization drivers and results, adaptive settings, simulation state, and
 typed hook data objects.
+
+The hyperelastic extension interface accepts a user-defined UFL strain-energy
+density through `psi_form`; numerical energy and first-Piola stress methods are
+also required for macroscopic post-processing. HomiCSx validates its built-in
+Neo-Hookean implementation, not every user-supplied constitutive law.
 
 The following top-level compatibility exports remain experimental:
 
