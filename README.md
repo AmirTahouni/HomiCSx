@@ -90,8 +90,9 @@ python examples/linear_periodic_2d.py
 ```
 
 The [`examples/`](examples/) directory contains deterministic, non-interactive
-linear, hyperelastic, viscoelastic, and MPI workflows. Longer research-oriented
-notebooks are retained under [`demos/`](demos/).
+linear, hyperelastic, viscoelastic, and MPI workflows. They are the single
+maintained entry point for runnable examples; the documentation provides the
+corresponding narrative tutorials.
 
 <p align="center">
   <img src="paper/figures/paraview_fields.png" width="850" alt="HomiCSx finite-element fields rendered in ParaView">

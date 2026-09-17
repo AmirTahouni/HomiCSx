@@ -1,5 +1,5 @@
-Demos
-=====
+Examples and tutorials
+======================
 
 Start with the deterministic examples below. Their ``run_example`` functions
 are executed by the automated test suite, so they stay aligned with the public
@@ -9,7 +9,7 @@ API and supported solver behavior.
    :header-rows: 1
    :widths: 30 70
 
-   * - Demo
+   * - Tutorial
      - Description
    * - :doc:`demos/geometry_generation`
      - Seeded particulate geometry generation
@@ -22,17 +22,19 @@ API and supported solver behavior.
    * - :doc:`demos/nonlinear_viscoelastic`
      - Heterogeneous generalized-Maxwell relaxation and typed hooks
 
-Extended and experimental notebooks
+Extended and experimental tutorials
 -----------------------------------
 
-These notebooks illustrate research-oriented or experimental workflows. They
-are retained as useful examples but are not all automated release gates.
+These pages illustrate research-oriented or experimental workflows. They are
+retained as useful patterns but are not all automated release gates. The
+repository's runnable, supported examples live only in ``examples/``; there is
+no separate root-level demo collection.
 
 .. list-table::
    :header-rows: 1
    :widths: 30 70
 
-   * - Demo
+   * - Tutorial
      - Description
    * - :doc:`demos/damage_with_hook`
      - A custom damage-hook pattern, not a built-in damage constitutive model

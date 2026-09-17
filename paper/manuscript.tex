@@ -172,16 +172,17 @@ external post-processing.
 
 \section{Illustrative examples}
 
-The repository includes executable demonstrations for geometry generation,
-2D and 3D linear homogenization, nonlinear hyperelasticity, generalized-Maxwell
-homogenization, mesh convergence, and hook-based field processing. In addition
-to narrative notebooks, compact deterministic scripts for linear and
-heterogeneous viscoelastic homogenization are executed by the test suite. The
-linear script creates a fixed geometry, generates a periodic-conforming mesh,
-assigns phase materials, and passes these objects to the linear driver. The
-viscoelastic script exercises nonlinear equilibrium, state evolution, and a
-typed macro-stress hook. The same separation of concerns allows a geometry or
-material implementation to be changed without replacing the full pipeline.
+The documentation includes tutorials for geometry generation, 2D and 3D
+linear homogenization, nonlinear hyperelasticity, generalized-Maxwell
+homogenization, mesh convergence, and hook-based field processing. A single
+repository-level examples directory provides compact deterministic linear,
+hyperelastic, heterogeneous viscoelastic, and linear-MPI workflows; the three
+serial scripts are executed by the test suite. The linear script creates a
+fixed geometry, generates a periodic-conforming mesh, assigns phase materials,
+and passes these objects to the linear driver. The viscoelastic script exercises
+nonlinear equilibrium, state evolution, and a typed macro-stress hook. The same
+separation of concerns allows a geometry or material implementation to be
+changed without replacing the full pipeline.
 
 \begin{figure}[htbp]
   \centering
