@@ -2,27 +2,18 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 from functools import partial
-import functools
 
 from petsc4py import PETSc
 
 import dolfinx.fem.petsc
 import ufl
 from dolfinx import fem as _fem
-from dolfinx.fem.petsc import create_vector
 
 import dolfinx_mpc
 from dolfinx_mpc.cpp import mpc as _cpp_mpc
 
 from dolfinx_mpc import (
     MultiPointConstraint,
-    assemble_matrix,
-    assemble_matrix_nest,
-    create_matrix_nest,
-    assemble_vector,
-    assemble_vector_nest,
-    create_vector_nest,
-    apply_lifting,
 )
 
 

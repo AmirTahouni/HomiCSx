@@ -17,10 +17,13 @@ from homicsx import (
     LinearHomogenizationDriver,
     MaterialAssignment,
     MeshSettings,
+    NeoHookeanIsotropic,
+    NonlinearHomogenizationDriver,
     PhysicalTags,
     ProblemSettings,
     generate_mesh,
 )
+from homicsx.core.homogenization import AdaptiveSettings
 from homicsx.core.geometry import Inclusion, RVEGeometry
 
 from .canonical_common import HERE, load_cases, stiffness_to_probe_metrics
@@ -103,24 +106,69 @@ def run_linear_case(case: dict, manifest: dict) -> dict:
     }
 
 
-def nonlinear_exact_result(manifest: dict) -> dict:
-    """Exact HomiCSx response for homogeneous simple shear.
-
-    The periodic fluctuation is identically zero for a homogeneous material,
-    so this analytical evaluation is stricter than a second discretized solve.
-    """
+def run_nonlinear_case(manifest: dict) -> dict:
+    """Run the current nonlinear solver for homogeneous simple shear."""
     case = manifest["nonlinear_case"]
-    young = case["young_modulus"]
-    poisson = case["poisson_ratio"]
-    mu = young / (2.0 * (1.0 + poisson))
+    geometry = make_geometry(manifest["linear_cases"][0], manifest["domain"])
+    tags = PhysicalTags()
+    mesh_settings = manifest["mesh"]
+    domain, cell_tags, facet_tags = generate_mesh(
+        geometry=geometry,
+        mesh_settings=MeshSettings(
+            min_size=mesh_settings["homicsx_min_size"],
+            max_size=mesh_settings["homicsx_max_size"],
+            physical_tags=tags,
+            verbosity=0,
+            periodic_mesh=True,
+        ),
+    )
+    material = NeoHookeanIsotropic(
+        young_modulus=case["young_modulus"],
+        poisson_ratio=case["poisson_ratio"],
+    )
     gamma = case["gamma12"]
+
+    def simple_shear(load):
+        deformation = np.eye(2)
+        deformation[0, 1] = load
+        return deformation
+
+    result = NonlinearHomogenizationDriver(
+        mesh_obj=domain,
+        cell_tags=cell_tags,
+        facet_tags=facet_tags,
+        assignment=MaterialAssignment(materials_by_phase={0: material, 1: material}),
+        settings=ProblemSettings(
+            dim=2,
+            kinematics="finite_strain",
+            two_dimensional_formulation="plane_strain",
+        ),
+        physical_tags=tags,
+        domain_size=geometry.domain_size,
+        matrix_phase_id=0,
+        quad_degree=2,
+    ).run(
+        tangent_every=10_000,
+        max_strain=gamma,
+        custom_loads={"homogeneous_simple_shear": simple_shear},
+        from_built_in_loads=[],
+        adaptive_settings=AdaptiveSettings(
+            initial_step_ratio=1.0,
+            min_step=gamma,
+            max_step_ratio=1.0,
+        ),
+        plot_summary=False,
+        plot_individual=False,
+        save_plots=False,
+    )
+    history = result.histories["homogeneous_simple_shear"]
     return {
         "case_id": case["case_id"],
         "deformation_gradient": [[1.0, gamma], [0.0, 1.0]],
-        "macro_energy": 0.5 * mu * gamma**2,
-        "macro_p12": mu * gamma,
-        "mean_j": 1.0,
-        "evaluation": "exact HomiCSx NeoHookeanIsotropic homogeneous solution",
+        "macro_energy": float(history["Wbar"][-1]),
+        "macro_p12": float(history["Pbar"][-1][0, 1]),
+        "mean_j": float(history["Jbar"][-1]),
+        "evaluation": "current HomiCSx nonlinear periodic solver",
     }
 
 
@@ -131,7 +179,7 @@ def main(output_path: Path = HERE / "canonical_homicsx_results.json") -> int:
         "linear_cases": [
             run_linear_case(case, manifest) for case in manifest["linear_cases"]
         ],
-        "nonlinear_case": nonlinear_exact_result(manifest),
+        "nonlinear_case": run_nonlinear_case(manifest),
     }
     output_path.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
     print("Wrote {}".format(output_path))

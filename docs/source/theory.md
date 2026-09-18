@@ -175,7 +175,9 @@ differentiation. The previous converged metrics remain fixed during Newton
 iterations and the new state is committed only after global convergence.
 Consistent with the current cellwise deformation-gradient evaluator, the
 internal metrics are represented by DG0 tensor coefficients and replicated
-over the material-state quadrature samples of each cell.
+over the material-state quadrature samples of each first-order simplex cell.
+Generalized-Maxwell calculations on quadrilateral and hexahedral cells are
+rejected until true quadrature-point state storage is implemented.
 
 ### Solution Strategy
 
@@ -195,8 +197,14 @@ At each converged step, the macroscopic stress is computed by volume averaging:
 
 $$\bar{\mathbf{P}} = \frac{1}{|\Omega_0|} \int_{\Omega_0} \mathbf{P} \, d\Omega$$
 
-The effective tangent modulus is:
+For history-independent materials, the reported effective tangent modulus is
+computed by central finite differences:
 
 $$\bar{\mathbb{A}} = \frac{\partial \bar{\mathbf{P}}}{\partial \bar{\mathbf{F}}}$$
 
-Recorded output includes: stress and tangent components, strain energy density $\bar{\Psi} = \langle \Psi \rangle$, Jacobian $J$, and apparent secant moduli.
+Recorded macroscopic output includes stress, strain energy density
+$\bar{\Psi} = \langle \Psi \rangle$, Jacobian $J$, and apparent secant moduli.
+Finite-difference tangent components are recorded only for
+history-independent materials. XDMF stress and energy reconstruction has the
+same restriction; viscoelastic state-aware field data can instead be collected
+through hooks.

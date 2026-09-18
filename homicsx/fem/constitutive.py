@@ -4,10 +4,6 @@ import ufl
 
 from .kinematics import (
     small_strain,
-    volumetric_strain,
-    deviatoric_strain,
-    deformation_gradient,
-    _embed_2d_tensor_in_3d,
 )
 
 

@@ -3,7 +3,7 @@
 All notable changes to HomiCSx are documented here. The project follows
 semantic versioning for its publication-supported public API.
 
-## Unreleased
+## 1.0.1 - 2026-09-18
 
 ### Changed
 
@@ -14,6 +14,11 @@ semantic versioning for its publication-supported public API.
   the current checkout before comparison with the archived external reference.
 - Expanded the viscoelastic formulation and related-software discussion in
   the manuscript and documentation.
+- Restricted generalized-Maxwell state updates to first-order simplex meshes
+  and rejected equilibrium-only XDMF stress/energy reconstruction.
+- Repaired the history-independent finite-difference tangent and made
+  history-dependent algorithmic tangents explicitly unsupported.
+- Added packaging CI, focused solver coverage gates, and unused-code checks.
 
 ### Removed
 

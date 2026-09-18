@@ -34,8 +34,24 @@ jobs:
 
       - name: Run test suite
         shell: bash -el {0}
-        run: python -m pytest --cov=homicsx --cov-report=term-missing --cov-fail-under=60
+        run: |
+          python -m pytest --cov=homicsx --cov-report=term-missing --cov-fail-under=60
+          python -m coverage json -o coverage.json
+          python -c "import json; d=json.load(open('coverage.json'))['files']; limits={'homicsx/core/material.py':80,'homicsx/homogenization/driver.py':80,'homicsx/homogenization/nlhelpers.py':45,'homicsx/fem/nonlinear_problem.py':60}; bad={p:(d[p]['summary']['percent_covered'],v) for p,v in limits.items() if d[p]['summary']['percent_covered'] < v}; assert not bad, bad"
+
+      - name: Static analysis
+        shell: bash -el {0}
+        run: python -m ruff check --select F401,F841 homicsx tests examples validation
 
       - name: Build documentation with warnings as errors
         shell: bash -el {0}
         run: python -m sphinx -W --keep-going -b html docs/source docs/_build/html
+
+      - name: Build and validate distribution artifacts
+        shell: bash -el {0}
+        run: |
+          python -m build --outdir package-dist
+          python -m twine check package-dist/*
+          python -m pip install --force-reinstall --no-deps package-dist/*.whl
+          cd /tmp
+          python -c "import homicsx; assert homicsx.__version__"

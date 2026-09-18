@@ -15,7 +15,7 @@ for mod_name in MOCK_MODULES:
 project = 'HomiCSx'
 copyright = '2026, Amir Reza Tahouni'
 author = 'Amir Reza Tahouni'
-release = '1.0.0'
+release = '1.0.1'
 
 # -- General configuration ---------------------------------------------------
 extensions = [

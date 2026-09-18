@@ -11,16 +11,16 @@ authors:
     affiliation: "Independent researcher, Tehran, Iran"
     email: "tahouniamirreza@gmail.com"
 
-version: "1.0.0"
+version: "1.0.1"
 
-date-released: 2026-09-17
+date-released: 2026-09-18
 
-doi: 10.5281/zenodo.22811694
+doi: 10.5281/zenodo.22811693
 
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.22811694
-    description: "HomiCSx v1.0.0 archived release"
+    value: 10.5281/zenodo.22811693
+    description: "HomiCSx release archive (concept DOI)"
 
 license: MIT
 

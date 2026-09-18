@@ -3,30 +3,20 @@ from __future__ import annotations
 from typing import Any, Optional, Dict, Tuple, List, Callable
 
 import logging
-import time
 import numpy as np
 import matplotlib.pyplot as plt
 import ufl
 from mpi4py import MPI
-from dolfinx import fem, io, mesh
-from dolfinx.io import XDMFFile
+from dolfinx import fem, mesh
 import csv
 import petsc4py.PETSc as PETSc
-from ufl import grad, ln, tr, det, variable, derivative, TestFunction, TrialFunction
-from dolfinx_mpc import MultiPointConstraint
 import dolfinx
 import pyvista as pv
 
-from homicsx.fem.nonlinear_problem import NonlinearProblemMPC
 
 from homicsx import(
-    GeometryInput, 
-    RVEGeometry,
     PhysicalTags, 
-    MeshSettings,
     MaterialAssignment,
-    NeoHookeanIsotropic,
-    LinearElasticIsotropic,
 )
 
 from homicsx.core.homogenization import AdaptiveSettings
@@ -38,10 +28,8 @@ import csv
 from mpi4py import MPI
 import ufl
 from dolfinx import fem
-from dolfinx.io import XDMFFile
 from petsc4py import PETSc
 
-from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -632,101 +620,70 @@ def _compute_Ceff_fd_with_state(
     context: Any,
     delta: float = 1e-6
 ) -> np.ndarray:
+    """Compute a finite-difference tangent for history-independent materials.
+
+    Central differences are used when both perturbations converge. If only one
+    side converges, a one-sided difference against the base stress is returned.
+    History-dependent algorithmic tangents are deliberately unsupported: a
+    perturbation solve must not advance and commit an additional time step.
     """
-    Compute effective tangent stiffness via finite differences with state awareness.
-    """
+    if material_assignment.has_history_dependence():
+        raise NotImplementedError(
+            "Algorithmic tangents for history-dependent materials are not "
+            "implemented; set tangent_every above the number of load steps."
+        )
+
     dim2 = dim * dim
-    
-    # Save base state
     u_base = np.copy(u.x.array)
-    
-    # Deep copy the ENTIRE material_states dictionary
-    saved_states = None
-    if context.material_states is not None:
-        import copy
-        saved_states = copy.deepcopy(context.material_states)
-    
-    # Get base state quantities
-    P0, W0, J0 = _compute_average_P_and_energy_with_state(
+    P0, _, _ = _compute_average_P_and_energy_with_state(
         domain, u, F_macro, material_assignment, cell_tags, dim,
         quad_evaluator, context.material_states
     )
     P0_vec = _flatten_tensor(P0)
-    
-    # Initialize tangent
-    Ceff = np.zeros((dim2, dim2), dtype=float)
-    
-    # Use smaller delta for viscoelastic materials
-    if material_assignment.has_history_dependence():
-        delta = delta #min(delta, 1e-7)
-    
-    # Perturb each component
-    for a in range(dim2):
-        # Restore displacement
+
+    def perturbed_stress(component: int, signed_delta: float):
         u.x.array[:] = u_base[:]
         u.x.scatter_forward()
-        
-        # Restore material states from deep copy
-        if saved_states is not None:
-            import copy
-            context.material_states = copy.deepcopy(saved_states)
-        
-        Fp = _perturb_F(Fbar, a, delta)
-        
-        # Solve with perturbation - use base state as initial guess
+        F_perturbed = _perturb_F(Fbar, component, signed_delta)
         u_sol, converged, iters, residual_norm = _solve_once_with_history(
-            problem, u, F_macro, Fp, context, material_assignment, 
+            problem, u, F_macro, F_perturbed, context, material_assignment,
             reset_to_zero=False, initial_guess=u_base
         )
-        
         if converged <= 0:
-            logger.warning(
-                "Perturbed solve failed at column %s; using central-difference fallback",
-                a,
-            )
-            # Try backward perturbation
-            Fm = _perturb_F(Fbar, a, -delta)
-            
-            # Restore states again
-            u.x.array[:] = u_base[:]
-            u.x.scatter_forward()
-            if saved_states is not None:
-                import copy
-                context.material_states = copy.deepcopy(saved_states)
-            
-            u_sol_m, converged_m, _ = _solve_once_with_history(
-                problem, u, F_macro, Fm, context, material_assignment,
-                reset_to_zero=False, initial_guess=u_base
-            )
-            
-            if converged_m <= 0:
-                Ceff[:, a] = np.nan
-                continue
-            
-            Pm, _, _ = _compute_average_P_and_energy_with_state(
-                domain, u_sol_m, F_macro, material_assignment, cell_tags, dim,
-                quad_evaluator, context.material_states
-            )
-            Pm_vec = _flatten_tensor(Pm)
-            
-            # Use base P0 as forward? No, skip this component
-            Ceff[:, a] = np.nan
-            continue
-        
-        Pp, _, _ = _compute_average_P_and_energy_with_state(
+            return None
+        P_perturbed, _, _ = _compute_average_P_and_energy_with_state(
             domain, u_sol, F_macro, material_assignment, cell_tags, dim,
             quad_evaluator, context.material_states
         )
-        Pp_vec = _flatten_tensor(Pp)
-        Ceff[:, a] = (Pp_vec - P0_vec) / delta
-    
-    # Restore base state
-    u.x.array[:] = u_base[:]
-    u.x.scatter_forward()
-    if saved_states is not None:
-        import copy
-        context.material_states = copy.deepcopy(saved_states)
-    
+        return _flatten_tensor(P_perturbed)
+
+    Ceff = np.zeros((dim2, dim2), dtype=float)
+    try:
+        for component in range(dim2):
+            P_plus = perturbed_stress(component, delta)
+            P_minus = perturbed_stress(component, -delta)
+            if P_plus is not None and P_minus is not None:
+                Ceff[:, component] = (P_plus - P_minus) / (2.0 * delta)
+            elif P_plus is not None:
+                logger.warning(
+                    "Backward tangent solve failed at column %s; using forward difference",
+                    component,
+                )
+                Ceff[:, component] = (P_plus - P0_vec) / delta
+            elif P_minus is not None:
+                logger.warning(
+                    "Forward tangent solve failed at column %s; using backward difference",
+                    component,
+                )
+                Ceff[:, component] = (P0_vec - P_minus) / delta
+            else:
+                logger.warning("Both tangent solves failed at column %s", component)
+                Ceff[:, component] = np.nan
+    finally:
+        u.x.array[:] = u_base[:]
+        u.x.scatter_forward()
+        F_macro.value[...] = Fbar
+
     return Ceff
 
 
@@ -828,7 +785,6 @@ def _run_one_load_case_with_history(
         skip_tangent = False
         if _hook_data and _hook_data.get('pre_step'):
             from homicsx.homogenization.driver import PreStepData
-            driver = _hook_data.get('driver')
             state = _hook_data.get('state')
             # F_current = Fbar.copy() #make_Fbar(load_name, current_a, dim) if current_a > 0 else np.eye(dim)
             pre_data = PreStepData(
@@ -879,7 +835,6 @@ def _run_one_load_case_with_history(
                 if _hook_data and _hook_data.get('on_step_failure'):
                     from homicsx.homogenization.driver import StepFailureData
                     state = _hook_data.get('state')
-                    driver = _hook_data.get('driver')
                     failure_data = StepFailureData(
                         step_idx=step_idx,
                         # attempt_number=failure_attempt + 1,
@@ -910,7 +865,6 @@ def _run_one_load_case_with_history(
             if _hook_data and _hook_data.get('post_convergence'):
                 from homicsx.homogenization.driver import PostConvergenceData
                 state = _hook_data.get('state')
-                driver = _hook_data.get('driver')
                 post_conv_data = PostConvergenceData(
                     step_idx=step_idx,
                     current_load=next_a,
@@ -962,7 +916,6 @@ def _run_one_load_case_with_history(
             if _hook_data and _hook_data.get('post_stress'):
                 from homicsx.homogenization.driver import PostStressData
                 state = _hook_data.get('state')
-                driver = _hook_data.get('driver')
                 post_stress_data = PostStressData(
                     step_idx=step_idx,
                     current_load=current_a,
@@ -981,7 +934,11 @@ def _run_one_load_case_with_history(
             
             # Compute tangent stiffness if requested
             Ceff = None
-            if not skip_tangent and (step_idx % tangent_every) == 0:
+            if (
+                not material_assignment.has_history_dependence()
+                and not skip_tangent
+                and (step_idx % tangent_every) == 0
+            ):
                 print(f"   Computing Tangent stiffness...")
                 try:
                     Ceff = _compute_Ceff_fd_with_state(
@@ -1006,7 +963,6 @@ def _run_one_load_case_with_history(
             if Ceff is not None and _hook_data and _hook_data.get('post_tangent'):
                 from homicsx.homogenization.driver import PostTangentData
                 state = _hook_data.get('state')
-                driver = _hook_data.get('driver')
                 post_tan_data = PostTangentData(
                     step_idx=step_idx,
                     current_load=current_a,
@@ -1237,7 +1193,6 @@ def _run_all_load_cases(
         # --- PRE-LOAD-CASE HOOK ---
         if _hook_data and _hook_data.get('pre_load_case'):
             from homicsx.homogenization.driver import PreLoadCaseData
-            driver = _hook_data.get('driver')
             state = _hook_data.get('state')
             pre_load_data = PreLoadCaseData(
                 load_name=load_name,
@@ -1303,7 +1258,6 @@ def _run_all_load_cases(
         if _hook_data and _hook_data.get('post_load_case'):
             from homicsx.homogenization.driver import PostLoadCaseData
             state = _hook_data.get('state')
-            driver = _hook_data.get('driver')
             post_load_data = PostLoadCaseData(
                 load_name=load_name,
                 history=history,
@@ -1477,10 +1431,9 @@ def _summarize_histories(all_histories: dict, dim: int) -> dict:
     for load_type, history_data in all_histories.items():
         # Handle both old (dict only) and new (tuple) formats
         if isinstance(history_data, tuple):
-            history, state_history = history_data
+            history, _ = history_data
         else:
             history = history_data
-            state_history = None
         
         # Extract load curve - check for possible key names
         if "load_values" in history:
@@ -1520,7 +1473,6 @@ def _summarize_histories(all_histories: dict, dim: int) -> dict:
             ceff_key = "C_eff"
         
         if ceff_key and history[ceff_key]:
-            ceff_array = history[ceff_key]
             if dim == 2:
                 data["C11"] = np.array([np.nan if C is None else C[0, 0] for C in history["Ceff"]], dtype=float)
                 data["C22"] = np.array([np.nan if C is None else C[3, 3] for C in history["Ceff"]], dtype=float)

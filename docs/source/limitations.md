@@ -2,7 +2,7 @@
 
 ## Supported publication scope
 
-HomiCSx 1.0.0 supports the documented end-to-end workflow for periodic
+HomiCSx 1.0.1 supports the documented end-to-end workflow for periodic
 particulate geometry generation, Gmsh meshing and tagging, multiphase
 linear-elastic homogenization, finite-strain hyperelastic homogenization
 through a public energy-based material interface and built-in Neo-Hookean law,
@@ -25,9 +25,10 @@ work but are not currently part of the verification matrix.
 
 - Two-dimensional FEM is plane strain only. Plane stress raises a deliberate
   `NotImplementedError` with guidance to use plane strain or a 3D model.
-- Two-dimensional all-quadrilateral meshing is supported for the documented
-  periodic workflow. General three-dimensional hexahedral meshing is not
-  supported; requesting it raises `NotImplementedError`.
+- Two-dimensional all-quadrilateral meshing is supported for documented
+  linear and history-independent hyperelastic workflows. Generalized-Maxwell
+  state updates currently require triangle or tetrahedron cells. General
+  three-dimensional hexahedral meshing is not supported.
 - Prescribed ellipses and ellipsoids may be rotated. The random RSA generators
   currently generate axis-aligned nonspherical particles; independently
   oriented random packing is deferred because it requires a validated exact
@@ -42,10 +43,15 @@ work but are not currently part of the verification matrix.
   redistribution, but no heterogeneous 3D Abaqus comparison is currently
   provided. Other loading paths and non-Maxwell history-dependent laws have not
   received equivalent external validation. Internal viscous metrics are
-  represented cellwise using DG0 coefficients, matching the current cellwise
-  deformation-gradient/state update implementation.
-- Advanced post-processing beyond essential result and XDMF extraction is not
-  part of the supported core.
+  represented cellwise using DG0 coefficients on first-order simplex cells.
+- XDMF displacement and reconstructed stress/energy fields are supported for
+  history-independent materials. Viscoelastic XDMF stress/energy
+  reconstruction is rejected because a state snapshot per output step is not
+  yet stored; use a post-stress hook for state-aware extraction.
+- Finite-difference homogenized tangents are supported for
+  history-independent materials. History-dependent algorithmic tangents are
+  not yet implemented because perturbations must not commit an additional
+  relaxation step.
 - HomiCSx 1.x supports solver execution on one MPI rank. The public drivers
   reject distributed communicators until cross-rank consistency is verified in
   continuous integration.

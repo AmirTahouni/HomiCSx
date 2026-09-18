@@ -1,9 +1,10 @@
 # Reference audit
 
 Checked 2026-09-17 against publisher pages or authoritative repository
-metadata. All ten cited identifiers resolve to records matching the cited
-work. The audit added the missing issue, article number, and page span to the
-UFL citation; no DOI was changed.
+metadata. All ten cited persistent identifiers and both cited software
+repositories resolve to records matching the cited work. The audit added the
+missing issue, article number, and page span to the UFL citation; no DOI was
+changed.
 
 | Ref. | Identifier | Record checked | Result |
 |---|---|---|---|
@@ -17,6 +18,8 @@ UFL citation; no DOI was changed.
 | 8 | `10.1016/j.softx.2020.100595` | SoftwareX publisher record | Authors, title, journal, volume, article number, year, and DOI match. |
 | 9 | `10.1002/adem.201901044` | Publisher record and DAMASK documentation | Authors, title, journal, volume, article number, year, and DOI match. |
 | 10 | `10.1016/j.softx.2020.100430` | SoftwareX publisher record and MOOSE documentation | Authors, title, journal, volume, article number, year, and DOI match. |
+| 11 | `github.com/felipefr/micmacsfenics` | Public software repository | Repository title, FEniCS/FEniCSx FE2 scope, authorship, and license checked. |
+| 12 | `github.com/bhaveshshrimali/FEniCS_homogenization` | Public software repository | Repository title and linear-elastic homogenization-script scope checked. |
 
 The version-specific HomiCSx DOI is used in the reference list. The concept
 DOI remains in the availability section and README so future releases can be

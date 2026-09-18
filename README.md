@@ -27,8 +27,10 @@ reproducible workflow.
   numerical post-processing methods.
 - A finite-strain generalized-Maxwell material with state management.
 - Built-in and custom load histories, adaptive stepping, typed hooks, and
-  macroscopic stress, energy, Jacobian, and tangent histories.
-- XDMF output suitable for ParaView.
+  macroscopic stress, energy, and Jacobian histories. Finite-difference
+  tangent histories are available for history-independent materials.
+- XDMF displacement and reconstructed stress/energy output for
+  history-independent materials, suitable for ParaView.
 
 <p align="center">
   <img src="paper/figures/periodic_meshes.png" width="850" alt="Periodic-conforming 2D and 3D meshes">
@@ -60,9 +62,10 @@ tested. Run workflows without `mpiexec`.
 
 ## Installation
 
-HomiCSx 1.0.0 is tested on Linux, including Linux under WSL2, with Python 3.10,
+HomiCSx 1.0.1 is tested on Linux, including Linux under WSL2, with Python 3.10,
 DOLFINx 0.9.0, and `dolfinx_mpc` 0.9.0. The versioned Conda environment is the
-authoritative dependency specification.
+authoritative dependency specification. Linux is the verified platform;
+native Windows and macOS are not currently in the test matrix.
 
 ```bash
 git clone https://github.com/AmirTahouni/HomiCSx.git

@@ -1,7 +1,5 @@
 from typing import Dict, Optional, List, Callable, Any
-from dataclasses import dataclass, field
 import dolfinx
-import numpy as np
 
 from homicsx.core.homogenization import (
     LinearHomogenizationResult,
@@ -147,7 +145,8 @@ class NonlinearHomogenizationDriver:
 
     This class orchestrates the complete nonlinear homogenization workflow:
     incremental loading with adaptive step size control, material state
-    tracking, consistent tangent computation, and configurable post-processing.
+    tracking, finite-difference tangents for history-independent materials,
+    and configurable post-processing.
     It is the primary entry point for large-deformation, rate-dependent, and
     damage-based RVE analysis.
 
@@ -213,9 +212,10 @@ class NonlinearHomogenizationDriver:
     - **Material Support** : Hyperelastic, viscoelastic (generalized
       Maxwell), and user-defined nonlinear materials via the abstract
       :class:`NonlinearMaterialModel` base class.
-    - **State Management** : Material state variables are tracked at
-      quadrature points and deep-copied during tangent computation to
-      preserve consistency.
+    - **State Management** : Generalized-Maxwell state variables are supported
+      on first-order simplex meshes. Algorithmic tangents and reconstructed
+      stress/energy XDMF fields are not currently provided for
+      history-dependent materials.
 
     See Also
     --------
@@ -909,6 +909,21 @@ class NonlinearHomogenizationDriver:
             State histories for history-dependent materials
         """
         _require_serial(self.mesh_obj)
+        if self.assignment.has_history_dependence():
+            if self.mesh_obj.topology.cell_type in {
+                dolfinx.mesh.CellType.quadrilateral,
+                dolfinx.mesh.CellType.hexahedron,
+            }:
+                raise NotImplementedError(
+                    "History-dependent materials currently require triangle "
+                    "or tetrahedron cells because committed state is cellwise."
+                )
+            if xdmf_opt:
+                raise NotImplementedError(
+                    "XDMF stress and energy reconstruction is currently "
+                    "supported only for history-independent materials. Use "
+                    "post-stress hooks for state-aware viscoelastic output."
+                )
         from homicsx.homogenization.nlhelpers import _run_all_load_cases
         from homicsx.homogenization.nlhelpers import (
             _summarize_histories, plot_homogenization_summary, plot_each_load_case

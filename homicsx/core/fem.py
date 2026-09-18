@@ -3,9 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-import dolfinx
-import ufl
-import dolfinx_mpc
 
 @dataclass
 class ProblemSettings:

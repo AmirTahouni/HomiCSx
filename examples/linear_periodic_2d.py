@@ -69,6 +69,9 @@ def run_example(*, quadrilateral: bool = False) -> dict:
         "trace": float(np.trace(stiffness)),
         "relative_symmetry_error": relative_symmetry_error,
         "cell_type": domain.topology.cell_type.name,
+        "cells": domain.topology.index_map(domain.topology.dim).size_global,
+        "unconstrained_displacement_dofs": 2
+        * domain.topology.index_map(0).size_global,
     }
 
 

@@ -7,7 +7,7 @@ The manuscript was compared against the official SoftwareX article template,
 Version 6 (March 2026). That template limits the main text to 4000 words,
 permits at most six figures, requires five named main sections, and prescribes
 a C1--C8 software metadata table. The current draft has a 98-word abstract,
-approximately 1750 main-body words, four figures, all required sections, and a
+approximately 2400 main-body words, four figures, all required sections, and a
 complete C1--C8 table. The editable source is maintained in `manuscript.md`;
 `manuscript.tex` uses Elsevier's `elsarticle` class and preserves the required
 SoftwareX structure.

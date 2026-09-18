@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "homicsx"
-version = "1.0.0"
+version = "1.0.1"
 description = "End-to-end finite-element computational homogenization with FEniCSx"
 readme = "README.md"
 requires-python = ">=3.10,<3.11"
@@ -32,7 +32,7 @@ classifiers = [
 Documentation = "https://homicsx.readthedocs.io/en/latest/"
 Issues = "https://github.com/AmirTahouni/HomiCSx/issues"
 Repository = "https://github.com/AmirTahouni/HomiCSx"
-"Runtime environment" = "https://github.com/AmirTahouni/HomiCSx/blob/v1.0.0/environment.yml"
+"Runtime environment" = "https://github.com/AmirTahouni/HomiCSx/blob/v1.0.1/environment.yml"
 
 [project.optional-dependencies]
 test = ["pytest>=8,<9", "pytest-cov>=5,<7"]

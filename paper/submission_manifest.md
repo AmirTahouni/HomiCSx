@@ -34,8 +34,8 @@ than submission files.
   representative volume element; composite materials; viscoelasticity.
 - Funding: no specific funding.
 - Competing interests: none declared.
-- Software version: 1.0.0.
-- Version DOI: `10.5281/zenodo.22811694`.
+- Software version: 1.0.1.
+- Version archive: `https://github.com/AmirTahouni/HomiCSx/tree/v1.0.1`.
 
 ## Author-only actions
 

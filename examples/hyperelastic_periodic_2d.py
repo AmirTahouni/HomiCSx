@@ -86,6 +86,9 @@ def run_example() -> dict:
         "final_macro_p12": float(history["Pbar"][-1][0, 1]),
         "final_macro_energy": float(history["Wbar"][-1]),
         "final_mean_j": float(history["Jbar"][-1]),
+        "cells": domain.topology.index_map(domain.topology.dim).size_global,
+        "unconstrained_displacement_dofs": 2
+        * domain.topology.index_map(0).size_global,
     }
 
 

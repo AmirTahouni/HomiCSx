@@ -17,6 +17,8 @@ dependencies:
   - pip
   - pip:
       - build>=1,<2
+      - twine>=5,<7
+      - ruff>=0.8,<1
       - sphinx>=8,<9
       - myst-parser>=4,<5
       - sphinx-rtd-theme>=3,<4

@@ -211,8 +211,6 @@ def _generate_poly_circle_2d(
             #   VF_actual = 1 - exp(-VF_nominal)
             # So to target VF_actual, we need VF_nominal = -ln(1 - VF_actual)
             nominal_area = 0.0
-            nominal_lower = -np.log(1.0 - lower_target) if lower_target < 1.0 else np.inf
-            nominal_upper = -np.log(1.0 - upper_target) if upper_target < 1.0 else np.inf
         else:
             current_area = 0.0
 

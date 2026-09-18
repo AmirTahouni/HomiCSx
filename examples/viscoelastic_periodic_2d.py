@@ -105,6 +105,9 @@ def run_example() -> dict:
         "initial_macro_p12": stresses[0],
         "final_macro_p12": stresses[-1],
         "hook_matches_history": bool(np.allclose(hook_stress, stresses)),
+        "cells": domain.topology.index_map(domain.topology.dim).size_global,
+        "unconstrained_displacement_dofs": 2
+        * domain.topology.index_map(0).size_global,
     }
 
 

@@ -68,9 +68,8 @@ def extract_effective_moduli_3d(
     Extracts effective moduli (kappa_eff, mu_eff, E_eff, nu_eff) from the homogenized stiffness matrix.
     """
     # Extract the relevant entries:
-    C11, C22, C33 = C_hom[0, 0], C_hom[1, 1], C_hom[2, 2]
-    C12, C13, C23 = C_hom[0, 1], C_hom[0, 2], C_hom[1, 2]
-    C44, C55, C66 = C_hom[3, 3], C_hom[4, 4], C_hom[5, 5]
+    C12 = C_hom[0, 1]
+    C44 = C_hom[3, 3]
 
     # Effective lame moduli:
     lambda_eff = C12
@@ -92,8 +91,6 @@ def extract_effective_moduli_2d_plane_strain(
     Extract effective moduli from 2D homogenized stiffness (plane strain).
     Voigt order: [xx, yy, xy]
     """
-    C11 = C_hom[0, 0]
-    C22 = C_hom[1, 1]
     C12 = C_hom[0, 1]
     C33 = C_hom[2, 2]
 
@@ -133,8 +130,6 @@ def _get_eshelby_tensor(nu, dim=3):
     S = np.zeros((6, 6) if dim == 3 else (3, 3))
     if dim == 3:
         # Eshelby for Sphere in 3D
-        s1 = 7 - 5 * nu
-        s2 = 8 - 10 * nu
         s3 = 15 * (1 - nu)
         S[0,0] = S[1,1] = S[2,2] = (7 - 5*nu) / s3
         S[0,1] = S[0,2] = S[1,0] = S[1,2] = S[2,0] = S[2,1] = (5*nu - 1) / s3

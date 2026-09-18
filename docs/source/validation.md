@@ -46,7 +46,8 @@ exception.
 
 The primary external suite contains three deterministic linear plane-strain
 cells and one homogeneous finite-strain shear case. During the automated test,
-the current checkout regenerates the HomiCSx linear results in a temporary
+the current checkout regenerates the HomiCSx linear and homogeneous nonlinear
+results in a temporary
 directory and compares them with the committed Abaqus 2022 reference. Thus a
 solver regression cannot be hidden by a stale committed HomiCSx result file.
 The exact cases, conventional macroscopic measures, thresholds, independent

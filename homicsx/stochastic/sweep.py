@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
 
 from homicsx.core.geometry import GeometryInput
 from homicsx.core.mesh import PhysicalTags, MeshSettings
@@ -26,7 +25,6 @@ from homicsx.utils.moduli import (
 )
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 def sweep_volume_fraction_linear (

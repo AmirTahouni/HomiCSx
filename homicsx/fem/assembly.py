@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
 
-import ufl
 from dolfinx import fem
 
 from homicsx.core.fem import (

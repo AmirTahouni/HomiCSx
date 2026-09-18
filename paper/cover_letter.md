@@ -26,7 +26,8 @@ built-in Neo-Hookean model; custom energies share the same nonlinear assembly
 path but are the user's constitutive responsibility.
 
 The manuscript is supported by automated analytical and regression tests and
-by an independent Abaqus comparison suite based on conventional macroscopic
+by cross-solver comparisons using independently constructed Abaqus models and
+conventional macroscopic
 stress, energy, strain, and stiffness measures. The external cases include
 homogeneous and heterogeneous cells, a boundary-split periodic inclusion,
 finite-strain shear, and viscoelastic relaxation. The repository also provides
@@ -43,8 +44,8 @@ states the software’s current limitations and archival maintenance model.
 
 This manuscript is original, is not under consideration elsewhere, and has one
 author. The author declares no competing interests, and no specific funding
-supported the software. Version 1.0.0 is preserved at
-https://doi.org/10.5281/zenodo.22811694. The author confirms responsibility for the work
+supported the software. Version 1.0.1 is preserved at
+https://github.com/AmirTahouni/HomiCSx/tree/v1.0.1. The author confirms responsibility for the work
 and for the disclosed use of an AI-assisted coding tool during code review,
 validation preparation, documentation editing, and manuscript drafting.
 

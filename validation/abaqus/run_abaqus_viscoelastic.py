@@ -16,7 +16,6 @@ from abaqus import mdb
 from abaqusConstants import (
     ANALYSIS,
     CPE6H,
-    DEFORMABLE_BODY,
     FREE,
     ISOTROPIC,
     NEO_HOOKE,
@@ -27,13 +26,8 @@ from abaqusConstants import (
     STANDARD,
     TIME,
     TRI,
-    TWO_D_PLANAR,
 )
-import interaction
-import load
-import material
 import mesh
-import step
 from odbAccess import openOdb
 
 from run_abaqus_canonical import (

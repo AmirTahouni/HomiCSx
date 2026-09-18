@@ -25,11 +25,7 @@ from abaqusConstants import (
     TIME,
     TRI,
 )
-import interaction
-import load
-import material
 import mesh
-import step
 from odbAccess import openOdb
 
 from run_abaqus_canonical import (

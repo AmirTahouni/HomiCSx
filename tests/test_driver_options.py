@@ -1,5 +1,8 @@
 from types import SimpleNamespace
 
+import dolfinx
+import pytest
+
 from homicsx.homogenization import driver as driver_module
 
 
@@ -69,3 +72,27 @@ def test_linear_driver_rejects_distributed_execution():
         assert "one MPI rank only" in str(exc)
     else:
         raise AssertionError("distributed execution must be rejected explicitly")
+
+
+def _history_driver(cell_type):
+    driver = driver_module.NonlinearHomogenizationDriver.__new__(
+        driver_module.NonlinearHomogenizationDriver
+    )
+    driver.mesh_obj = SimpleNamespace(
+        comm=SimpleNamespace(size=1),
+        topology=SimpleNamespace(cell_type=cell_type),
+    )
+    driver.assignment = SimpleNamespace(has_history_dependence=lambda: True)
+    return driver
+
+
+def test_history_dependent_driver_rejects_quadrilateral_cells():
+    driver = _history_driver(dolfinx.mesh.CellType.quadrilateral)
+    with pytest.raises(NotImplementedError, match="triangle or tetrahedron"):
+        driver.run(plot_summary=False)
+
+
+def test_history_dependent_driver_rejects_xdmf_field_reconstruction():
+    driver = _history_driver(dolfinx.mesh.CellType.triangle)
+    with pytest.raises(NotImplementedError, match="history-independent"):
+        driver.run(xdmf_opt=True, plot_summary=False)

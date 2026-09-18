@@ -12,9 +12,7 @@ The script creates its transient job files in ``canonical_work`` and writes
 from __future__ import print_function
 
 import json
-import math
 import os
-import sys
 
 from abaqus import mdb
 from abaqusConstants import (
@@ -33,9 +31,6 @@ from abaqusConstants import (
     TWO_D_PLANAR,
 )
 import mesh
-import interaction
-import load
-import step
 from odbAccess import openOdb
 
 

@@ -14,7 +14,8 @@ pipeline. Its supported core includes two- and three-dimensional cells,
 multiphase linear elasticity, user-defined hyperelastic energies with a
 built-in Neo-Hookean model, and generalized-Maxwell viscoelasticity.
 Verification combines analytical tests, constitutive checks, mesh refinement,
-regression gates, and independent Abaqus comparisons using conventional
+regression gates, and cross-solver comparisons using independently constructed
+Abaqus models and conventional
 macroscopic quantities. Canonical linear discrepancies remain below 0.55%, and
 tested heterogeneous viscoelastic histories remain within 1.36%. HomiCSx
 targets inspectable, customizable computational-homogenization studies with an
@@ -27,11 +28,11 @@ representative volume element; composite materials; viscoelasticity
 
 | Nr | Code metadata description | Metadata |
 |---|---|---|
-| C1 | Current code version | v1.0.0 |
-| C2 | Permanent link to code/repository used for this code version | https://doi.org/10.5281/zenodo.22811694 |
+| C1 | Current code version | v1.0.1 |
+| C2 | Permanent link to code/repository used for this code version | https://github.com/AmirTahouni/HomiCSx/tree/v1.0.1 |
 | C3 | Legal code license | MIT |
 | C4 | Code versioning system used | Git |
-| C5 | Software code languages, tools and services used | Python, UFL, Gmsh API |
+| C5 | Software code languages, tools and services used | Python, NumPy, UFL, DOLFINx, PETSc/petsc4py, Basix, Gmsh API, MPI |
 | C6 | Compilation requirements, operating environments and dependencies | Conda; Python 3.10; DOLFINx 0.9.0; dolfinx_mpc 0.9.0; Linux or WSL2 |
 | C7 | Link to developer documentation/manual | https://homicsx.readthedocs.io/en/latest/ |
 | C8 | Support email for questions | tahouniamirreza@gmail.com |
@@ -78,7 +79,17 @@ geometry, matching periodic meshing, constitutive hooks, homogenization loads,
 and macro outputs behind Python objects. HomiCSx does not claim their breadth,
 parallel scalability, or adoption. Its narrower contribution is an inspectable
 serial path joining these particular stages for linear, hyperelastic, and
-generalized-Maxwell RVE studies.
+generalized-Maxwell RVE studies. Closer code-level comparators include
+micmacsfenics, which targets FEniCS/FEniCSx FE² and periodic or minimally
+constrained multiscale problems, and FEniCS_homogenization, a collection of
+legacy-FEniCS linear-elasticity scripts [11,12]. They demonstrate that
+FEniCS-based homogenization implementations exist; the comparison set was
+therefore selected to cover both these direct implementations and broader
+geometry, constitutive, and multiphysics ecosystems. HomiCSx's claimed
+distinction is the documented integration of particulate generation,
+periodic-conforming meshing, finite-strain/history-dependent workflows, hooks,
+and conventional validation rather than a claim to originate FEniCS
+homogenization.
 
 ## 2. Software description
 
@@ -103,8 +114,10 @@ boundary-split particles are represented consistently. Geometry generation is
 seedable for reproducibility. Explicitly prescribed ellipses and ellipsoids may
 be rotated; random nonspherical packing remains axis-aligned. The
 publication-supported discretization path uses triangles, tetrahedra, or the
-tested two-dimensional all-quadrilateral option. General three-dimensional
-hexahedral meshing is outside the current support boundary.
+tested two-dimensional all-quadrilateral option for linear and
+history-independent hyperelastic workflows. Generalized-Maxwell state updates
+require simplex cells. General three-dimensional hexahedral meshing is outside
+the current support boundary.
 
 ### 2.2. Homogenization formulation
 
@@ -120,7 +133,8 @@ finite strain, the deformation gradient is decomposed as
 where the fluctuation is periodic on opposite cell boundaries. The nonlinear
 driver solves incremental equilibrium with adaptive stepping and records
 volume-averaged first Piola--Kirchhoff stress, energy, deformation Jacobian,
-and optional tangent information.
+and optional finite-difference tangent information for history-independent
+materials.
 
 Hyperelastic material objects provide a UFL strain-energy density and matching
 numerical post-processing methods. Compressible Neo-Hookean elasticity is the
@@ -163,8 +177,10 @@ Hooks provide controlled access before and after documented stages of the
 homogenization loop. They have explicit ordering and state scopes and can be
 used to collect fields, compute application-specific metrics, or implement
 additional workflow logic. Core outputs include effective stiffness, macro
-stress/strain/energy histories, Jacobian histories, and XDMF field exports for
-external post-processing. Figure 1 summarizes this division between the
+stress/strain/energy histories and Jacobian histories. Finite-difference
+tangents and reconstructed stress/energy XDMF fields are limited to
+history-independent materials; state-aware viscoelastic fields remain
+available to hooks. Figure 1 summarizes this division between the
 supported pipeline and its documented extension points.
 
 ## 3. Illustrative examples
@@ -214,14 +230,19 @@ schematic illustration.
 
 ### Representative execution cost
 
-For scale rather than as a performance benchmark, each maintained example was
-run once on one rank under WSL2 with Python 3.10.21 and DOLFINx 0.9.0 on an AMD
-Ryzen 9 9900X host; WSL reported 15.2 GiB available memory. Wall times include
-Conda process startup and were 2.29 s for geometry generation, 1.83 s for the
-2D linear example, 2.14 s for 3D linear, 1.91 s for 2D hyperelasticity, and
-1.99 s for 2D viscoelasticity. Peak resident memory ranged from 214 to 259 MiB.
-These compact examples are workflow checks, not mesh-converged production
-benchmarks, and no parallel speedup is claimed.
+For scale rather than as a performance benchmark, examples were run on one
+rank under WSL2 with Python 3.10.21 and DOLFINx 0.9.0 on an AMD Ryzen 9 9900X.
+OMP, OpenBLAS, and MKL thread counts were fixed to one. After one untimed
+warm-up, three independent process launches were measured with GNU
+`/usr/bin/time -f "%e %M" conda run -n homicsx_dev python <script>`. The 2D
+linear case (264 triangles; 298 unconstrained displacement DOFs; three load
+cases) took 1.80–1.83 s and 241 MiB peak RSS. The 3D linear case (1441
+tetrahedra; 1206 DOFs; six load cases) took 2.16 s and 252–259 MiB. The 2D
+hyperelastic case (264 triangles; 298 DOFs; two increments) took 1.81–1.82 s
+and 241 MiB, and the three-increment viscoelastic case on the same mesh took
+1.89–2.03 s and 243 MiB. Times include Conda process startup. These compact
+examples are workflow checks, not mesh-converged production benchmarks, and no
+parallel speedup is claimed.
 
 ## 4. Verification and validation
 
@@ -242,9 +263,9 @@ only conventional macroscopic quantities. Three linear plane-strain cases—a
 homogeneous non-unit cell, a centered 20% circular inclusion, and a periodic
 boundary-split inclusion—have maximum stiffness, probe-stress, and probe-energy
 differences below 0.55%. Homogeneous finite simple shear agrees to within
-0.00016% for macro energy and shear stress. The automated canonical linear
-gate regenerates HomiCSx results from the current checkout before comparison
-with the archived Abaqus reference.
+0.00016% for macro energy and shear stress. The automated canonical gate
+regenerates both linear and homogeneous nonlinear HomiCSx results from the
+current checkout before comparison with the archived Abaqus reference.
 
 Generalized-Maxwell validation compares complete macro-shear-stress relaxation
 histories. The homogeneous 2D and 3D curves agree with Abaqus to within
@@ -294,8 +315,9 @@ and continuation.
 The tested environment is Linux, including Linux under WSL2, with Python 3.10,
 DOLFINx 0.9.0, and dolfinx_mpc 0.9.0. Two-dimensional FEM uses plane strain;
 plane stress is not implemented. The supported meshing path uses triangles,
-tetrahedra, and tested 2D all-quadrilateral meshes; general 3D hexahedral
-meshing is not implemented. Imported meshes, independently oriented random
+tetrahedra, and tested 2D all-quadrilateral meshes, although viscoelastic state
+updates require simplex cells; general 3D hexahedral meshing is not
+implemented. Imported meshes, independently oriented random
 nonspherical packing, overlapping-void and open-cell workflows,
 advanced visualization, and stochastic convenience modules are outside the
 publication-supported core. The latter two modules are explicitly experimental.
@@ -325,12 +347,13 @@ studies while keeping its archival maintenance commitment realistic.
 - Source code: https://github.com/AmirTahouni/HomiCSx
 - Documentation: https://homicsx.readthedocs.io/en/latest/
 - License: MIT
-- Version described: 1.0.0
-- Version DOI: https://doi.org/10.5281/zenodo.22811694
+- Version described: 1.0.1
+- Version archive: https://github.com/AmirTahouni/HomiCSx/tree/v1.0.1
 - Concept DOI: https://doi.org/10.5281/zenodo.22811693
 
 The repository contains version-constrained Conda environment specifications, installation
-instructions, automated tests, benchmark manifests, independent Abaqus runner
+instructions, automated tests, benchmark manifests, independently constructed
+Abaqus model runners
 scripts, compact reference results, and executable acceptance gates. Abaqus is
 not required to recompute comparisons from the committed compact results.
 
@@ -394,8 +417,8 @@ the publication.
    implementing periodic boundary conditions in multi-scale homogenisation,
    European Journal of Mechanics - A/Solids 78 (2019) 103825.
    https://doi.org/10.1016/j.euromechsol.2019.103825.
-7. A. R. Tahouni, HomiCSx, version 1.0.0, Zenodo (2026).
-   https://doi.org/10.5281/zenodo.22811694.
+7. A. R. Tahouni, HomiCSx, version 1.0.1, GitHub (2026).
+   https://github.com/AmirTahouni/HomiCSx/tree/v1.0.1.
 8. K. A. Hart, J. J. Rimoli, MicroStructPy: A statistical microstructure mesh
    generator in Python, SoftwareX 12 (2020) 100595.
    https://doi.org/10.1016/j.softx.2020.100595.
@@ -406,3 +429,10 @@ the publication.
 10. C. J. Permann, D. R. Gaston, D. Andrš, et al., MOOSE: Enabling massively
     parallel multiphysics simulation, SoftwareX 11 (2020) 100430.
     https://doi.org/10.1016/j.softx.2020.100430.
+11. F. Rocha, micmacsfenics: a FEniCS-based implementation of two-level finite
+    element simulations using computational homogenization, software
+    repository, accessed 18 September 2026.
+    https://github.com/felipefr/micmacsfenics.
+12. B. Shrimali, FEniCS_homogenization: a collection of homogenization scripts
+    for linear elasticity, software repository, accessed 18 September 2026.
+    https://github.com/bhaveshshrimali/FEniCS_homogenization.

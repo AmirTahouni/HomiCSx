@@ -3,15 +3,13 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from ufl import ln, tr, det
 
 import numpy as np
 import ufl
-from dolfinx import fem, mesh, io
-from mpi4py import MPI
-from petsc4py import PETSc
+from dolfinx import fem, mesh
 import basix
 import dolfinx
 
@@ -32,9 +30,12 @@ def _validate_isotropic_elastic_constants(young_modulus: float, poisson_ratio: f
 # =============================================================================
 
 class QuadraturePointEvaluator:
-    """
-    Evaluate fields at quadrature points for state variable updates.
-    Uses projection to quadrature space for reliable evaluation.
+    """Evaluate cellwise deformation gradients for material-state updates.
+
+    For first-order simplex elements the deformation gradient is constant in
+    each cell, so the DG0 value is repeated at the integration samples. This
+    evaluator is not valid for history-dependent Q1 quadrilateral or
+    hexahedral elements; the nonlinear driver rejects that combination.
     """
     
     def __init__(self, mesh: dolfinx.mesh.Mesh, degree: int = 4):
@@ -83,7 +84,7 @@ class QuadraturePointEvaluator:
         cells: Optional[np.ndarray] = None
     ) -> Dict[int, np.ndarray]:
         """
-        Compute total deformation gradient at cell centers as approximation.
+        Compute the cellwise total deformation gradient.
         """
         if cells is None:
             cells = np.arange(self.mesh.topology.index_map(self.mesh.topology.dim).size_local)
@@ -350,7 +351,6 @@ class NeoHookeanIsotropic(HyperelasticMaterial):
             raise ValueError("F must be a square 2D or 3D deformation gradient.")
         if not np.all(np.isfinite(F)):
             raise ValueError("Neo-Hookean stress requires a finite deformation gradient.")
-        dim = F.shape[0]
         J = np.linalg.det(F)
         if not np.isfinite(J) or J <= 0.0:
             raise ValueError("Neo-Hookean stress requires det(F) > 0.")
@@ -380,7 +380,7 @@ class ViscoelasticGeneralizedMaxwell(NonlinearMaterialModel):
     """
     Finite-strain viscoelasticity using generalized Maxwell model.
     
-    State variables: Cv_i (inverse viscous right Cauchy-Green for each branch)
+    State variables: Cv_i (viscous right Cauchy-Green tensor for each branch)
     """
     
     equilibrium_material: NonlinearMaterialModel
@@ -502,15 +502,11 @@ class ViscoelasticGeneralizedMaxwell(NonlinearMaterialModel):
         
         # Non-equilibrium stresses
         C = F.T @ F
-        FinvT = np.linalg.inv(F).T
-        
         for i in range(self.num_branches):
             mu_i = self.shear_moduli[i]
             Cv_i = state.get_state(f"Cv_{i}")[quad_point_idx, :dim, :dim]
             
-            # Elastic right Cauchy-Green for this branch: Ce = F^T F Cv^{-1}
             Cv_inv = np.linalg.inv(Cv_i)
-            Ce = C @ Cv_inv
             
             # Non-equilibrium PK2 stress: S_neq = 2 ∂Ψ/∂C = μ (Cv^{-1} - C^{-1})
             Cinv = np.linalg.inv(C)

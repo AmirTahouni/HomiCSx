@@ -15,10 +15,10 @@
 
 - [x] Add deterministic, tested scripts for the essential linear and
   heterogeneous viscoelastic workflows.
-- [x] Choose the publication version: `1.0.0`.
+- [x] Choose the publication version: `1.0.1`.
 - [x] Finish the release notes and public API freeze.
 - [x] Run the full clean-environment test, strict documentation, validation,
-  package-build, and installed-wheel matrix for the 1.0.0 release candidate.
+  package-build, and installed-wheel matrix for the 1.0.1 release candidate.
 - [x] Create and push the signed or annotated Git tag.
 - [x] Create the GitHub release.
 - [x] Archive the release in Zenodo and obtain the version DOI and concept DOI.
@@ -35,11 +35,12 @@
 - [x] Select LaTeX and produce a compiling `elsarticle` manuscript draft.
 - [x] Keep `manuscript.md` synchronized with the submission LaTeX source.
 - [x] Keep the main text within the template's 4000-word limit. The current
-  main body is approximately 1750 words; the abstract is separate.
+  main body is approximately 2400 words by a plain-text count from Section 1
+  through Section 8; the abstract, declarations, and references are separate.
 - [x] Use no more than six figures. The current manuscript has four.
 - [x] Complete the required C1--C8 software metadata table. C2 uses the
-  mandatory GitHub repository; the Zenodo version DOI is used for the software
-  citation.
+  immutable version archive, and the GitHub repository is listed in the
+  availability section.
 - [x] Prepare a workflow/component figure from a reproducible source.
 - [x] Prepare one reproducible ParaView field figure illustrating stress and
   strain-energy output without using localization/Q statistics.
@@ -75,5 +76,5 @@
 - [x] Compile and visually inspect every page of the pre-release LaTeX PDF.
 - [ ] Obtain author approval of the exact files before submission.
 - [x] Confirm the declaration of no competing interests.
-- [ ] Publish a corrective release containing the post-review changes and
-  replace the v1.0.0 version DOI in submission files with its immutable DOI.
+- [ ] Publish the v1.0.1 corrective release, archive it in Zenodo, and replace
+  the temporary immutable GitHub-tag citation with the version DOI.

@@ -367,7 +367,6 @@ def build_constraints_nonlinear(
         def right_boundary_locator(x):
             on_right = np.isclose(x[0], Lx, atol=atol)
             on_top = np.isclose(x[1], Ly, atol=atol)
-            on_left = np.isclose(x[0], 0.0, atol=atol)
             on_bottom = np.isclose(x[1], 0.0, atol=atol)
             return on_right & ~on_top & ~on_bottom
 
@@ -375,7 +374,6 @@ def build_constraints_nonlinear(
             on_right = np.isclose(x[0], Lx, atol=atol)
             on_top = np.isclose(x[1], Ly, atol=atol)
             on_left = np.isclose(x[0], 0.0, atol=atol)
-            on_bottom = np.isclose(x[1], 0.0, atol=atol)
             return on_top & ~on_left & ~on_right
 
         mpc = dolfinx_mpc.MultiPointConstraint(V)

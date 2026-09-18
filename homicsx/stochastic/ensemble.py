@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
 
 from homicsx.core.geometry import GeometryInput
 from homicsx.core.mesh import PhysicalTags, MeshSettings

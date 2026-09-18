@@ -4,7 +4,6 @@ from collections import defaultdict
 
 import gmsh
 import numpy as np
-from mpi4py import MPI
 
 from homicsx.core.geometry import Inclusion, RVEGeometry
 from homicsx.core.mesh import PhysicalTags, MeshSettings

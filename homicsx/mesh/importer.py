@@ -1,11 +1,7 @@
-from dataclasses import dataclass, field
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Tuple
 import logging
-import numpy as np
-import dolfinx
-from mpi4py import MPI
 
-from homicsx.core.mesh import PhysicalTags, MeshImportMapping
+from homicsx.core.mesh import MeshImportMapping
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +59,6 @@ def _remap_facet_tags(mesh, raw_tags, boundary_groups: Dict[int, str]):
     """
     Remap facet physical groups to HomiCSx boundary tags.
     """
-    import numpy as np
     import dolfinx.mesh
     
     BOUNDARY_TAG_MAP = {
@@ -158,12 +153,7 @@ def import_mesh_auto(
     # Matrix = 1, Inclusion phases = 10 + phase_id
     # No remapping needed
     
-    # For boundaries: auto-detect by coordinates to ensure correctness
-    # (more reliable than trusting GMSH boundary tags)
-    boundary_groups = physical_tags.boundary_name_to_tag(dim)
-    tag_to_name = {v: k for k, v in boundary_groups.items()}
-    
-    # Try using GMSH boundary tags first, fall back to auto-detect
+    # Auto-detect boundaries by coordinates rather than trusting imported tags.
     detected_facet_tags = _detect_boundaries_by_coordinates(
         mesh, facet_tags, domain_size, dim
     )

@@ -8,7 +8,7 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 
 ## Current baseline
 
-- Published and archived version: 1.0.0.
+- Published and archived version: 1.0.0; corrective release candidate: 1.0.1.
 - License: MIT.
 - Public repository history begins on 2026-05-05.
 - Version 1.0.0 is tagged and published on GitHub and archived by Zenodo with
@@ -23,14 +23,15 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
   0.9.0, a strict Sphinx build, package builds, and Abaqus-reference checks.
   Post-release review identified inconsistent distributed behavior; the
   corrective release therefore defines all homogenization drivers as
-  single-rank and rejects larger communicators. The revised suite passes 113
-  tests with 61.31% statement coverage against a 60% CI floor; the strict
+  single-rank and rejects larger communicators. The revised suite passes 117
+  tests with 62.21% statement coverage against a 60% CI floor; the strict
   Sphinx build and 12-page manuscript compilation also pass.
 - Homogeneous plane-strain verification now includes a deterministic two-level convergence gate on one fixed seeded geometry. Relative stiffness error falls from 2.543% at minimum/maximum mesh sizes 0.08/0.16 to 0.211% at 0.025/0.05, a 12.0-fold reduction. CI requires coarse error below 5%, fine error below 0.5%, and at least a factor-two reduction; no claim of monotonic intermediate convergence is made for independently regenerated unstructured meshes.
 - The repository contains a focused HomiCSx--Abaqus suite using macroscopic
   energy, stress, strain, stiffness, and relaxation histories. The canonical
-  linear acceptance gate regenerates HomiCSx output from the current checkout
-  before comparing it with archived Abaqus references.
+  linear and homogeneous nonlinear acceptance gate regenerates HomiCSx output
+  from the current checkout before comparing it with archived Abaqus
+  references.
 
 ## Publication scope
 
@@ -94,7 +95,9 @@ the full solver, documentation, validation, and package checks.
 9. **Notebook repository noise removed.** Stale, experimental, and
    research-specific notebooks remain recoverable in Git history but are not
    distributed as supported release examples.
-10. **Citation metadata lacks an ORCID and release/archive identifiers.** These should be added when available and synchronized with the publication release.
+10. **Citation metadata is synchronized.** The author has elected not to add an
+    ORCID. The concept DOI is recorded now; the version-specific v1.0.1 DOI
+    must be synchronized after Zenodo creates the corrective-release record.
 
 ### P2 Documentation and presentation improvements
 
@@ -216,6 +219,17 @@ This posture must be checked against the target journal immediately before submi
 - Prepare the software paper and AI-use disclosure.
 - Create the tagged release and archival deposit approved for submission.
 
+### Milestone 1.0.1
+
+- Align the distributed-execution claim with the serial implementation.
+- Restrict history-dependent viscoelastic workflows to the verified simplex
+  path and explicitly reject unsupported XDMF and tangent requests.
+- Replace the nonlinear canonical self-check with a current-checkout solver
+  execution and harden finite-difference tangent handling.
+- Add focused coverage gates, linting, package validation, and installed-wheel
+  smoke testing to CI.
+- Rebuild the manuscript and create a corrective GitHub/Zenodo release.
+
 ## Decision gates
 
 ### Gate A Supported scope
@@ -234,7 +248,11 @@ Before submission of the scientific paper, produce at minimum an immutable HomiC
 
 ### Gate D Publication release
 
-Version 1.0.0 was tagged after the clean environment, core test suite, validation suite, documentation build, citation metadata, release notes, and archival contents were reviewed.
+Version 1.0.0 was tagged after the clean environment, core test suite,
+validation suite, documentation build, citation metadata, release notes, and
+archival contents were reviewed. Version 1.0.1 repeats those gates and corrects
+the limitations and release-engineering issues found during post-release
+review.
 
 ## Immediate next actions
 
