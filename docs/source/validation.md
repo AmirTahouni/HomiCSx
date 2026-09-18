@@ -42,50 +42,24 @@ Hook tests verify registration order, shared-state propagation, load-case and
 persistent state scopes, and the documented behavior when a hook raises an
 exception.
 
-## Abaqus finite-strain comparison
+## Canonical Abaqus comparison
 
-The repository contains a compact extract of nine outcome-blind, geometry-matched HomiCSx--Abaqus comparisons. The cases span particle counts 20, 50, and 110 and clearance-to-radius ratios 0.25, 0.50, and 0.75 at stretch 1.50.
+The primary external suite contains three deterministic linear plane-strain
+cells and one homogeneous finite-strain shear case. During the automated test,
+the current checkout regenerates the HomiCSx linear results in a temporary
+directory and compares them with the committed Abaqus 2022 reference. Thus a
+solver regression cannot be hidden by a stale committed HomiCSx result file.
+The exact cases, conventional macroscopic measures, thresholds, independent
+Abaqus scripts, and reference results are documented under
+`validation/abaqus`. Abaqus is an independent comparison implementation, not
+ground truth.
 
-The package-level suite uses conventional macroscopic quantities rather than the localization statistics studied in the associated research paper. Its acceptance limit is 1% for macroscopic energy and stress. Mean `J` uses a tighter tolerance because both solvers impose a deformation gradient with determinant 1.5. Maximum observed absolute differences are:
+## Execution scope
 
-| Metric | Maximum difference | Limit |
-|---|---:|---:|
-| Macroscopic energy | 0.106% | 1% |
-| Macroscopic `P11` | 0.137% | 1% |
-| Macroscopic `P22` | 0.0051% | 1% |
-| Macroscopic `P33` | 0.111% | 1% |
-| Mean `J` | 1.42e-8% | 0.000001% |
-
-Recompute the comparison from the stored reference values with:
-
-```console
-python -m validation.abaqus.compare_reference
-```
-
-The detailed scope, material and mesh settings, provenance, and limitations are stored under `validation/abaqus`. Abaqus is treated as an independent comparison implementation, not ground truth. Agreement on these selected aggregate metrics does not establish pointwise field identity, general mesh independence, or validation of features outside the documented scope.
-
-## MPI smoke test
-
-The release gate includes a genuine two-rank run of the periodic mesh
-distribution, multipoint constraints, linear solves, and global reductions:
-
-```bash
-PYTHONPATH=. mpiexec -n 2 python examples/mpi_linear_smoke.py
-```
-
-The script requires every rank to recover the same homogenized stiffness trace.
-This is a smoke test for distributed execution, not a strong-scaling benchmark.
-The explicit `PYTHONPATH` ensures a source-checkout validation uses the checkout
-rather than an older installed HomiCSx build.
-
-Two-rank trials were also performed for the deterministic heterogeneous
-Neo-Hookean and generalized-Maxwell examples. Both terminate with a PETSc
-segmentation fault during the nonlinear multipoint-constraint solve. Replacing
-the default direct solver with distributed GMRES and block Jacobi did not make
-the hyperelastic case operational. These negative tests establish the current
-boundary: linear MPI is supported, while nonlinear MPI is not. They are not
-included as automated tests because the failure aborts the MPI process rather
-than producing a catchable Python exception.
+HomiCSx 1.x is serial-only at the application level. Solver drivers reject
+communicators larger than one rank with an actionable error. Distributed
+execution will remain outside the supported scope until cross-rank equality and
+analytical accuracy are both enforced in continuous integration.
 
 ## Generalized-Maxwell comparison
 

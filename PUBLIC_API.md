@@ -13,6 +13,11 @@ materials, material assignment, problem settings, linear and nonlinear
 homogenization drivers and results, adaptive settings, simulation state, and
 typed hook data objects.
 
+HomiCSx 1.x supports solver execution on one MPI rank. MPI remains a runtime
+dependency of DOLFINx and PETSc, but distributed homogenization is not part of
+the supported API; the public drivers reject communicators with more than one
+rank.
+
 The hyperelastic extension interface accepts a user-defined UFL strain-energy
 density through `psi_form`; numerical energy and first-Piola stress methods are
 also required for macroscopic post-processing. HomiCSx validates its built-in

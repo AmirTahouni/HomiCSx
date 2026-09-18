@@ -7,10 +7,13 @@ from validation.abaqus.compare_viscoelastic import (
     evaluate_3d as evaluate_viscoelastic_3d,
     evaluate_heterogeneous as evaluate_viscoelastic_heterogeneous,
 )
+from validation.abaqus.run_homicsx_canonical import main as run_homicsx_canonical
 
 
-def test_canonical_abaqus_reference_passes_all_gates():
-    summary = evaluate()
+def test_current_code_passes_canonical_abaqus_gates(tmp_path):
+    current_results = tmp_path / "canonical_homicsx_results.json"
+    assert run_homicsx_canonical(current_results) == 0
+    summary = evaluate(homicsx_path=current_results)
     assert summary["passed"], summary["failures"]
 
 

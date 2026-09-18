@@ -51,18 +51,12 @@ The generator reports nominal volume fraction from original particles. For
 overlapping/open-cell constructions, the current correction is approximate;
 that workflow is outside the publication-supported core.
 
-## Parallel execution
+## Execution model
 
-The release gate runs the complete linear periodic workflow on two MPI ranks,
-including distributed mesh conversion, multipoint constraints, solves, and
-global stress/volume reductions. Nonlinear hyperelastic and generalized-Maxwell
-two-rank trials currently terminate with a PETSc segmentation fault during the
-nonlinear multipoint-constraint solve, including when a distributed
-Krylov/block-Jacobi configuration is used.
-Consequently, nonlinear MPI execution is **not supported** in this release.
-Run nonlinear workflows on one MPI rank.
-
-This is a functional MPI smoke test, not a scalability claim.
+HomiCSx 1.x supports solver execution on one MPI rank. DOLFINx and PETSc still
+use MPI internally, but distributed HomiCSx homogenization is deliberately
+rejected until cross-rank result consistency is established and continuously
+tested. Run workflows without `mpiexec`.
 
 ## Installation
 
@@ -92,7 +86,7 @@ python examples/linear_periodic_2d.py
 ```
 
 The [`examples/`](examples/) directory contains deterministic, non-interactive
-geometry, 2D and 3D linear, hyperelastic, viscoelastic, and linear-MPI
+geometry, 2D and 3D linear, hyperelastic, and viscoelastic
 workflows. It is the single maintained entry point for runnable examples; the
 documentation provides the corresponding narrative tutorials.
 
@@ -103,7 +97,7 @@ documentation provides the corresponding narrative tutorials.
 ## Verification and documentation
 
 The [verification documentation](docs/source/validation.md) summarizes
-analytical tests, mesh-refinement gates, the MPI smoke test, and independent
+analytical tests, mesh-refinement gates, current-code regression tests, and independent
 Abaqus comparisons based on conventional macroscopic stress, strain, energy,
 Jacobian, and stiffness measures.
 

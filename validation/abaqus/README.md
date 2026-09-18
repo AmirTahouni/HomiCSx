@@ -1,14 +1,9 @@
-# HomiCSx--Abaqus finite-strain comparison
-
-This compact dataset records nine outcome-blind, geometry-matched comparisons at macroscopic deformation gradient `diag(1.5, 1.0, 1.0)`. It covers three particle counts and three clearance-to-radius levels. Abaqus is an independent comparison implementation, not ground truth.
-
-The retained verification quantities are macroscopic energy, the normal components `P11`, `P22`, and `P33` of macroscopic first Piola--Kirchhoff stress, and mean deformation Jacobian `J`. The acceptance limit is 1% for macroscopic energy and stresses. The mean-J comparison uses a tighter 0.000001% gate because both solvers impose the same macroscopic deformation with determinant 1.5.
+# HomiCSx--Abaqus validation
 
 ## Canonical, reproducible suite
 
-The package-specific suite in this directory supersedes the research-derived
-table above as the primary reproducible Abaqus verification. It deliberately
-uses no localization or percentile (`Q`) quantities. Its conventional outputs
+The package-specific suite in this directory is the primary reproducible
+Abaqus verification. Its conventional outputs
 are the homogenized plane-strain stiffness, macro stress, macro strain, macro
 energy, and (for finite strain) mean deformation Jacobian.
 
@@ -45,8 +40,10 @@ python -m validation.abaqus.compare_canonical
 
 Abaqus must be launched from `validation/abaqus` because Abaqus 2022 does not
 define `__file__` for a `noGUI` script. Solver databases and logs are written to
-the ignored `canonical_work/` directory. The two compact JSON result files are
-retained for review and for comparison tests. The Abaqus script uses only the
+the ignored `canonical_work/` directory. The compact Abaqus JSON result and a
+documented HomiCSx snapshot are retained for review. The automated gate
+regenerates current HomiCSx linear results in a temporary directory before
+comparison, so stale committed output cannot mask a solver regression. The Abaqus script uses only the
 bundled CAE/Standard Python environment and requires no user subroutine compiler.
 
 The committed reference run used Abaqus 2022. All canonical gates are 1% for
@@ -134,12 +131,8 @@ rate regression additionally requires distinct converged fluctuation fields.
 That regression exercises 3D heterogeneous redistribution, but is not an
 external Abaqus comparison.
 
-Run the comparison without an Abaqus installation:
-
-```console
-python -m validation.abaqus.compare_reference
-```
-
-The command recomputes every relative difference from `reference_results.csv`; stored pass flags are deliberately not used. Expected maximum absolute differences are 0.106% for macroscopic energy, 0.137% for `P11`, 0.0051% for `P22`, 0.111% for `P33`, and approximately 1.42e-8% for mean `J`.
-
-Raw Abaqus ODB files, dense field exports, and research-specific localization statistics are intentionally excluded. `metadata.json` records the material, loading, mesh, selection, and source provenance needed to interpret this extract. This suite demonstrates macroscopic agreement for the selected cases; it does not establish pointwise field identity, general mesh independence, or validity for every HomiCSx feature.
+Raw Abaqus ODB files and dense field exports are intentionally excluded. The
+JSON manifests record material, loading, mesh, and acceptance definitions.
+These suites demonstrate agreement for the selected cases; they do not
+establish pointwise field identity, general mesh independence, or validity for
+every HomiCSx feature.

@@ -9,7 +9,7 @@ include environment-dev.yml
 
 recursive-include examples *.py *.md
 recursive-include tests *.py
-recursive-include validation *.py *.json *.csv *.md
+recursive-include validation *.py *.json *.md
 recursive-include docs *.py *.rst *.md *.txt
 
 prune docs/build

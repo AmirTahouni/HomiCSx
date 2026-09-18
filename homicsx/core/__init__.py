@@ -11,14 +11,11 @@ from .mesh import (
 )
 
 from .material import (
-    # QuadraturePointEvaluator,
-    # MaterialState,
     NonlinearMaterialModel,
     HyperelasticMaterial,
     LinearElasticIsotropic,
     NeoHookeanIsotropic,
     ViscoelasticGeneralizedMaxwell,
-    # J2Plasticity,
     MaterialAssignment,
 )
 
@@ -57,14 +54,11 @@ __all__ = [
     "MeshImportMapping",
 
     # materials
-    # "QuadraturePointEvaluator",
-    # "MaterialState",
     "NonlinearMaterialModel",
     "HyperelasticMaterial",
     "LinearElasticIsotropic",
     "NeoHookeanIsotropic",
     "ViscoelasticGeneralizedMaxwell",
-    # "J2Plasticity",
     "MaterialAssignment",
 
     # fem

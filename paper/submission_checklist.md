@@ -51,6 +51,11 @@
 - [x] Verify every reference and DOI against its publisher or authoritative
   repository record; retain the audit in `reference_audit.md`.
 - [x] Add the archived HomiCSx software citation as a software reference.
+- [x] Add a focused comparison with MicroStructPy, DAMASK, and MOOSE.
+- [x] State the generalized-Maxwell free energy, stress contribution, update,
+  initialization, and Abaqus parameter mapping explicitly.
+- [x] State the one-rank execution boundary consistently in code, docs, and
+  manuscript.
 - [x] Retain the generative-AI disclosure because AI assisted code review,
   validation preparation, documentation, and manuscript drafting.
 - [ ] Complete the submission-system declarations and sanctions/payment checks
@@ -70,3 +75,5 @@
 - [x] Compile and visually inspect every page of the pre-release LaTeX PDF.
 - [ ] Obtain author approval of the exact files before submission.
 - [x] Confirm the declaration of no competing interests.
+- [ ] Publish a corrective release containing the post-review changes and
+  replace the v1.0.0 version DOI in submission files with its immutable DOI.

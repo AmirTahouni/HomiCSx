@@ -46,11 +46,9 @@ work but are not currently part of the verification matrix.
   deformation-gradient/state update implementation.
 - Advanced post-processing beyond essential result and XDMF extraction is not
   part of the supported core.
-- MPI verification covers the two-rank linear periodic workflow. Two-rank
-  heterogeneous Neo-Hookean and generalized-Maxwell trials currently terminate
-  with a PETSc segmentation fault during the nonlinear MPC solve, including
-  with distributed Krylov/block-Jacobi options. Nonlinear MPI execution is not
-  supported in this release; use one rank for nonlinear workflows.
+- HomiCSx 1.x supports solver execution on one MPI rank. The public drivers
+  reject distributed communicators until cross-rank consistency is verified in
+  continuous integration.
 - External hyperelastic validation exercises the built-in Neo-Hookean law.
   User-defined energies use the same assembly interface, but their constitutive
   correctness remains the user's responsibility.

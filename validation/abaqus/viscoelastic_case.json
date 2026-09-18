@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "case_id": "homogeneous_two_branch_shear_relaxation",
-  "description": "Homogeneous finite-strain simple-shear hold for the experimental generalized-Maxwell model.",
+  "description": "Homogeneous finite-strain simple-shear hold for the supported generalized-Maxwell model.",
   "domain": {"lx": 2.0, "ly": 0.75},
   "mesh": {"homicsx_min_size": 0.025, "homicsx_max_size": 0.05, "abaqus_size": 0.04},
   "equilibrium_material": {"young_modulus": 10.0, "poisson_ratio": 0.25},

@@ -28,10 +28,10 @@ representative volume element; composite materials; viscoelasticity
 | Nr | Code metadata description | Metadata |
 |---|---|---|
 | C1 | Current code version | v1.0.0 |
-| C2 | Permanent link to code/repository used for this code version | https://github.com/AmirTahouni/HomiCSx |
+| C2 | Permanent link to code/repository used for this code version | https://doi.org/10.5281/zenodo.22811694 |
 | C3 | Legal code license | MIT |
 | C4 | Code versioning system used | Git |
-| C5 | Software code languages, tools and services used | Python, UFL, Gmsh API, MPI |
+| C5 | Software code languages, tools and services used | Python, UFL, Gmsh API |
 | C6 | Compilation requirements, operating environments and dependencies | Conda; Python 3.10; DOLFINx 0.9.0; dolfinx_mpc 0.9.0; Linux or WSL2 |
 | C7 | Link to developer documentation/manual | https://homicsx.readthedocs.io/en/latest/ |
 | C8 | Support email for questions | tahouniamirreza@gmail.com |
@@ -63,6 +63,22 @@ material implementations, callable load cases, and typed hooks invoked at
 documented points in the nonlinear driver. The package therefore occupies a
 middle ground between one-off finite-element scripts and closed workflows that
 offer limited intervention in the solution sequence.
+
+### 1.1. Positioning relative to related software
+
+HomiCSx complements rather than replaces broader research-software ecosystems.
+MicroStructPy emphasizes statistical microstructure generation and mesh export
+[8], while HomiCSx couples a narrower particulate generator directly to
+periodic mechanical solves. DAMASK provides mature grid and mesh solvers for
+crystal-plasticity and multiphysics homogenization [9]; HomiCSx instead targets
+compact, script-level customization of particulate FEniCSx workflows. MOOSE is
+a general parallel finite-element and multiphysics framework with periodic
+boundary infrastructure [10], whereas HomiCSx packages domain-specific
+geometry, matching periodic meshing, constitutive hooks, homogenization loads,
+and macro outputs behind Python objects. HomiCSx does not claim their breadth,
+parallel scalability, or adoption. Its narrower contribution is an inspectable
+serial path joining these particular stages for linear, hyperelastic, and
+generalized-Maxwell RVE studies.
 
 ## 2. Software description
 
@@ -109,13 +125,35 @@ and optional tangent information.
 Hyperelastic material objects provide a UFL strain-energy density and matching
 numerical post-processing methods. Compressible Neo-Hookean elasticity is the
 built-in, externally compared implementation; custom laws remain the user's
-validation responsibility. The generalized-Maxwell solid stores a cellwise viscous metric
-and advances it with an exponential recurrence based on the current right
-Cauchy--Green tensor and branch relaxation time. The resulting algorithmic
-nonequilibrium stress participates directly in the weak residual, and its
-Newton Jacobian is obtained by automatic differentiation. Previous converged
-viscous metrics remain fixed during a global solve and are committed only after
-convergence, preserving step-retry semantics.
+validation responsibility. For generalized-Maxwell branch $i$, let
+$\mathbf{C}=\mathbf{F}^{T}\mathbf{F}$ and let $\mathbf{C}_{v,i}$ be its viscous
+metric. HomiCSx implements
+
+\[
+\Psi_i=\frac{\mu_i}{2}\left[\operatorname{tr}(\mathbf{C}\mathbf{C}_{v,i}^{-1})
+-d-\ln\det(\mathbf{C}\mathbf{C}_{v,i}^{-1})\right],
+\]
+
+with nonequilibrium stress
+$\mathbf{P}_i=\mu_i\mathbf{F}(\mathbf{C}_{v,i}^{-1}-\mathbf{C}^{-1})$.
+Starting from $\mathbf{C}_{v,i}^{0}=\mathbf{I}$, a converged increment updates
+
+\[
+\mathbf{C}_{v,i}^{n+1}=\alpha_i\mathbf{C}_{v,i}^{n}
++(1-\alpha_i)\mathbf{C}^{n+1},\qquad
+\alpha_i=\exp(-\Delta t/\tau_i).
+\]
+
+The metrics are DG0 cellwise coefficients, consistent with the current
+cellwise deformation-gradient evaluation. Previous converged metrics remain
+fixed while global equilibrium is solved; trial state is committed only after
+convergence. The total stress is the equilibrium hyperelastic stress plus all
+branch stresses, so nonequilibrium stress enters the weak residual and its
+Newton Jacobian is obtained by automatic differentiation. Objectivity follows
+from dependence on $\mathbf{C}$ and an objective internal metric. Positive
+branch moduli and relaxation times are required. In the Abaqus comparison,
+$\tau_i$ is unchanged and the shear Prony ratio is
+$g_i=\mu_i/(\mu_{\infty}+\sum_j\mu_j)$ with zero bulk Prony ratio.
 
 ### 2.3. Customization and outputs
 
@@ -126,20 +164,23 @@ homogenization loop. They have explicit ordering and state scopes and can be
 used to collect fields, compute application-specific metrics, or implement
 additional workflow logic. Core outputs include effective stiffness, macro
 stress/strain/energy histories, Jacobian histories, and XDMF field exports for
-external post-processing.
+external post-processing. Figure 1 summarizes this division between the
+supported pipeline and its documented extension points.
 
 ## 3. Illustrative examples
 
 The documentation demonstrates geometry generation, 2D and 3D linear solves,
 hyperelasticity, generalized-Maxwell response, and typed hooks. A single
 repository-level examples directory provides compact deterministic geometry,
-2D/3D linear, hyperelastic, heterogeneous viscoelastic, and linear-MPI
+2D/3D linear, hyperelastic, and heterogeneous viscoelastic
 workflows; all five serial scripts are executed by the test suite. The linear script creates a
 fixed geometry, generates a periodic-conforming mesh, assigns phase materials,
 and passes these objects to the linear driver. The viscoelastic script exercises
 nonlinear equilibrium, state evolution, and a typed macro-stress hook. The same
 separation of concerns allows a geometry or material implementation to be
-changed without replacing the full pipeline.
+changed without replacing the full pipeline. Figure 2 illustrates the matching
+periodic boundary patterns produced by the meshing stage, while Figure 3 shows
+representative field output opened in ParaView.
 
 ![HomiCSx architecture and data flow. The supported workflow proceeds from
 geometry through periodic meshing, finite-element construction, homogenization,
@@ -171,6 +212,17 @@ stress and panel (b) shows strain-energy density. The field data are exported
 by HomiCSx; mesh edges are retained to distinguish the numerical field from a
 schematic illustration.
 
+### Representative execution cost
+
+For scale rather than as a performance benchmark, each maintained example was
+run once on one rank under WSL2 with Python 3.10.21 and DOLFINx 0.9.0 on an AMD
+Ryzen 9 9900X host; WSL reported 15.2 GiB available memory. Wall times include
+Conda process startup and were 2.29 s for geometry generation, 1.83 s for the
+2D linear example, 2.14 s for 3D linear, 1.91 s for 2D hyperelasticity, and
+1.99 s for 2D viscoelasticity. Peak resident memory ranged from 214 to 259 MiB.
+These compact examples are workflow checks, not mesh-converged production
+benchmarks, and no parallel speedup is claimed.
+
 ## 4. Verification and validation
 
 The automated test suite covers deterministic geometry behavior, tagging,
@@ -190,7 +242,9 @@ only conventional macroscopic quantities. Three linear plane-strain cases—a
 homogeneous non-unit cell, a centered 20% circular inclusion, and a periodic
 boundary-split inclusion—have maximum stiffness, probe-stress, and probe-energy
 differences below 0.55%. Homogeneous finite simple shear agrees to within
-0.00016% for macro energy and shear stress.
+0.00016% for macro energy and shear stress. The automated canonical linear
+gate regenerates HomiCSx results from the current checkout before comparison
+with the archived Abaqus reference.
 
 Generalized-Maxwell validation compares complete macro-shear-stress relaxation
 histories. The homogeneous 2D and 3D curves agree with Abaqus to within
@@ -198,9 +252,14 @@ histories. The homogeneous 2D and 3D curves agree with Abaqus to within
 viscoelastic matrix containing a hyperelastic inclusion, the centered and
 periodic-split 2D cases give 1.22% and 1.35% maximum curve errors. Automated
 fast/slow-rate regressions in 2D and 3D additionally require different
-converged heterogeneous fluctuation fields. The external evidence does not
+converged heterogeneous fluctuation fields. The viscoelastic external curves
+are paired archived datasets; current-code regression is supplied by the
+analytical and heterogeneous rate tests rather than by rerunning Abaqus in CI.
+The external evidence does not
 establish pointwise field identity, all loading paths, or external validation
-of a heterogeneous 3D viscoelastic cell.
+of a heterogeneous 3D viscoelastic cell. Figure 4 shows the complete relaxation
+histories used for the viscoelastic comparisons rather than only their scalar
+error summaries.
 
 ![HomiCSx and Abaqus generalized-Maxwell shear-relaxation histories. Solid
 lines denote HomiCSx and open markers denote Abaqus. Panel (a) shows the
@@ -247,10 +306,9 @@ correctness fixes as resources permit, versioned releases, and preservation
 are prioritized. The permissive license allows community forks and continued
 development if active maintenance changes.
 
-Two-rank MPI smoke tests support the linear periodic workflow, not scalability.
-Heterogeneous hyperelastic and generalized-Maxwell trials terminate with a
-PETSc fault during the nonlinear MPC solve, including with distributed
-GMRES/block Jacobi. Nonlinear MPI is therefore unsupported; use one rank.
+HomiCSx 1.x supports solver execution on one MPI rank. The drivers reject
+distributed communicators until cross-rank consistency is established and
+continuously tested.
 
 ## 7. Conclusions
 
@@ -271,7 +329,7 @@ studies while keeping its archival maintenance commitment realistic.
 - Version DOI: https://doi.org/10.5281/zenodo.22811694
 - Concept DOI: https://doi.org/10.5281/zenodo.22811693
 
-The repository contains pinned Conda environment specifications, installation
+The repository contains version-constrained Conda environment specifications, installation
 instructions, automated tests, benchmark manifests, independent Abaqus runner
 scripts, compact reference results, and executable acceptance gates. Abaqus is
 not required to recompute comparisons from the committed compact results.
@@ -338,3 +396,13 @@ the publication.
    https://doi.org/10.1016/j.euromechsol.2019.103825.
 7. A. R. Tahouni, HomiCSx, version 1.0.0, Zenodo (2026).
    https://doi.org/10.5281/zenodo.22811694.
+8. K. A. Hart, J. J. Rimoli, MicroStructPy: A statistical microstructure mesh
+   generator in Python, SoftwareX 12 (2020) 100595.
+   https://doi.org/10.1016/j.softx.2020.100595.
+9. M. Diehl, D. Wang, C. Liu, et al., Solving material mechanics and
+   multiphysics problems of metals with complex microstructures using DAMASK,
+   Advanced Engineering Materials 22 (2020) 1901044.
+   https://doi.org/10.1002/adem.201901044.
+10. C. J. Permann, D. R. Gaston, D. Andrš, et al., MOOSE: Enabling massively
+    parallel multiphysics simulation, SoftwareX 11 (2020) 100430.
+    https://doi.org/10.1016/j.softx.2020.100430.

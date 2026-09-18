@@ -3,6 +3,25 @@
 All notable changes to HomiCSx are documented here. The project follows
 semantic versioning for its publication-supported public API.
 
+## Unreleased
+
+### Changed
+
+- Restricted the documented solver contract to one MPI rank and made the
+  homogenization drivers reject distributed communicators explicitly.
+- Changed the package maturity classifier from Production/Stable to Beta.
+- Made the canonical Abaqus acceptance test regenerate HomiCSx results from
+  the current checkout before comparison with the archived external reference.
+- Expanded the viscoelastic formulation and related-software discussion in
+  the manuscript and documentation.
+
+### Removed
+
+- Removed the unfinished, unsupported J2-plasticity prototype and the
+  distributed-execution example.
+- Removed a redundant research-derived Abaqus dataset whose provenance and
+  version metadata no longer matched the publication validation suite.
+
 ## 1.0.0 - 2026-09-17
 
 First archival research-software release prepared for the SoftwareX software
@@ -17,7 +36,7 @@ paper.
   user-defined hyperelastic-energy interface, and generalized-Maxwell response.
 - Custom material interfaces, load callables, and typed nonlinear hooks.
 - Deterministic geometry, 2D/3D linear, hyperelastic, heterogeneous
-  viscoelastic, and linear-MPI example scripts.
+  viscoelastic example scripts.
 - Analytical, regression, mesh-refinement, and Abaqus comparison suites.
 - Documentation for theory, loading conventions, validation, limitations,
   experimental modules, support, and the public API.

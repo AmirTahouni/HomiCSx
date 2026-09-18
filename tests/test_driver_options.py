@@ -14,7 +14,7 @@ def test_linear_driver_run_honors_explicit_overrides(monkeypatch):
     driver = driver_module.LinearHomogenizationDriver.__new__(
         driver_module.LinearHomogenizationDriver
     )
-    driver.mesh_obj = object()
+    driver.mesh_obj = SimpleNamespace(comm=SimpleNamespace(size=1))
     driver.cell_tags = object()
     driver.facet_tags = object()
     driver.assignment = object()
@@ -41,7 +41,7 @@ def test_linear_driver_run_falls_back_to_configured_options(monkeypatch):
     driver = driver_module.LinearHomogenizationDriver.__new__(
         driver_module.LinearHomogenizationDriver
     )
-    driver.mesh_obj = object()
+    driver.mesh_obj = SimpleNamespace(comm=SimpleNamespace(size=1))
     driver.cell_tags = object()
     driver.facet_tags = object()
     driver.assignment = object()
@@ -55,3 +55,17 @@ def test_linear_driver_run_falls_back_to_configured_options(monkeypatch):
 
     assert captured["mode"] == "partial"
     assert captured["petsc_options"] == {"configured": True}
+
+
+def test_linear_driver_rejects_distributed_execution():
+    driver = driver_module.LinearHomogenizationDriver.__new__(
+        driver_module.LinearHomogenizationDriver
+    )
+    driver.mesh_obj = SimpleNamespace(comm=SimpleNamespace(size=2))
+
+    try:
+        driver.run()
+    except RuntimeError as exc:
+        assert "one MPI rank only" in str(exc)
+    else:
+        raise AssertionError("distributed execution must be rejected explicitly")

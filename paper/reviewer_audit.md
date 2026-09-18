@@ -25,7 +25,7 @@ viscoelastic Abaqus validation from what has been established.
 ## Reproducibility
 
 **Assessment: ready.** The repository contains a
-pinned Conda environment, deterministic examples, tests, figure generators,
+version-constrained Conda environment, deterministic examples, tests, figure generators,
 validation metadata, and compact reference results. The final release must be
 tested in a fresh environment and archived before submission; both gates have
 been completed for version 1.0.0.

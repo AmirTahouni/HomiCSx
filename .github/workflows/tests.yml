@@ -34,7 +34,7 @@ jobs:
 
       - name: Run test suite
         shell: bash -el {0}
-        run: python -m pytest --cov=homicsx --cov-report=term-missing
+        run: python -m pytest --cov=homicsx --cov-report=term-missing --cov-fail-under=60
 
       - name: Build documentation with warnings as errors
         shell: bash -el {0}

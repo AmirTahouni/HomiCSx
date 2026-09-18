@@ -9,8 +9,9 @@ the automated test suite.
 
 The compiled FEniCSx, PETSc, and MPI dependencies are not reliably installed
 from PyPI. Consequently, `environment.yml` is the authoritative runtime
-dependency specification; the Python package metadata intentionally does not
-claim that `pip` can resolve the solver stack.
+dependency specification. It is version-constrained rather than a platform-
+specific lock file. The Python package metadata intentionally does not claim
+that `pip` can resolve the solver stack.
 
 ## Install from source
 

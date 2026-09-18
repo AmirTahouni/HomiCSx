@@ -20,6 +20,15 @@ from homicsx.fem.fluctuation import build_nonlinear_periodic_fluctuation_problem
 from homicsx.homogenization.linear import _solve_linear_homogenization
 
 
+def _require_serial(mesh_obj) -> None:
+    """Reject distributed execution until cross-rank solver results are verified."""
+    if mesh_obj.comm.size != 1:
+        raise RuntimeError(
+            "HomiCSx 1.x supports homogenization on one MPI rank only; "
+            "run the workflow without mpiexec."
+        )
+
+
 class LinearHomogenizationDriver:
     """
     Lightweight driver for linear elastic homogenization.
@@ -113,6 +122,7 @@ class LinearHomogenizationDriver:
         when the driver was constructed. Omitting them preserves the configured
         driver and problem settings.
         """
+        _require_serial(self.mesh_obj)
         resolved_mode = self.mode if mode is None else mode
         resolved_petsc_options = (
             self.settings.petsc_options if petsc_options is None else petsc_options
@@ -898,6 +908,7 @@ class NonlinearHomogenizationDriver:
         state_histories : dict or None
             State histories for history-dependent materials
         """
+        _require_serial(self.mesh_obj)
         from homicsx.homogenization.nlhelpers import _run_all_load_cases
         from homicsx.homogenization.nlhelpers import (
             _summarize_histories, plot_homogenization_summary, plot_each_load_case
