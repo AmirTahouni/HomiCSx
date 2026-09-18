@@ -23,8 +23,8 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
   0.9.0, a strict Sphinx build, package builds, and Abaqus-reference checks.
   Post-release review identified inconsistent distributed behavior; the
   corrective release therefore defines all homogenization drivers as
-  single-rank and rejects larger communicators. The revised suite passes 117
-  tests with 62.21% statement coverage against a 60% CI floor; the strict
+  single-rank and rejects larger communicators. The revised suite passes 120
+  tests with 62.49% statement coverage against a 60% CI floor; the strict
   Sphinx build and 12-page manuscript compilation also pass.
 - Homogeneous plane-strain verification now includes a deterministic two-level convergence gate on one fixed seeded geometry. Relative stiffness error falls from 2.543% at minimum/maximum mesh sizes 0.08/0.16 to 0.211% at 0.025/0.05, a 12.0-fold reduction. CI requires coarse error below 5%, fine error below 0.5%, and at least a factor-two reduction; no claim of monotonic intermediate convergence is made for independently regenerated unstructured meshes.
 - The repository contains a focused HomiCSx--Abaqus suite using macroscopic
@@ -223,7 +223,8 @@ This posture must be checked against the target journal immediately before submi
 
 - Align the distributed-execution claim with the serial implementation.
 - Restrict history-dependent viscoelastic workflows to the verified simplex
-  path and explicitly reject unsupported XDMF and tangent requests.
+  path, provide state-preserving step-consistent tangents, and explicitly
+  reject unsupported XDMF stress/energy reconstruction.
 - Replace the nonlinear canonical self-check with a current-checkout solver
   execution and harden finite-difference tangent handling.
 - Add focused coverage gates, linting, package validation, and installed-wheel

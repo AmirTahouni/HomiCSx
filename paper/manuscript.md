@@ -133,8 +133,8 @@ finite strain, the deformation gradient is decomposed as
 where the fluctuation is periodic on opposite cell boundaries. The nonlinear
 driver solves incremental equilibrium with adaptive stepping and records
 volume-averaged first Piola--Kirchhoff stress, energy, deformation Jacobian,
-and optional finite-difference tangent information for history-independent
-materials.
+and optional finite-difference tangent information for hyperelastic and
+generalized-Maxwell materials.
 
 Hyperelastic material objects provide a UFL strain-energy density and matching
 numerical post-processing methods. Compressible Neo-Hookean elasticity is the
@@ -169,6 +169,14 @@ branch moduli and relaxation times are required. In the Abaqus comparison,
 $\tau_i$ is unchanged and the shear Prony ratio is
 $g_i=\mu_i/(\mu_{\infty}+\sum_j\mu_j)$ with zero bulk Prony ratio.
 
+The reported generalized-Maxwell macroscopic tangent is step-consistent. Each
+positive and negative macro-deformation perturbation restarts from the same
+previous converged viscous metrics, advances over the actual current time
+increment, and resolves periodic equilibrium. Central differences form the
+tangent columns, after which HomiCSx restores the unperturbed fluctuation field
+and committed metrics. A one-sided difference is used if only one perturbation
+converges.
+
 ### 2.3. Customization and outputs
 
 Users can define macroscopic deformation histories as Python callables and can
@@ -178,10 +186,11 @@ homogenization loop. They have explicit ordering and state scopes and can be
 used to collect fields, compute application-specific metrics, or implement
 additional workflow logic. Core outputs include effective stiffness, macro
 stress/strain/energy histories and Jacobian histories. Finite-difference
-tangents and reconstructed stress/energy XDMF fields are limited to
-history-independent materials; state-aware viscoelastic fields remain
-available to hooks. Figure 1 summarizes this division between the
-supported pipeline and its documented extension points.
+tangents cover hyperelastic and generalized-Maxwell materials. Reconstructed
+stress/energy XDMF fields remain limited to history-independent materials;
+state-aware viscoelastic fields are available to hooks. Figure 1 summarizes
+this division between the supported pipeline and its documented extension
+points.
 
 ## 3. Illustrative examples
 

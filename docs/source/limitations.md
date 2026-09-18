@@ -48,10 +48,13 @@ work but are not currently part of the verification matrix.
   history-independent materials. Viscoelastic XDMF stress/energy
   reconstruction is rejected because a state snapshot per output step is not
   yet stored; use a post-stress hook for state-aware extraction.
-- Finite-difference homogenized tangents are supported for
-  history-independent materials. History-dependent algorithmic tangents are
-  not yet implemented because perturbations must not commit an additional
-  relaxation step.
+- Step-consistent finite-difference homogenized tangents are supported for
+  hyperelastic and generalized-Maxwell materials on the supported simplex
+  meshes. Each viscoelastic perturbation replays the current time increment
+  from the same previous converged state and the actual committed state is
+  restored afterward. Central differences require up to twice the square of
+  the spatial dimension in additional equilibrium solves at every requested
+  tangent step, so `tangent_every` should be chosen with that cost in mind.
 - HomiCSx 1.x supports solver execution on one MPI rank. The public drivers
   reject distributed communicators until cross-rank consistency is verified in
   continuous integration.

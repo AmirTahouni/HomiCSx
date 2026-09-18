@@ -197,14 +197,18 @@ At each converged step, the macroscopic stress is computed by volume averaging:
 
 $$\bar{\mathbf{P}} = \frac{1}{|\Omega_0|} \int_{\Omega_0} \mathbf{P} \, d\Omega$$
 
-For history-independent materials, the reported effective tangent modulus is
-computed by central finite differences:
+The reported effective tangent modulus is computed by central finite
+differences:
 
 $$\bar{\mathbb{A}} = \frac{\partial \bar{\mathbf{P}}}{\partial \bar{\mathbf{F}}}$$
 
 Recorded macroscopic output includes stress, strain energy density
 $\bar{\Psi} = \langle \Psi \rangle$, Jacobian $J$, and apparent secant moduli.
-Finite-difference tangent components are recorded only for
-history-independent materials. XDMF stress and energy reconstruction has the
-same restriction; viscoelastic state-aware field data can instead be collected
-through hooks.
+For generalized-Maxwell materials, both perturbations restart from the same
+state at time $t_n$ and independently advance over the actual $\Delta t$ to
+the perturbed state at $t_{n+1}$. The unperturbed committed state and
+fluctuation field are restored after all columns are evaluated. If one side
+fails to converge, a one-sided difference against the converged base stress is
+used; a column is marked non-finite only if both perturbations fail. XDMF stress
+and energy reconstruction remains restricted to history-independent materials;
+viscoelastic state-aware field data can instead be collected through hooks.

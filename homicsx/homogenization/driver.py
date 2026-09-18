@@ -145,8 +145,8 @@ class NonlinearHomogenizationDriver:
 
     This class orchestrates the complete nonlinear homogenization workflow:
     incremental loading with adaptive step size control, material state
-    tracking, finite-difference tangents for history-independent materials,
-    and configurable post-processing.
+    tracking, step-consistent finite-difference tangents, and configurable
+    post-processing.
     It is the primary entry point for large-deformation, rate-dependent, and
     damage-based RVE analysis.
 
@@ -212,10 +212,10 @@ class NonlinearHomogenizationDriver:
     - **Material Support** : Hyperelastic, viscoelastic (generalized
       Maxwell), and user-defined nonlinear materials via the abstract
       :class:`NonlinearMaterialModel` base class.
-    - **State Management** : Generalized-Maxwell state variables are supported
-      on first-order simplex meshes. Algorithmic tangents and reconstructed
-      stress/energy XDMF fields are not currently provided for
-      history-dependent materials.
+    - **State Management** : Generalized-Maxwell state variables and
+      state-preserving step-consistent tangents are supported on first-order
+      simplex meshes. Reconstructed stress/energy XDMF fields are not currently
+      provided for history-dependent materials.
 
     See Also
     --------

@@ -16,8 +16,9 @@ semantic versioning for its publication-supported public API.
   the manuscript and documentation.
 - Restricted generalized-Maxwell state updates to first-order simplex meshes
   and rejected equilibrium-only XDMF stress/energy reconstruction.
-- Repaired the history-independent finite-difference tangent and made
-  history-dependent algorithmic tangents explicitly unsupported.
+- Repaired central finite-difference tangents and added step-consistent
+  generalized-Maxwell tangents that replay every perturbation from the same
+  previous converged state without contaminating the committed solution.
 - Added packaging CI, focused solver coverage gates, and unused-code checks.
 
 ### Removed

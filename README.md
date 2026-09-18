@@ -28,7 +28,9 @@ reproducible workflow.
 - A finite-strain generalized-Maxwell material with state management.
 - Built-in and custom load histories, adaptive stepping, typed hooks, and
   macroscopic stress, energy, and Jacobian histories. Finite-difference
-  tangent histories are available for history-independent materials.
+  tangent histories are available for hyperelastic and generalized-Maxwell
+  materials; viscoelastic perturbations replay the current increment from the
+  same previous converged state.
 - XDMF displacement and reconstructed stress/energy output for
   history-independent materials, suitable for ParaView.
 

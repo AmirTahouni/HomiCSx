@@ -618,23 +618,34 @@ def _compute_Ceff_fd_with_state(
     dim: int,
     quad_evaluator: QuadraturePointEvaluator,
     context: Any,
+    previous_material_states: Optional[
+        Dict[int, Dict[int, MaterialState]]
+    ] = None,
     delta: float = 1e-6
 ) -> np.ndarray:
-    """Compute a finite-difference tangent for history-independent materials.
+    """Compute the step-consistent homogenized tangent by finite differences.
 
     Central differences are used when both perturbations converge. If only one
     side converges, a one-sided difference against the base stress is returned.
-    History-dependent algorithmic tangents are deliberately unsupported: a
-    perturbation solve must not advance and commit an additional time step.
+    For history-dependent materials, every perturbation restarts from the same
+    previous converged material state and advances through the current time
+    increment. The actual converged displacement and committed state are
+    restored before returning.
     """
-    if material_assignment.has_history_dependence():
-        raise NotImplementedError(
-            "Algorithmic tangents for history-dependent materials are not "
-            "implemented; set tangent_every above the number of load steps."
+    has_history = material_assignment.has_history_dependence()
+    if has_history and previous_material_states is None:
+        raise ValueError(
+            "previous_material_states is required for a history-dependent "
+            "step-consistent tangent"
         )
 
     dim2 = dim * dim
     u_base = np.copy(u.x.array)
+    committed_states = (
+        _snapshot_material_states(context.material_states)
+        if context.material_states is not None
+        else None
+    )
     P0, _, _ = _compute_average_P_and_energy_with_state(
         domain, u, F_macro, material_assignment, cell_tags, dim,
         quad_evaluator, context.material_states
@@ -642,6 +653,10 @@ def _compute_Ceff_fd_with_state(
     P0_vec = _flatten_tensor(P0)
 
     def perturbed_stress(component: int, signed_delta: float):
+        if has_history:
+            _restore_material_states(
+                context.material_states, previous_material_states
+            )
         u.x.array[:] = u_base[:]
         u.x.scatter_forward()
         F_perturbed = _perturb_F(Fbar, component, signed_delta)
@@ -683,6 +698,9 @@ def _compute_Ceff_fd_with_state(
         u.x.array[:] = u_base[:]
         u.x.scatter_forward()
         F_macro.value[...] = Fbar
+        if committed_states is not None:
+            _restore_material_states(context.material_states, committed_states)
+            _sync_material_state_coefficients(context)
 
     return Ceff
 
@@ -823,6 +841,11 @@ def _run_one_load_case_with_history(
             # Restore from previous converged state
             u.x.array[:] = u_prev.x.array[:]
             u.x.scatter_forward()
+            increment_start_states = (
+                _snapshot_material_states(context.material_states)
+                if context.material_states is not None
+                else None
+            )
             
             # Solve current step
             u_sol, converged, iters, residual_norm = _solve_once_with_history(
@@ -934,11 +957,7 @@ def _run_one_load_case_with_history(
             
             # Compute tangent stiffness if requested
             Ceff = None
-            if (
-                not material_assignment.has_history_dependence()
-                and not skip_tangent
-                and (step_idx % tangent_every) == 0
-            ):
+            if not skip_tangent and (step_idx % tangent_every) == 0:
                 print(f"   Computing Tangent stiffness...")
                 try:
                     Ceff = _compute_Ceff_fd_with_state(
@@ -952,6 +971,7 @@ def _run_one_load_case_with_history(
                         dim=dim,
                         quad_evaluator=context.quad_evaluator,
                         context=context,
+                        previous_material_states=increment_start_states,
                         delta=1e-6,
                     )
                     print("   Done.")

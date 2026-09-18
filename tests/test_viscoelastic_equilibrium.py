@@ -15,7 +15,9 @@ from homicsx.core.homogenization import AdaptiveSettings
 from homicsx.core.material import ViscoelasticGeneralizedMaxwell
 
 
-def _final_fluctuation_for_rate(strain_rate):
+def _final_fluctuation_for_rate(
+    strain_rate, tangent_every=10_000, shear=0.02
+):
     geometry_input = GeometryInput(
         dim=2,
         dispersion="mono",
@@ -70,11 +72,11 @@ def _final_fluctuation_for_rate(strain_rate):
     driver.add_post_convergence_hook(capture_converged_field)
 
     def held_shear(unused_parameter):
-        return np.array([[1.0, 0.02], [0.0, 1.0]])
+        return np.array([[1.0, shear], [0.0, 1.0]])
 
-    driver.run(
+    result = driver.run(
         strain_rate=strain_rate,
-        tangent_every=10_000,
+        tangent_every=tangent_every,
         max_strain=0.01,
         custom_loads={"held_shear": held_shear},
         from_built_in_loads=[],
@@ -88,15 +90,44 @@ def _final_fluctuation_for_rate(strain_rate):
         save_plots=False,
     )
     assert len(captured) == 1
-    return captured[0]
+    history = result.histories["held_shear"]
+    return captured[0], history["Ceff"][-1], history["Pbar"][-1]
 
 
 def test_maxwell_branches_change_heterogeneous_equilibrium_field_with_rate():
-    fast = _final_fluctuation_for_rate(strain_rate=10.0)  # dt = 0.001
-    slow = _final_fluctuation_for_rate(strain_rate=0.01)  # dt = 1.0
+    fast, _, _ = _final_fluctuation_for_rate(strain_rate=10.0)  # dt = 0.001
+    slow, _, _ = _final_fluctuation_for_rate(strain_rate=0.01)  # dt = 1.0
     difference = np.linalg.norm(fast - slow)
     scale = max(np.linalg.norm(fast), np.linalg.norm(slow))
     assert difference / scale > 1.0e-2
+
+
+def test_heterogeneous_viscoelastic_step_tangent_is_finite():
+    _, tangent, _ = _final_fluctuation_for_rate(
+        strain_rate=10.0, tangent_every=1
+    )
+    assert tangent.shape == (4, 4)
+    assert np.all(np.isfinite(tangent))
+    assert np.linalg.norm(tangent) > 1.0
+
+
+def test_heterogeneous_viscoelastic_tangent_matches_fresh_step_replays():
+    delta = 1.0e-5
+    _, tangent, _ = _final_fluctuation_for_rate(
+        strain_rate=10.0, tangent_every=1, shear=0.02
+    )
+    _, _, stress_plus = _final_fluctuation_for_rate(
+        strain_rate=10.0, shear=0.02 + delta
+    )
+    _, _, stress_minus = _final_fluctuation_for_rate(
+        strain_rate=10.0, shear=0.02 - delta
+    )
+    independently_replayed_column = (
+        stress_plus.reshape(-1) - stress_minus.reshape(-1)
+    ) / (2.0 * delta)
+    np.testing.assert_allclose(
+        tangent[:, 1], independently_replayed_column, rtol=2.0e-4, atol=2.0e-5
+    )
 
 
 def _final_3d_fluctuation_for_rate(strain_rate):
