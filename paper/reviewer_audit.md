@@ -14,11 +14,16 @@ customized composite-cell studies and does not claim an external user base.
 
 ## Correctness and validation
 
-**Assessment: ready for release-gate rerun.** Analytical patch tests,
+**Assessment: ready.** Analytical patch tests,
 constitutive energy-gradient checks, mesh refinement, regression tests, and
 separately constructed Abaqus cases cover the advertised linear,
 hyperelastic, and viscoelastic core. The comparison reports conventional
 macroscopic quantities, not the application paper's localization statistics.
+History-dependent averages use exact geometric cell measures and normalized
+quadrature weights; a deliberately nonuniform-cell regression verifies this
+path. Step-consistent tangents are checked across every 2D column, a 3D shear
+column, nontrivial prior history, perturbation sizes, and a real-solver
+one-sided fallback, while committed fields and branch states are preserved.
 The manuscript explicitly excludes pointwise equivalence and heterogeneous 3D
 viscoelastic Abaqus validation from what has been established.
 
@@ -27,10 +32,10 @@ viscoelastic Abaqus validation from what has been established.
 **Assessment: ready.** The repository contains a
 version-constrained Conda environment, deterministic examples, tests, figure generators,
 validation metadata, and compact reference results. The final release must be
-tested in a fresh environment and archived before submission. The gates were
-completed for version 1.0.0 and rerun for the v1.0.1 corrective release
-candidate; the new archive DOI remains to be inserted after Zenodo deposits
-the release.
+tested in a fresh environment and archived before submission. The v1.0.1
+corrective release candidate passes 148 tests, 63.13% statement coverage, a
+strict documentation build, distribution checks, and manuscript compilation;
+the new archive DOI remains to be inserted after Zenodo deposits the release.
 
 ## Usability and documentation
 
