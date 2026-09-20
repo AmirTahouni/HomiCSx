@@ -14,7 +14,8 @@ SoftwareX structure.
 
 Compile from this directory with MiKTeX or TeXstudio by running `xelatex`
 twice on `manuscript.tex`. The checked-in `manuscript.pdf` is the visually
-inspected draft output and cites the archived version DOI and concept DOI.
+inspected pre-release draft. It cites the temporary v1.0.1 GitHub tag and the
+Zenodo concept DOI; the version DOI must replace the tag after archiving.
 
 Do not submit this draft until all remaining items in `submission_checklist.md`
 are resolved. Reconfirm the template version in the live submission system

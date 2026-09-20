@@ -6,7 +6,7 @@ repository.
 
 | Portal role | File | Notes |
 |---|---|---|
-| Manuscript | `manuscript.pdf` | DOI-complete, visually inspected manuscript. |
+| Manuscript | `manuscript.pdf` | Visually inspected pre-release manuscript; insert the v1.0.1 DOI before submission. |
 | LaTeX source | `manuscript.tex` | Elsevier `elsarticle` source. |
 | Figure | `figures/architecture_workflow.pdf` | Figure 1, vector. |
 | Figure | `figures/periodic_meshes.pdf` | Figure 2, vector. |

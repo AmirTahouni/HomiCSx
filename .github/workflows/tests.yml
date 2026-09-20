@@ -37,7 +37,7 @@ jobs:
         run: |
           python -m pytest --cov=homicsx --cov-report=term-missing --cov-fail-under=60
           python -m coverage json -o coverage.json
-          python -c "import json; d=json.load(open('coverage.json'))['files']; limits={'homicsx/core/material.py':80,'homicsx/homogenization/driver.py':80,'homicsx/homogenization/nlhelpers.py':45,'homicsx/fem/nonlinear_problem.py':60}; bad={p:(d[p]['summary']['percent_covered'],v) for p,v in limits.items() if d[p]['summary']['percent_covered'] < v}; assert not bad, bad"
+          python -c "import json; d=json.load(open('coverage.json'))['files']; limits={'homicsx/core/material.py':80,'homicsx/homogenization/linear.py':45,'homicsx/homogenization/driver.py':80,'homicsx/homogenization/nlhelpers.py':45,'homicsx/fem/nonlinear_problem.py':60}; bad={p:(d[p]['summary']['percent_covered'],v) for p,v in limits.items() if d[p]['summary']['percent_covered'] < v}; assert not bad, bad"
 
       - name: Static analysis
         shell: bash -el {0}

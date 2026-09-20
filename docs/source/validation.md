@@ -4,7 +4,13 @@ HomiCSx uses complementary verification and validation checks:
 
 - analytical homogeneous-material tests exercise the finite-element and homogenization pipeline;
 - internal consistency checks assess stiffness symmetry and finite outputs; and
-- geometry-matched Abaqus comparisons assess agreement with an independent implementation.
+- geometry-matched Abaqus comparisons assess agreement with a separately
+  constructed implementation.
+
+A dedicated nonuniform-mesh regression uses two triangular cells with areas 1
+and 2 and prescribed cellwise fields. It verifies exact geometric measures and
+the corresponding volume-weighted macroscopic stress, recoverable energy, and
+mean Jacobian in the history-dependent integration path.
 
 ## Analytical verification
 
@@ -52,7 +58,7 @@ directory and compares them with the committed Abaqus 2022 reference. Thus a
 solver regression cannot be hidden by a stale committed HomiCSx result file.
 The exact cases, conventional macroscopic measures, thresholds, independent
 Abaqus scripts, and reference results are documented under
-`validation/abaqus`. Abaqus is an independent comparison implementation, not
+`validation/abaqus`. Abaqus provides a separate comparison implementation, not
 ground truth.
 
 ## Execution scope
@@ -72,15 +78,15 @@ macroscopic shear is 0.01 over five time units.
 
 The homogeneous HomiCSx history agrees with direct evaluation of its
 exponential internal-state recurrence to within `1.6e-11`% peak-normalized
-maximum stress error. Abaqus/Standard uses an independently constructed
-`CPE6H` mesh and an equivalent time-domain Prony series; its homogeneous curve
+maximum stress error. Abaqus/Standard uses a `CPE6H` mesh separately
+constructed by the author and an equivalent time-domain Prony series; its homogeneous curve
 agrees within 0.000621%.
 
 Two heterogeneous cases place a hyperelastic inclusion with $E=100$ and
 $\nu=0.25$ in the viscoelastic matrix. The centered circle occupies 20% of the
-cell and gives 1.22% maximum peak-normalized stress-history error against
-Abaqus. A circle split across the periodic left/right boundary gives 1.35%.
-Their endpoint errors are 1.73% and 1.97%, respectively. These cases verify
+cell and gives 0.141% maximum peak-normalized stress-history error against
+Abaqus. A circle split across the periodic left/right boundary gives 0.159%.
+Their endpoint errors are 0.0343% and 0.0287%, respectively. These cases verify
 that nonequilibrium Maxwell stress participates in the nonlinear equilibrium
 residual and changes the time-dependent fluctuation field; it is not merely
 added during macroscopic post-processing.

@@ -118,17 +118,26 @@ class QuadraturePointEvaluator:
         return F_dict
     
     def compute_cell_volumes(self, cells: Optional[np.ndarray] = None) -> Dict[int, float]:
-        """Compute volume for each cell."""
-        from dolfinx.cpp.mesh import cell_volume
-        
+        """Return exact geometric measures for local mesh cells.
+
+        A DG0 test-function integral gives one entry per cell and delegates the
+        geometry mapping and Jacobian evaluation to DOLFINx. This is valid for
+        nonuniform and curved meshes and avoids relying on private C++ helpers.
+        """
+        num_local = self.mesh.topology.index_map(self.mesh.topology.dim).size_local
         if cells is None:
-            cells = np.arange(self.mesh.topology.index_map(self.mesh.topology.dim).size_local)
-            
-        volumes = {}
+            cells = np.arange(num_local, dtype=np.int32)
+        else:
+            cells = np.asarray(cells, dtype=np.int32)
+
+        V_dg0 = fem.functionspace(self.mesh, ("DG", 0))
+        test = ufl.TestFunction(V_dg0)
+        cell_integrals = fem.assemble_vector(fem.form(test * ufl.dx))
+
+        volumes: Dict[int, float] = {}
         for cell_idx in cells:
-            cell = dolfinx.mesh.Cell(self.mesh, cell_idx)
-            volumes[cell_idx] = cell_volume(self.mesh, cell)
-            
+            dof = V_dg0.dofmap.cell_dofs(int(cell_idx))[0]
+            volumes[int(cell_idx)] = float(cell_integrals.array[dof])
         return volumes
 
 

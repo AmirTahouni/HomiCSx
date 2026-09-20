@@ -4,4 +4,4 @@ Highlights
 • Periodic-conforming 2D and 3D meshes support split inclusions.
 • Built-in and user-defined hyperelastic energies enable finite-strain studies.
 • Typed hooks enable custom loads, materials, and field processing.
-• Archived paired HomiCSx–Abaqus viscoelastic data differ by at most 1.36%.
+• Paired HomiCSx–Abaqus viscoelastic histories differ by at most 0.159%.

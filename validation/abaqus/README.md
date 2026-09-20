@@ -60,7 +60,7 @@ Reference-run results:
 
 For homogeneous finite simple shear, the macro-energy error is 0.000159%, the
 macro-shear-stress error is 0.000157%, and the mean-`J` error is below
-`1e-8`%. Abaqus is treated as an independent comparison implementation, not as
+`1e-8`%. Abaqus is treated as a separate comparison implementation, not as
 ground truth.
 
 ## Viscoelastic verification
@@ -97,7 +97,7 @@ For the committed reference run, the HomiCSx end-to-end curve agrees with its
 direct material recurrence to within `6e-12`% peak-normalized maximum error.
 The Abaqus curve agrees with HomiCSx to within 0.000621% by the same measure;
 the endpoint stress error is 0.0000028%, and maximum absolute mean-`J` error is
-`1.12e-8`.
+`7.18e-10`.
 
 Two heterogeneous cases extend the same 100-increment relaxation protocol:
 
@@ -108,9 +108,10 @@ Two heterogeneous cases extend the same 100-increment relaxation protocol:
 Run them with `run_homicsx_viscoelastic_heterogeneous.py` and
 `run_abaqus_viscoelastic_heterogeneous.py`; `compare_viscoelastic.py` evaluates
 the homogeneous, heterogeneous, and 3D suites together. On the refined independent
-meshes, the centered case has 1.22% maximum peak-normalized curve error, 0.93%
-RMS error, and 1.73% endpoint error. The periodic split case has 1.35%, 1.04%,
-and 1.97%, respectively. Maximum mean-`J` disagreement is `3.08e-6`.
+meshes, the centered case has 0.141% maximum peak-normalized curve error,
+0.0297% RMS error, and 0.0343% endpoint error. The periodic split case has
+0.159%, 0.0356%, and 0.0287%, respectively. Maximum mean-`J` disagreement is
+`1.64e-9`.
 
 For generalized-Maxwell phases, HomiCSx now inserts the algorithmically updated
 nonequilibrium branch stress directly into the weak equilibrium residual. The

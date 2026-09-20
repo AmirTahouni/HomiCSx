@@ -20,9 +20,10 @@
 - [x] Run the full clean-environment test, strict documentation, validation,
   package-build, and installed-wheel matrix for the 1.0.1 release candidate.
 - [x] Create and push the signed or annotated Git tag.
-- [x] Create the GitHub release.
-- [x] Archive the release in Zenodo and obtain the version DOI and concept DOI.
-- [x] Add DOI and release metadata to `CITATION.cff`, README, and manuscript.
+- [ ] Create the GitHub release.
+- [ ] Archive the release in Zenodo and obtain the version DOI.
+- [ ] Add the version DOI and final release metadata to `CITATION.cff`, README,
+  and manuscript. The concept DOI is already recorded.
 - [x] Verify that the permanent repository/release link contains the README,
   open-source license, source code, environment specification, tests, and
   validation data.
@@ -38,9 +39,10 @@
   main body is approximately 2400 words by a plain-text count from Section 1
   through Section 8; the abstract, declarations, and references are separate.
 - [x] Use no more than six figures. The current manuscript has four.
-- [x] Complete the required C1--C8 software metadata table. C2 uses the
-  immutable version archive, and the GitHub repository is listed in the
-  availability section.
+- [x] Complete the required C1--C8 software metadata table. C2 temporarily uses
+  the v1.0.1 GitHub tag; replace it with the immutable Zenodo version archive
+  before submission. The GitHub repository is listed in the availability
+  section.
 - [x] Prepare a workflow/component figure from a reproducible source.
 - [x] Prepare one reproducible ParaView field figure illustrating stress and
   strain-energy output without using localization/Q statistics.
@@ -51,7 +53,8 @@
   submission system.
 - [x] Verify every reference and DOI against its publisher or authoritative
   repository record; retain the audit in `reference_audit.md`.
-- [x] Add the archived HomiCSx software citation as a software reference.
+- [ ] Replace the temporary tagged HomiCSx software citation with the archived
+  v1.0.1 DOI citation.
 - [x] Add a focused comparison with MicroStructPy, DAMASK, and MOOSE.
 - [x] State the generalized-Maxwell free energy, stress contribution, update,
   initialization, and Abaqus parameter mapping explicitly.
@@ -70,8 +73,8 @@
 - [x] Reviewer-form audit: architecture and experimental setting are clear.
 - [x] Reviewer-form audit: empirical evidence supports every advertised core
   feature, or the limitation is stated.
-- [x] Reviewer-form audit: release-dependent metadata tables are complete and
-  consistent.
+- [ ] Reviewer-form audit: release-dependent metadata tables are complete and
+  consistent after the v1.0.1 DOI is minted.
 - [x] Render and visually inspect the final PDF.
 - [x] Compile and visually inspect every page of the pre-release LaTeX PDF.
 - [ ] Obtain author approval of the exact files before submission.

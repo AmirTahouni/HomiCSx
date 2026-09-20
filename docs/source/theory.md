@@ -197,6 +197,11 @@ At each converged step, the macroscopic stress is computed by volume averaging:
 
 $$\bar{\mathbf{P}} = \frac{1}{|\Omega_0|} \int_{\Omega_0} \mathbf{P} \, d\Omega$$
 
+History-dependent numerical averaging uses each cell's geometric measure and
+quadrature weights normalized on the reference cell. It therefore remains a
+true volume average on nonuniform unstructured meshes rather than a cell-count
+average.
+
 The reported effective tangent modulus is computed by central finite
 differences:
 

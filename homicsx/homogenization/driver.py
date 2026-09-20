@@ -1,5 +1,7 @@
 from typing import Dict, Optional, List, Callable, Any
+from numbers import Integral, Real
 import dolfinx
+import numpy as np
 
 from homicsx.core.homogenization import (
     LinearHomogenizationResult,
@@ -558,16 +560,16 @@ class NonlinearHomogenizationDriver:
             The load value after convergence.
         F_macro : np.ndarray
             The macroscopic deformation gradient.
-        u : dolfinx.fem.Function (mutable)
-            The converged displacement field. Modifications to this field
-            will affect the subsequent stress calculation.
+        u : dolfinx.fem.Function
+            Detached snapshot of the converged displacement field for
+            observation and field extraction.
         newton_iterations : int
             Number of Newton iterations required for convergence.
         residual_norm : float
             Final L2 norm of the residual vector.
-        material_states : dict or None (mutable)
-            Material state variables. Modifications here persist to the
-            stress computation.
+        material_states : dict or None
+            Detached snapshot of the converged material state. Modifications
+            do not affect the solver-owned constitutive state.
         context : NonlinearFluctuationProblemContext
             The problem context.
         load_name : str
@@ -575,8 +577,8 @@ class NonlinearHomogenizationDriver:
         state : SimulationState
             Shared mutable state container.
 
-        Typical uses include solution-quality checks, field pre-processing,
-        state initialization, and convergence monitoring.
+        Typical uses include solution-quality checks, field extraction, and
+        convergence monitoring.
 
         Example
         -------
@@ -591,11 +593,12 @@ class NonlinearHomogenizationDriver:
 
         Notes
         -----
-        This hook runs **before** :meth:`add_post_stress_hook`; state
-        modifications made here are visible to stress computation and all
-        subsequent hooks. The displacement field ``u`` is a full
-        ``dolfinx.fem.Function``, enabling operations such as gradient
-        projection and interpolation.
+        This hook runs **before** :meth:`add_post_stress_hook`. It is
+        observational: ``u`` and ``material_states`` are detached snapshots.
+        Mutating solver-owned displacement or constitutive state indirectly
+        through ``context`` is detected, restored, and rejected. Put
+        deterministic constitutive-state transformations in a pre-step hook,
+        where they are included in both the base solve and tangent replays.
         """
         self._post_convergence_hooks.append(callback)
     
@@ -633,10 +636,8 @@ class NonlinearHomogenizationDriver:
             Volume-averaged strain energy density.
         J_avg : float
             Volume-averaged Jacobian (determinant of deformation gradient).
-        material_states : dict or None (mutable)
-            Material state variables for all phases and cells. Modifying
-            ``state.state_vars['damage']`` on individual state objects
-            implements damage accumulation that persists to subsequent steps.
+        material_states : dict or None
+            Detached material-state snapshot for all phases and cells.
         context : NonlinearFluctuationProblemContext
             The problem context, including the quadrature evaluator for
             computing local deformation gradients.
@@ -645,37 +646,31 @@ class NonlinearHomogenizationDriver:
         state : SimulationState
             Shared mutable state container for inter-hook communication.
 
-        Typical uses include damage updates, full-field data export,
-        non-local constitutive models, parameter calibration, and runtime
-        monitoring.
+        Typical uses include full-field data export, application-specific
+        metrics, parameter calibration, and runtime monitoring.
 
         Example
         -------
-        >>> def damage_update(data: PostStressData):
+        >>> def collect_peak_metric(data: PostStressData):
         ...     # Get local deformation gradient at quadrature points
         ...     F_local = data.context.quad_evaluator \\
         ...         .compute_deformation_gradient_at_quad_points(
         ...             data.u, data.context.F_macro
         ...         )
-        ...     # Compute equivalent strain and update damage
-        ...     for phase_states in data.material_states.values():
-        ...         for state in phase_states.values():
-        ...             eq_strain = compute_equiv_strain(state, F_local)
-        ...             state.state_vars['damage'] = max(
-        ...                 state.state_vars.get('damage', 0.0),
-        ...                 damage_law(eq_strain)
-        ...             )
+        ...     data.state['peak_F_norm'] = max(
+        ...         np.linalg.norm(value) for value in F_local.values()
+        ...     )
         ...
         >>> driver.add_post_stress_hook(damage_update)
 
         Notes
         -----
         This hook fires after :meth:`add_post_convergence_hook` and before
-        :meth:`add_post_tangent_hook`. Modifications to ``material_states``
-        **must** respect the active material models' state-variable naming
-        conventions. The object at ``context.quad_evaluator`` provides
-        methods for computing deformation gradients at quadrature points,
-        enabling local constitutive updates.
+        :meth:`add_post_tangent_hook`. It is observational: displacement and
+        material-state arguments are detached snapshots. The shared ``state``
+        container remains mutable for communication between hooks. The object
+        at ``context.quad_evaluator`` provides methods for computing local
+        deformation gradients.
         """
         self._post_stress_hooks.append(callback)
     
@@ -859,6 +854,7 @@ class NonlinearHomogenizationDriver:
     def run(
         self,
         tangent_every: int = 1,
+        tangent_delta: float = 1e-6,
         output_prefix: str = "rve",
         max_strain: float = 0.2,
         custom_loads: Optional[Dict[str, Callable]] = None,
@@ -878,6 +874,9 @@ class NonlinearHomogenizationDriver:
         ----------
         tangent_every : int
             Compute tangent stiffness every N steps (default: 1)
+        tangent_delta : float
+            Positive finite perturbation used for finite-difference tangent
+            columns (default: 1e-6)
         output_prefix : str
             Prefix for output files (default: "rve")
         max_strain : float
@@ -909,6 +908,31 @@ class NonlinearHomogenizationDriver:
             State histories for history-dependent materials
         """
         _require_serial(self.mesh_obj)
+        if isinstance(tangent_every, bool) or not isinstance(
+            tangent_every, Integral
+        ):
+            raise TypeError("tangent_every must be a positive integer")
+        if tangent_every <= 0:
+            raise ValueError("tangent_every must be greater than zero")
+        if isinstance(tangent_delta, bool) or not isinstance(tangent_delta, Real):
+            raise TypeError("tangent_delta must be a positive real number")
+        if not np.isfinite(tangent_delta) or tangent_delta <= 0.0:
+            raise ValueError("tangent_delta must be finite and greater than zero")
+        if isinstance(max_strain, bool) or not isinstance(max_strain, Real):
+            raise TypeError("max_strain must be a positive real number")
+        if not np.isfinite(max_strain) or max_strain <= 0.0:
+            raise ValueError("max_strain must be finite and greater than zero")
+        if strain_rate is not None:
+            if isinstance(strain_rate, bool) or not isinstance(strain_rate, Real):
+                raise TypeError("strain_rate must be a positive real number")
+            if not np.isfinite(strain_rate) or strain_rate <= 0.0:
+                raise ValueError(
+                    "strain_rate must be finite and greater than zero"
+                )
+        if adaptive_settings is not None and not isinstance(
+            adaptive_settings, AdaptiveSettings
+        ):
+            raise TypeError("adaptive_settings must be an AdaptiveSettings instance")
         if self.assignment.has_history_dependence():
             if self.mesh_obj.topology.cell_type in {
                 dolfinx.mesh.CellType.quadrilateral,
@@ -955,6 +979,7 @@ class NonlinearHomogenizationDriver:
             cell_tags=self.cell_tags,
             dim=self.dim,
             tangent_every=tangent_every,
+            tangent_delta=tangent_delta,
             output_prefix=output_prefix,
             max_strain=max_strain,
             custom_loads=custom_loads,

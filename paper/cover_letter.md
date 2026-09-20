@@ -26,7 +26,7 @@ built-in Neo-Hookean model; custom energies share the same nonlinear assembly
 path but are the user's constitutive responsibility.
 
 The manuscript is supported by automated analytical and regression tests and
-by cross-solver comparisons using independently constructed Abaqus models and
+by cross-solver comparisons using Abaqus models separately constructed by the author and
 conventional macroscopic
 stress, energy, strain, and stiffness measures. The external cases include
 homogeneous and heterogeneous cells, a boundary-split periodic inclusion,

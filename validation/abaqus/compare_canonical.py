@@ -1,4 +1,4 @@
-"""Compare independently generated canonical HomiCSx and Abaqus results."""
+"""Compare separately generated canonical HomiCSx and Abaqus results."""
 
 from __future__ import annotations
 

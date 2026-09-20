@@ -362,6 +362,16 @@ def _compute_average_P_and_energy_with_state(
     else:
         # Compute deformation gradient at quadrature points
         F_by_cell = quad_evaluator.compute_deformation_gradient_at_quad_points(u, F_macro)
+        cell_volumes = quad_evaluator.compute_cell_volumes(
+            np.fromiter(F_by_cell.keys(), dtype=np.int32)
+        )
+        quadrature_weight_sum = float(np.sum(quad_evaluator.quad_weights))
+        if not np.isfinite(quadrature_weight_sum) or quadrature_weight_sum <= 0.0:
+            raise ValueError("Quadrature weights must have a positive finite sum")
+        normalized_quad_weights = (
+            np.asarray(quad_evaluator.quad_weights, dtype=float)
+            / quadrature_weight_sum
+        )
         
         # Initialize per-phase accumulators
         P_phase_sum = {phase_id: np.zeros((dim, dim)) for phase_id in material_assignment.materials_by_phase.keys()}
@@ -383,14 +393,12 @@ def _compute_average_P_and_energy_with_state(
             if material_states is not None and phase_id in material_states:
                 state = material_states[phase_id].get(cell_idx)
             
-            # Get cell volume (approximate from phase volumes)
-            num_cells_in_phase = len(np.where(cell_tags.values == physical_tag)[0])
-            cell_vol = phase_volumes[phase_id] / num_cells_in_phase if num_cells_in_phase > 0 else 0.0
+            cell_vol = cell_volumes[cell_idx]
             
             # Integrate over quadrature points
             for q in range(quad_evaluator.num_quad_points):
                 F_q = F_cell[q, :dim, :dim]
-                weight = quad_evaluator.quad_weights[q] * cell_vol
+                weight = normalized_quad_weights[q] * cell_vol
                 
                 # Compute stress at quadrature point
                 if material.requires_history() and state is not None:
@@ -475,6 +483,65 @@ def _restore_material_states(
     for phase_id, phase_states in snapshot.items():
         for cell_idx, state in phase_states.items():
             material_states[phase_id][cell_idx] = state.copy()
+
+
+def _material_states_equal(
+    left: Dict[int, Dict[int, MaterialState]],
+    right: Dict[int, Dict[int, MaterialState]],
+) -> bool:
+    """Return whether two nested material-state snapshots are identical."""
+    if left.keys() != right.keys():
+        return False
+    for phase_id, left_phase in left.items():
+        right_phase = right[phase_id]
+        if left_phase.keys() != right_phase.keys():
+            return False
+        for cell_idx, left_state in left_phase.items():
+            right_state = right_phase[cell_idx]
+            if left_state.state_variable_names != right_state.state_variable_names:
+                return False
+            for name in left_state.state_variable_names:
+                if not np.array_equal(
+                    left_state.get_state(name), right_state.get_state(name)
+                ):
+                    return False
+    return True
+
+
+def _detached_function(function: fem.Function) -> fem.Function:
+    """Copy a finite-element function for observational hook access."""
+    detached = fem.Function(function.function_space)
+    detached.x.array[:] = function.x.array
+    detached.x.scatter_forward()
+    return detached
+
+
+def _assert_observational_hooks_preserved_live_data(
+    context: NonlinearFluctuationProblemContext,
+    state_before: Optional[Dict[int, Dict[int, MaterialState]]],
+    function: fem.Function,
+    solution_before: np.ndarray,
+    stage: str,
+) -> None:
+    """Restore and reject mutation of solver-owned data through context."""
+    state_changed = (
+        state_before is not None
+        and context.material_states is not None
+        and not _material_states_equal(context.material_states, state_before)
+    )
+    solution_changed = not np.array_equal(function.x.array, solution_before)
+    if state_changed:
+        _restore_material_states(context.material_states, state_before)
+        _sync_material_state_coefficients(context)
+    if solution_changed:
+        function.x.array[:] = solution_before
+        function.x.scatter_forward()
+    if state_changed or solution_changed:
+        raise ValueError(
+            f"{stage} hooks must not mutate live converged displacement or "
+            "constitutive state; detached snapshots are provided for "
+            "observational access"
+        )
 
 
 def _update_all_material_states(
@@ -660,10 +727,19 @@ def _compute_Ceff_fd_with_state(
         u.x.array[:] = u_base[:]
         u.x.scatter_forward()
         F_perturbed = _perturb_F(Fbar, component, signed_delta)
-        u_sol, converged, iters, residual_norm = _solve_once_with_history(
-            problem, u, F_macro, F_perturbed, context, material_assignment,
-            reset_to_zero=False, initial_guess=u_base
-        )
+        try:
+            u_sol, converged, iters, residual_norm = _solve_once_with_history(
+                problem, u, F_macro, F_perturbed, context, material_assignment,
+                reset_to_zero=False, initial_guess=u_base
+            )
+        except (RuntimeError, ValueError, FloatingPointError, np.linalg.LinAlgError):
+            logger.warning(
+                "Tangent perturbation solve raised at column %s (%+.3e)",
+                component,
+                signed_delta,
+                exc_info=True,
+            )
+            return None
         if converged <= 0:
             return None
         P_perturbed, _, _ = _compute_average_P_and_energy_with_state(
@@ -725,7 +801,7 @@ def _run_one_load_case_with_history(
     context: NonlinearFluctuationProblemContext,
     xdmf: bool = False,
     tangent_every: int = 1,
-    # tangent_delta: float = 1e-6,
+    tangent_delta: float = 1e-6,
     adaptive_settings: Optional[AdaptiveSettings] = None,
     # physical_dt: float = 1.0,
     strain_rate: Optional[float] = None,
@@ -888,20 +964,37 @@ def _run_one_load_case_with_history(
             if _hook_data and _hook_data.get('post_convergence'):
                 from homicsx.homogenization.driver import PostConvergenceData
                 state = _hook_data.get('state')
+                hook_state_guard = (
+                    _snapshot_material_states(context.material_states)
+                    if context.material_states is not None
+                    else None
+                )
+                hook_solution_guard = u.x.array.copy()
                 post_conv_data = PostConvergenceData(
                     step_idx=step_idx,
                     current_load=next_a,
                     F_macro=Fbar.copy(),
-                    u=u_sol,
+                    u=_detached_function(u_sol),
                     newton_iterations=iters,
                     residual_norm=residual_norm,
-                    material_states=context.material_states,
+                    material_states=(
+                        _snapshot_material_states(hook_state_guard)
+                        if hook_state_guard is not None
+                        else None
+                    ),
                     context=context,
                     load_name=load_name,
                     # custom_metadata=driver._custom_metadata.copy() if driver else {},
                     state=state,
                 )
                 _execute_hooks(_hook_data['post_convergence'], post_conv_data, "Post-convergence")
+                _assert_observational_hooks_preserved_live_data(
+                    context,
+                    hook_state_guard,
+                    u,
+                    hook_solution_guard,
+                    "post_convergence",
+                )
 
             # Compute average stress and energy
             Pbar, Wbar, Jbar = _compute_average_P_and_energy_with_state(
@@ -939,21 +1032,38 @@ def _run_one_load_case_with_history(
             if _hook_data and _hook_data.get('post_stress'):
                 from homicsx.homogenization.driver import PostStressData
                 state = _hook_data.get('state')
+                hook_state_guard = (
+                    _snapshot_material_states(context.material_states)
+                    if context.material_states is not None
+                    else None
+                )
+                hook_solution_guard = u.x.array.copy()
                 post_stress_data = PostStressData(
                     step_idx=step_idx,
                     current_load=current_a,
                     F_macro=Fbar.copy(),
-                    u=u_sol,
+                    u=_detached_function(u_sol),
                     P_avg=Pbar.copy(),
                     W_avg=Wbar,
                     J_avg=Jbar,
-                    material_states=context.material_states,
+                    material_states=(
+                        _snapshot_material_states(hook_state_guard)
+                        if hook_state_guard is not None
+                        else None
+                    ),
                     context=context,
                     load_name=load_name,
                     # custom_metadata=driver._custom_metadata.copy() if driver else {},
                     state=state,
                 )
                 _execute_hooks(_hook_data['post_stress'], post_stress_data, "Post-stress")
+                _assert_observational_hooks_preserved_live_data(
+                    context,
+                    hook_state_guard,
+                    u,
+                    hook_solution_guard,
+                    "post_stress",
+                )
             
             # Compute tangent stiffness if requested
             Ceff = None
@@ -972,7 +1082,7 @@ def _run_one_load_case_with_history(
                         quad_evaluator=context.quad_evaluator,
                         context=context,
                         previous_material_states=increment_start_states,
-                        delta=1e-6,
+                        delta=tangent_delta,
                     )
                     print("   Done.")
                 except Exception:
@@ -1069,7 +1179,7 @@ def _run_all_load_cases(
     cell_tags: dolfinx.mesh.MeshTags,
     dim: int,
     tangent_every: int = 1,
-    # tangent_delta: float = 1e-6,
+    tangent_delta: float = 1e-6,
     output_prefix: str = "rve",
     max_strain: float = 0.2,
     custom_loads: Optional[Dict[str, Callable]] = None,
@@ -1257,6 +1367,7 @@ def _run_all_load_cases(
             context=context,
             xdmf=xdmf,
             tangent_every=tangent_every,
+            tangent_delta=tangent_delta,
             adaptive_settings=adaptive_settings,
             strain_rate=strain_rate,
             _hook_data=_hook_data,

@@ -16,7 +16,7 @@ customized composite-cell studies and does not claim an external user base.
 
 **Assessment: ready for release-gate rerun.** Analytical patch tests,
 constitutive energy-gradient checks, mesh refinement, regression tests, and
-independently generated Abaqus cases cover the advertised linear,
+separately constructed Abaqus cases cover the advertised linear,
 hyperelastic, and viscoelastic core. The comparison reports conventional
 macroscopic quantities, not the application paper's localization statistics.
 The manuscript explicitly excludes pointwise equivalence and heterogeneous 3D
@@ -56,6 +56,6 @@ generality claims.
 
 ## Remaining blockers
 
-1. Obtain author approval of the exact DOI-complete manuscript.
+1. Archive v1.0.1, insert its version DOI, and obtain author approval of the exact final manuscript.
 2. Complete the live submission-system identity, residence, sanctions, and
    payment declarations accurately.

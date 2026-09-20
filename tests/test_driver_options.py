@@ -1,8 +1,10 @@
 from types import SimpleNamespace
 
 import dolfinx
+import numpy as np
 import pytest
 
+from homicsx.core.homogenization import AdaptiveSettings
 from homicsx.homogenization import driver as driver_module
 
 
@@ -96,3 +98,47 @@ def test_history_dependent_driver_rejects_xdmf_field_reconstruction():
     driver = _history_driver(dolfinx.mesh.CellType.triangle)
     with pytest.raises(NotImplementedError, match="history-independent"):
         driver.run(xdmf_opt=True, plot_summary=False)
+
+
+@pytest.mark.parametrize("value", [0, -1, 1.5, True])
+def test_nonlinear_driver_rejects_invalid_tangent_interval(value):
+    driver = _history_driver(dolfinx.mesh.CellType.triangle)
+    with pytest.raises((TypeError, ValueError), match="tangent_every"):
+        driver.run(tangent_every=value, plot_summary=False)
+
+
+@pytest.mark.parametrize("value", [0.0, -1.0, np.nan, np.inf])
+def test_nonlinear_driver_rejects_invalid_tangent_delta(value):
+    driver = _history_driver(dolfinx.mesh.CellType.triangle)
+    with pytest.raises(ValueError, match="tangent_delta"):
+        driver.run(tangent_delta=value, plot_summary=False)
+
+
+@pytest.mark.parametrize("value", [0.0, -0.1, np.nan, np.inf])
+def test_nonlinear_driver_rejects_invalid_max_strain(value):
+    driver = _history_driver(dolfinx.mesh.CellType.triangle)
+    with pytest.raises(ValueError, match="max_strain"):
+        driver.run(max_strain=value, plot_summary=False)
+
+
+@pytest.mark.parametrize("value", [0.0, -1.0, np.nan, np.inf])
+def test_nonlinear_driver_rejects_invalid_strain_rate(value):
+    driver = _history_driver(dolfinx.mesh.CellType.triangle)
+    with pytest.raises(ValueError, match="strain_rate"):
+        driver.run(strain_rate=value, plot_summary=False)
+
+
+@pytest.mark.parametrize(
+    "kwargs, message",
+    [
+        ({"initial_step_ratio": 0.0}, "step ratios"),
+        ({"initial_step_ratio": 0.3, "max_step_ratio": 0.2}, "step ratios"),
+        ({"min_step": 0.0}, "min_step"),
+        ({"target_iters_min": 9, "target_iters_max": 8}, "iteration targets"),
+        ({"growth_factor": 1.0}, "growth_factor"),
+        ({"cutback_factor": 1.0}, "cutback_factor"),
+    ],
+)
+def test_adaptive_settings_reject_invalid_controls(kwargs, message):
+    with pytest.raises(ValueError, match=message):
+        AdaptiveSettings(**kwargs)

@@ -14,10 +14,10 @@ pipeline. Its supported core includes two- and three-dimensional cells,
 multiphase linear elasticity, user-defined hyperelastic energies with a
 built-in Neo-Hookean model, and generalized-Maxwell viscoelasticity.
 Verification combines analytical tests, constitutive checks, mesh refinement,
-regression gates, and cross-solver comparisons using independently constructed
-Abaqus models and conventional
+regression gates, and cross-solver comparisons using Abaqus models separately
+constructed by the author and conventional
 macroscopic quantities. Canonical linear discrepancies remain below 0.55%, and
-tested heterogeneous viscoelastic histories remain within 1.36%. HomiCSx
+tested heterogeneous viscoelastic histories remain within 0.16%. HomiCSx
 targets inspectable, customizable computational-homogenization studies with an
 explicitly bounded support and maintenance scope.
 
@@ -134,7 +134,9 @@ where the fluctuation is periodic on opposite cell boundaries. The nonlinear
 driver solves incremental equilibrium with adaptive stepping and records
 volume-averaged first Piola--Kirchhoff stress, energy, deformation Jacobian,
 and optional finite-difference tangent information for hyperelastic and
-generalized-Maxwell materials.
+generalized-Maxwell materials. History-dependent averages use exact geometric
+cell measures and normalized reference-cell quadrature weights, including on
+nonuniform unstructured meshes.
 
 Hyperelastic material objects provide a UFL strain-energy density and matching
 numerical post-processing methods. Compressible Neo-Hookean elasticity is the
@@ -235,7 +237,8 @@ strain-energy density, with finite-element edges retained.](figures/paraview_fie
 $\gamma_{12}=0.25$ for a two-phase Neo-Hookean cell. Panel (a) shows von Mises
 stress and panel (b) shows strain-energy density. The field data are exported
 by HomiCSx; mesh edges are retained to distinguish the numerical field from a
-schematic illustration.
+schematic illustration. Material parameters, stress, and energy density are
+reported in a consistent nondimensional unit system.
 
 ### Representative execution cost
 
@@ -267,7 +270,8 @@ energy, stress, and mean Jacobian.
 
 Because periodic-boundary enforcement is a consequential implementation choice
 in multiscale homogenization [6], the external validation suite includes a
-boundary-split geometry. It uses independently generated Abaqus models and
+boundary-split geometry. It uses Abaqus models separately constructed by the
+author and
 only conventional macroscopic quantities. Three linear plane-strain cases—a
 homogeneous non-unit cell, a centered 20% circular inclusion, and a periodic
 boundary-split inclusion—have maximum stiffness, probe-stress, and probe-energy
@@ -280,7 +284,7 @@ Generalized-Maxwell validation compares complete macro-shear-stress relaxation
 histories. The homogeneous 2D and 3D curves agree with Abaqus to within
 0.00063% and 0.00068% peak-normalized maximum error, respectively. For a
 viscoelastic matrix containing a hyperelastic inclusion, the centered and
-periodic-split 2D cases give 1.22% and 1.35% maximum curve errors. Automated
+periodic-split 2D cases give 0.141% and 0.159% maximum curve errors. Automated
 fast/slow-rate regressions in 2D and 3D additionally require different
 converged heterogeneous fluctuation fields. The viscoelastic external curves
 are paired archived datasets; current-code regression is supplied by the
@@ -361,9 +365,9 @@ studies while keeping its archival maintenance commitment realistic.
 - Concept DOI: https://doi.org/10.5281/zenodo.22811693
 
 The repository contains version-constrained Conda environment specifications, installation
-instructions, automated tests, benchmark manifests, independently constructed
-Abaqus model runners
-scripts, compact reference results, and executable acceptance gates. Abaqus is
+instructions, automated tests, benchmark manifests, separately constructed
+Abaqus model-runner scripts, compact reference results, and executable
+acceptance gates. Abaqus is
 not required to recompute comparisons from the committed compact results.
 
 ## CRediT authorship contribution statement
@@ -386,9 +390,10 @@ paper.
 ## Data availability
 
 The software, validation manifests, scripts, and compact numerical results are
-available in the public repository and are preserved in the archived release
-identified above. Large proprietary Abaqus working databases are not
-required to evaluate the committed comparison results and are not distributed.
+available in the public repository. The final v1.0.1 release will be preserved
+in Zenodo and its version DOI inserted before submission. Large proprietary
+Abaqus working databases are not required to evaluate the committed comparison
+results and are not distributed.
 
 ## Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
 

@@ -91,6 +91,44 @@ class AdaptiveSettings:
     growth_factor: float = 1.5
     cutback_factor: float = 0.5
 
+    def __post_init__(self) -> None:
+        float_fields = {
+            "initial_step_ratio": self.initial_step_ratio,
+            "min_step": self.min_step,
+            "max_step_ratio": self.max_step_ratio,
+            "growth_factor": self.growth_factor,
+            "cutback_factor": self.cutback_factor,
+        }
+        for name, value in float_fields.items():
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise TypeError(f"{name} must be a real number")
+            if not np.isfinite(value):
+                raise ValueError(f"{name} must be finite")
+        if not 0.0 < self.initial_step_ratio <= self.max_step_ratio <= 1.0:
+            raise ValueError(
+                "step ratios must satisfy 0 < initial_step_ratio <= "
+                "max_step_ratio <= 1"
+            )
+        if self.min_step <= 0.0:
+            raise ValueError("min_step must be greater than zero")
+        if isinstance(self.target_iters_min, bool) or not isinstance(
+            self.target_iters_min, int
+        ):
+            raise TypeError("target_iters_min must be an integer")
+        if isinstance(self.target_iters_max, bool) or not isinstance(
+            self.target_iters_max, int
+        ):
+            raise TypeError("target_iters_max must be an integer")
+        if not 0 <= self.target_iters_min <= self.target_iters_max:
+            raise ValueError(
+                "iteration targets must satisfy 0 <= target_iters_min <= "
+                "target_iters_max"
+            )
+        if self.growth_factor <= 1.0:
+            raise ValueError("growth_factor must be greater than one")
+        if not 0.0 < self.cutback_factor < 1.0:
+            raise ValueError("cutback_factor must satisfy 0 < value < 1")
+
 
 @dataclass
 class PreStepData:

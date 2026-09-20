@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{tabularx}
+\usepackage{array}
 \usepackage{xurl}
 \hypersetup{hidelinks}
 
@@ -18,10 +19,9 @@
 
 \title{HomiCSx: An end-to-end FEniCSx framework for finite-element computational homogenization}
 
-\author{Amir Reza Tahouni\corref{cor1}}
+\author{Amir Reza Tahouni}
 \ead{tahouniamirreza@gmail.com}
 \address{Independent researcher, Tehran, Iran}
-\cortext[cor1]{Corresponding author}
 
 \begin{abstract}
 HomiCSx is an open-source FEniCSx framework that connects particulate geometry,
@@ -31,10 +31,10 @@ pipeline. Its supported core includes two- and three-dimensional cells,
 multiphase linear elasticity, user-defined hyperelastic energies with a
 built-in Neo-Hookean model, and generalized-Maxwell viscoelasticity.
 Verification combines analytical tests, constitutive checks, mesh refinement,
-regression gates, and cross-solver comparisons using independently constructed
-Abaqus models and conventional
+regression gates, and cross-solver comparisons using Abaqus models separately
+constructed by the author and conventional
 macroscopic quantities. Canonical linear discrepancies remain below 0.55\%, and
-tested heterogeneous viscoelastic histories remain within 1.36\%. HomiCSx
+tested heterogeneous viscoelastic histories remain within 0.16\%. HomiCSx
 targets inspectable, customizable computational-homogenization studies with an
 explicitly bounded support and maintenance scope.
 \end{abstract}
@@ -49,7 +49,7 @@ representative volume element \sep composite materials \sep viscoelasticity
 \begin{table}[htbp]
 \centering
 \small
-\begin{tabularx}{\linewidth}{@{}p{0.06\linewidth}p{0.38\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.05\linewidth}>{\raggedright\arraybackslash}p{0.35\linewidth}>{\raggedright\arraybackslash}X@{}}
 \toprule
 Nr & Code metadata description & Metadata \\
 \midrule
@@ -63,7 +63,7 @@ DOLFINx, PETSc/petsc4py, Basix, Gmsh API, MPI \\
 C6 & Compilation requirements, operating environments and dependencies &
 Conda; Python 3.10; DOLFINx 0.9.0; dolfinx\_mpc 0.9.0; Linux or WSL2 \\
 C7 & Link to developer documentation/manual &
-\url{https://homicsx.readthedocs.io/en/latest/} \\
+\href{https://homicsx.readthedocs.io/en/latest/}{Online documentation} \\
 C8 & Support email for questions &
 \href{mailto:tahouniamirreza@gmail.com}{tahouniamirreza@gmail.com} \\
 \bottomrule
@@ -169,7 +169,9 @@ where the fluctuation is periodic on opposite cell boundaries. The nonlinear
 driver solves incremental equilibrium with adaptive stepping and records
 volume-averaged first Piola--Kirchhoff stress, energy, deformation Jacobian,
 and optional finite-difference tangent information for hyperelastic and
-generalized-Maxwell materials.
+generalized-Maxwell materials. History-dependent averages use exact geometric
+cell measures and normalized reference-cell quadrature weights, including on
+nonuniform unstructured meshes.
 
 Hyperelastic material objects provide a UFL strain-energy density and matching
 numerical post-processing methods. Compressible Neo-Hookean elasticity is the
@@ -265,7 +267,9 @@ in ParaView.
   \caption{ParaView rendering of the final state at engineering shear
   $\gamma_{12}=0.25$ for a two-phase Neo-Hookean cell. (a) von Mises stress;
   (b) strain-energy density. The field data are exported by HomiCSx and mesh
-  edges are retained to distinguish the numerical field from a schematic.}
+  edges are retained to distinguish the numerical field from a schematic.
+  Material parameters, stress, and energy density use a consistent
+  nondimensional unit system.}
   \label{fig:fields}
 \end{figure}
 
@@ -299,8 +303,9 @@ macroscopic energy, stress, and mean Jacobian.
 
 Because periodic-boundary enforcement is a consequential implementation choice
 in multiscale homogenization \cite{henys2019}, the external validation suite
-includes a boundary-split geometry. It uses independently generated Abaqus
-models and only conventional macroscopic quantities. Three linear plane-strain
+includes a boundary-split geometry. It uses Abaqus models separately
+constructed by the author and only conventional macroscopic quantities. Three
+linear plane-strain
 cases---a homogeneous non-unit cell, a centered 20\% circular inclusion, and a
 periodic boundary-split inclusion---have maximum stiffness, probe-stress, and
 probe-energy differences below 0.55\%. Homogeneous finite simple shear agrees
@@ -312,7 +317,7 @@ Generalized-Maxwell validation compares complete macro-shear-stress relaxation
 histories. The homogeneous 2D and 3D curves agree with Abaqus to within
 0.00063\% and 0.00068\% peak-normalized maximum error, respectively. For a
 viscoelastic matrix containing a hyperelastic inclusion, the centered and
-periodic-split 2D cases give 1.22\% and 1.35\% maximum curve errors. Automated
+periodic-split 2D cases give 0.141\% and 0.159\% maximum curve errors. Automated
 fast/slow-rate regressions in 2D and 3D additionally require different
 converged heterogeneous fluctuation fields. The viscoelastic external curves
 are paired archived datasets; current-code regression is supplied by the
@@ -396,9 +401,9 @@ studies while keeping its archival maintenance commitment realistic.
 \end{description}
 
 The repository contains version-constrained Conda environment specifications, installation
-instructions, automated tests, benchmark manifests, independently constructed
-Abaqus model runners
-scripts, compact reference results, and executable acceptance gates. Abaqus is
+instructions, automated tests, benchmark manifests, separately constructed
+Abaqus model-runner scripts, compact reference results, and executable
+acceptance gates. Abaqus is
 not required to recompute comparisons from the committed compact results.
 
 \section*{CRediT authorship contribution statement}
@@ -421,9 +426,10 @@ paper.
 \section*{Data availability}
 
 The software, validation manifests, scripts, and compact numerical results are
-available in the public repository and are preserved in the archived release
-identified above. Large proprietary Abaqus working databases are not
-required to evaluate the committed comparison results and are not distributed.
+available in the public repository. The final v1.0.1 release will be preserved
+in Zenodo and its version DOI inserted before submission. Large proprietary
+Abaqus working databases are not required to evaluate the committed comparison
+results and are not distributed.
 
 \section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
 
@@ -433,73 +439,75 @@ and manuscript drafting. After using this service, the author reviewed and
 edited the content as needed and takes full responsibility for the content of
 the publication.
 
-\small
+\footnotesize
 \begin{thebibliography}{00}
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
 
 \bibitem{dolfinx2025}
 I. A. Baratta, J. P. Dean, J. S. Dokken, et al., DOLFINx: The next generation
 FEniCS problem solving environment, preprint (2025).
-\url{https://doi.org/10.5281/zenodo.18101307}.
+\href{https://doi.org/10.5281/zenodo.18101307}{doi:10.5281/zenodo.18101307}.
 
 \bibitem{ufl2014}
 M. S. Aln\ae s, A. Logg, K. B. \O lgaard, M. E. Rognes, G. N. Wells, Unified
 Form Language: A domain-specific language for weak formulations of partial
 differential equations, ACM Trans. Math. Softw. 40 (2) (2014) Article 9,
 1--37.
-\url{https://doi.org/10.1145/2566630}.
+\href{https://doi.org/10.1145/2566630}{doi:10.1145/2566630}.
 
 \bibitem{gmsh2009}
 C. Geuzaine, J.-F. Remacle, Gmsh: A 3-D finite element mesh generator with
 built-in pre- and post-processing facilities, Int. J. Numer. Methods Eng. 79
-(11) (2009) 1309--1331. \url{https://doi.org/10.1002/nme.2579}.
+(11) (2009) 1309--1331. \href{https://doi.org/10.1002/nme.2579}{doi:10.1002/nme.2579}.
 
 \bibitem{geers2003}
 M. G. D. Geers, V. G. Kouznetsova, W. A. M. Brekelmans, Multi-scale
 first-order and second-order computational homogenization of microstructures
 towards continua, Int. J. Multiscale Comput. Eng. 1 (4) (2003) 371--386.
-\url{https://doi.org/10.1615/IntJMultCompEng.v1.i4.40}.
+\href{https://doi.org/10.1615/IntJMultCompEng.v1.i4.40}{doi:10.1615/IntJMultCompEng.v1.i4.40}.
 
 \bibitem{saeb2016}
 S. Saeb, P. Steinmann, A. Javili, Aspects of computational homogenization at
 finite deformations: A unifying review from Reuss' to Voigt's bound, Appl.
 Mech. Rev. 68 (5) (2016) 050801.
-\url{https://doi.org/10.1115/1.4034024}.
+\href{https://doi.org/10.1115/1.4034024}{doi:10.1115/1.4034024}.
 
 \bibitem{henys2019}
 P. Heny\v{s}, L. \v{C}apek, J. B\v{r}ezina, Comparison of current methods for
 implementing periodic boundary conditions in multi-scale homogenisation, Eur.
 J. Mech. A Solids 78 (2019) 103825.
-\url{https://doi.org/10.1016/j.euromechsol.2019.103825}.
+\href{https://doi.org/10.1016/j.euromechsol.2019.103825}{doi:10.1016/j.euromechsol.2019.103825}.
 
 \bibitem{homicsx2026}
 A. R. Tahouni, HomiCSx, version 1.0.1, GitHub (2026).
-\url{https://github.com/AmirTahouni/HomiCSx/tree/v1.0.1}.
+\href{https://github.com/AmirTahouni/HomiCSx/tree/v1.0.1}{GitHub v1.0.1 tag}.
 
 \bibitem{microstructpy2020}
 K. A. Hart, J. J. Rimoli, MicroStructPy: A statistical microstructure mesh
 generator in Python, SoftwareX 12 (2020) 100595.
-\url{https://doi.org/10.1016/j.softx.2020.100595}.
+\href{https://doi.org/10.1016/j.softx.2020.100595}{doi:10.1016/j.softx.2020.100595}.
 
 \bibitem{damask2020}
 M. Diehl, D. Wang, C. Liu, et al., Solving material mechanics and multiphysics
 problems of metals with complex microstructures using DAMASK, Adv. Eng. Mater.
-22 (2020) 1901044. \url{https://doi.org/10.1002/adem.201901044}.
+22 (2020) 1901044. \href{https://doi.org/10.1002/adem.201901044}{doi:10.1002/adem.201901044}.
 
 \bibitem{moose2020}
 C. J. Permann, D. R. Gaston, D. Andr\v{s}, et al., MOOSE: Enabling massively
 parallel multiphysics simulation, SoftwareX 11 (2020) 100430.
-\url{https://doi.org/10.1016/j.softx.2020.100430}.
+\href{https://doi.org/10.1016/j.softx.2020.100430}{doi:10.1016/j.softx.2020.100430}.
 
 \bibitem{micmacsfenics}
 F. Rocha, micmacsfenics: a FEniCS-based implementation of two-level finite
 element simulations using computational homogenization, software repository
 (accessed 18 September 2026).
-\url{https://github.com/felipefr/micmacsfenics}.
+\href{https://github.com/felipefr/micmacsfenics}{GitHub repository}.
 
 \bibitem{fenicshomogenization}
 B. Shrimali, FEniCS\_homogenization: a collection of homogenization scripts for
 linear elasticity, software repository (accessed 18 September 2026).
-\url{https://github.com/bhaveshshrimali/FEniCS_homogenization}.
+\href{https://github.com/bhaveshshrimali/FEniCS_homogenization}{GitHub repository}.
 
 \end{thebibliography}
 

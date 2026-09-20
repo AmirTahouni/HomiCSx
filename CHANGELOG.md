@@ -19,6 +19,10 @@ semantic versioning for its publication-supported public API.
 - Repaired central finite-difference tangents and added step-consistent
   generalized-Maxwell tangents that replay every perturbation from the same
   previous converged state without contaminating the committed solution.
+- Corrected history-dependent macroscopic stress, energy, Jacobian, and
+  tangent averages to use exact geometric cell measures on nonuniform meshes.
+- Validated nonlinear run controls and made post-convergence and post-stress
+  hooks observational through detached solution and material-state snapshots.
 - Added packaging CI, focused solver coverage gates, and unused-code checks.
 
 ### Removed
