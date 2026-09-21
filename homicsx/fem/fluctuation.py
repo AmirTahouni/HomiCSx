@@ -266,7 +266,7 @@ def build_nonlinear_periodic_fluctuation_problem_with_quadrature(
     Residual = None
     for phase in assignment.materials_by_phase.keys():
         material_model = assignment.materials_by_phase[phase]
-        tag = physical_tags.cell_tag_for_phase(phase)
+        tag = physical_tags.cell_tag_for_phase(phase, matrix_phase_id)
 
         if isinstance(material_model, ViscoelasticGeneralizedMaxwell):
             equilibrium_energy = material_model.equilibrium_material.psi_form(F=F)
@@ -350,7 +350,7 @@ __all__ = [
     # fluctuation
     "LinearFluctuationProblemContext",
     "build_linear_periodic_fluctuation_problem",
-    "build_nonlinear_periodic_fluctuation_peoblem",
+    "build_nonlinear_periodic_fluctuation_problem_with_quadrature",
 ]
 
 

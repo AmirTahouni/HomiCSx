@@ -134,9 +134,10 @@ where the fluctuation is periodic on opposite cell boundaries. The nonlinear
 driver solves incremental equilibrium with adaptive stepping and records
 volume-averaged first Piola--Kirchhoff stress, energy, deformation Jacobian,
 and optional finite-difference tangent information for hyperelastic and
-generalized-Maxwell materials. History-dependent averages use exact geometric
-cell measures and normalized reference-cell quadrature weights, including on
-nonuniform unstructured meshes.
+generalized-Maxwell materials. On the supported first-order meshes,
+history-dependent averages use geometric cell measures and normalized
+reference-cell quadrature weights, including on nonuniform unstructured
+meshes.
 
 Hyperelastic material objects provide a UFL strain-energy density and matching
 numerical post-processing methods. Compressible Neo-Hookean elasticity is the
@@ -177,7 +178,10 @@ previous converged viscous metrics, advances over the actual current time
 increment, and resolves periodic equilibrium. Central differences form the
 tangent columns, after which HomiCSx restores the unperturbed fluctuation field
 and committed metrics. A one-sided difference is used if only one perturbation
-converges.
+converges. The returned matrix is the complete row-major derivative
+$\partial\operatorname{vec}(\bar{\mathbf{P}})/\partial\operatorname{vec}(\bar{\mathbf{F}})$,
+not a symmetric Voigt reduction; requested tangent failures are fail-fast by
+default and can instead be explicitly recorded.
 
 ### 2.3. Customization and outputs
 
@@ -187,7 +191,8 @@ Hooks provide controlled access before and after documented stages of the
 homogenization loop. They have explicit ordering and state scopes and can be
 used to collect fields, compute application-specific metrics, or implement
 additional workflow logic. Core outputs include effective stiffness, macro
-stress/strain/energy histories and Jacobian histories. Finite-difference
+stress/strain/energy histories, Jacobian histories, and CSV export with
+heterogeneous material states stored in long form. Finite-difference
 tangents cover hyperelastic and generalized-Maxwell materials. Reconstructed
 stress/energy XDMF fields remain limited to history-independent materials;
 state-aware viscoelastic fields are available to hooks. Figure 1 summarizes
@@ -443,10 +448,8 @@ the publication.
 10. C. J. Permann, D. R. Gaston, D. Andrš, et al., MOOSE: Enabling massively
     parallel multiphysics simulation, SoftwareX 11 (2020) 100430.
     https://doi.org/10.1016/j.softx.2020.100430.
-11. F. Rocha, micmacsfenics: a FEniCS-based implementation of two-level finite
-    element simulations using computational homogenization, software
-    repository, accessed 18 September 2026.
+11. F. Rocha, micmacsfenics, software repository, accessed 18 September 2026.
     https://github.com/felipefr/micmacsfenics.
-12. B. Shrimali, FEniCS_homogenization: a collection of homogenization scripts
-    for linear elasticity, software repository, accessed 18 September 2026.
+12. B. Shrimali, FEniCS_homogenization, software repository, accessed 18
+    September 2026.
     https://github.com/bhaveshshrimali/FEniCS_homogenization.

@@ -29,10 +29,13 @@ reproducible workflow.
 - Built-in and custom load histories, adaptive stepping, typed hooks, and
   macroscopic stress, energy, and Jacobian histories. Finite-difference
   tangent histories are available for hyperelastic and generalized-Maxwell
-  materials; viscoelastic perturbations replay the current increment from the
-  same previous converged state.
+  materials as the full row-major derivative `d vec(P) / d vec(F)`;
+  viscoelastic perturbations replay the current increment from the same
+  previous converged state. This output is not a symmetric Voigt matrix.
 - XDMF displacement and reconstructed stress/energy output for
   history-independent materials, suitable for ParaView.
+- Wide-format macroscopic CSV output and heterogeneous-safe long-format
+  material-state CSV output.
 
 <p align="center">
   <img src="paper/figures/periodic_meshes.png" width="850" alt="Periodic-conforming 2D and 3D meshes">

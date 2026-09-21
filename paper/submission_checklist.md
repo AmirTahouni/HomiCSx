@@ -19,7 +19,7 @@
 - [x] Finish the release notes and public API freeze.
 - [x] Run the full clean-environment test, strict documentation, validation,
   package-build, and installed-wheel matrix for the 1.0.1 release candidate.
-- [x] Create and push the signed or annotated Git tag.
+- [x] Create and push the temporary pre-release Git tag.
 - [ ] Create the GitHub release.
 - [ ] Archive the release in Zenodo and obtain the version DOI.
 - [ ] Add the version DOI and final release metadata to `CITATION.cff`, README,

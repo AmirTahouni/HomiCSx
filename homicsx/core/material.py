@@ -121,8 +121,11 @@ class QuadraturePointEvaluator:
         """Return exact geometric measures for local mesh cells.
 
         A DG0 test-function integral gives one entry per cell and delegates the
-        geometry mapping and Jacobian evaluation to DOLFINx. This is valid for
-        nonuniform and curved meshes and avoids relying on private C++ helpers.
+        geometry mapping and Jacobian evaluation to DOLFINx. It gives the
+        geometric measure needed by the supported first-order generated meshes
+        and avoids relying on private C++ helpers. No claim is made here for
+        arbitrary higher-order curved cells without a controlled quadrature
+        study.
         """
         num_local = self.mesh.topology.index_map(self.mesh.topology.dim).size_local
         if cells is None:
@@ -558,14 +561,16 @@ class MaterialAssignment:
                 phase_tag = physical_tags.cell_tag_for_phase(phase_id, matrix_phase_id)
                 
                 # Get cells with this physical tag
-                phase_cells = np.where(cell_tags.values == phase_tag)[0]
+                phase_cells = cell_tags.find(phase_tag)
                 
                 if len(phase_cells) > 0:
                     phase_states = {}
                     num_quad_points = quad_evaluator.num_quad_points
                     
                     for cell_idx in phase_cells:
-                        phase_states[cell_idx] = material.initialize_state(num_quad_points)
+                        phase_states[int(cell_idx)] = material.initialize_state(
+                            num_quad_points
+                        )
                     
                     states[phase_id] = phase_states
                     print(f"  Initialized states for phase {phase_id} (tag {phase_tag}): {len(phase_cells)} cells")

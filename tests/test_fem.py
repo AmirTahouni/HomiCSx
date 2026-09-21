@@ -1,4 +1,6 @@
 import numpy as np
+import pytest
+from dolfinx import mesh
 
 from homicsx import (
     GeometryInput,
@@ -166,7 +168,9 @@ def test_homogeneous_3d_recovers_analytical_stiffness():
     assert relative_error < 2e-2
 
 
-def test_homogeneous_finite_strain_recovers_neo_hookean_response_on_nonunit_domain():
+def test_homogeneous_finite_strain_recovers_neo_hookean_response_on_nonunit_domain(
+    tmp_path,
+):
     """A non-unit RVE must recover analytical W, PK1, and J."""
     geometry_input = GeometryInput(
         dim=2,
@@ -224,6 +228,20 @@ def test_homogeneous_finite_strain_recovers_neo_hookean_response_on_nonunit_doma
         data.F_macro_target[0, 0] = 1.0 + modified_strain
         data.skip_tangent = True
 
+    with pytest.raises(ValueError, match="invalid deformation gradient"):
+        driver.run(
+            tangent_every=10_000,
+            max_strain=applied_strain,
+            custom_loads={"invalid": lambda load: np.array([np.nan, load])},
+            from_built_in_loads=[],
+            adaptive_settings=AdaptiveSettings(
+                initial_step_ratio=1.0,
+                min_step=1e-8,
+                max_step_ratio=1.0,
+            ),
+            plot_summary=False,
+        )
+
     driver.add_pre_step_hook(modify_target_and_skip_tangent)
 
     result = driver.run(
@@ -239,6 +257,9 @@ def test_homogeneous_finite_strain_recovers_neo_hookean_response_on_nonunit_doma
         plot_summary=False,
         plot_individual=False,
         save_plots=False,
+        csv_opt=True,
+        xdmf_opt=True,
+        output_prefix=str(tmp_path / "finite_strain"),
     )
 
     history = result.histories["uniaxial_tension"]
@@ -255,3 +276,79 @@ def test_homogeneous_finite_strain_recovers_neo_hookean_response_on_nonunit_doma
     np.testing.assert_allclose(history["Pbar"][-1], expected_stress, rtol=5e-3, atol=5e-5)
     np.testing.assert_allclose(history["Jbar"][-1], expected_J, rtol=5e-3)
     assert history["Ceff"][-1] is None
+    assert history["tangent_status"][-1] == "skipped"
+    assert (tmp_path / "finite_strain_uniaxial_tension.csv").is_file()
+    assert (tmp_path / "finite_strain_uniaxial_tension_results.xdmf").is_file()
+
+
+def test_nonlinear_custom_matrix_phase_and_tags_work_across_load_cases():
+    geometry_input = GeometryInput(
+        dim=2,
+        dispersion="mono",
+        shape="circle",
+        volume_fraction=0.05,
+        clearance=0.01,
+        domain_size=(1.0, 1.0),
+        num_particles=1,
+        seed=19,
+    )
+    geometry = particulate_geometry_generator(geometry_input)
+    default_tags = PhysicalTags()
+    domain, original_cell_tags, facet_tags = generate_mesh(
+        geometry=geometry,
+        mesh_settings=MeshSettings(
+            min_size=0.08,
+            max_size=0.16,
+            physical_tags=default_tags,
+            verbosity=0,
+        ),
+    )
+    custom_tags = PhysicalTags(matrix=41, phase_tag_offset=70)
+    remapped_values = np.where(
+        original_cell_tags.values == default_tags.matrix,
+        custom_tags.matrix,
+        custom_tags.cell_tag_for_phase(1, matrix_phase_id=3),
+    ).astype(np.int32)
+    cell_tags = mesh.meshtags(
+        domain,
+        domain.topology.dim,
+        original_cell_tags.indices,
+        remapped_values,
+    )
+    material = NeoHookeanIsotropic(young_modulus=3.0, poisson_ratio=0.25)
+    driver = NonlinearHomogenizationDriver(
+        mesh_obj=domain,
+        cell_tags=cell_tags,
+        facet_tags=facet_tags,
+        assignment=MaterialAssignment(materials_by_phase={3: material, 1: material}),
+        settings=ProblemSettings(
+            dim=2,
+            kinematics="finite_strain",
+            two_dimensional_formulation="plane_strain",
+        ),
+        physical_tags=custom_tags,
+        domain_size=geometry_input.domain_size,
+        matrix_phase_id=3,
+        quad_degree=2,
+    )
+
+    result = driver.run(
+        tangent_every=10_000,
+        max_strain=0.01,
+        custom_loads={
+            "stretch_x": lambda a: np.diag([1.0 + a, 1.0]),
+            "stretch_y": lambda a: np.diag([1.0, 1.0 + a]),
+        },
+        from_built_in_loads=[],
+        adaptive_settings=AdaptiveSettings(
+            initial_step_ratio=1.0,
+            min_step=1e-8,
+            max_step_ratio=1.0,
+        ),
+        plot_summary=False,
+    )
+
+    assert set(result.histories) == {"stretch_x", "stretch_y"}
+    for history in result.histories.values():
+        assert np.all(np.isfinite(history["Pbar"][-1]))
+        assert history["Jbar"][-1] > 0.0

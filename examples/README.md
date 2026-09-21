@@ -18,5 +18,6 @@ python -m examples.viscoelastic_periodic_2d
 The scripts print small JSON summaries and do not open plots or write solver
 fields. These five serial workflows are exercised by the automated test suite.
 HomiCSx 1.x supports solver execution on one MPI rank. The finer validation
-models and independent Abaqus comparisons are under `validation/abaqus/`.
+models and separately constructed Abaqus comparisons are under
+`validation/abaqus/`.
 

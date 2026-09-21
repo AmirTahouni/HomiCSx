@@ -81,7 +81,7 @@ def visualize_geometry(geometry: RVEGeometry) -> None:
                 )
             )
     except Exception as e:
-        raise RuntimeError(f'Visualization failed during meshing: {e}')
+        raise RuntimeError(f'Visualization failed during meshing: {e}') from e
 
     physical_tags = PhysicalTags()
     matrix_phase_id = 0

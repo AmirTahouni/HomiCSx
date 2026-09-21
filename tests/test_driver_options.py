@@ -114,6 +114,12 @@ def test_nonlinear_driver_rejects_invalid_tangent_delta(value):
         driver.run(tangent_delta=value, plot_summary=False)
 
 
+def test_nonlinear_driver_rejects_invalid_tangent_failure_mode():
+    driver = _history_driver(dolfinx.mesh.CellType.triangle)
+    with pytest.raises(ValueError, match="tangent_failure_mode"):
+        driver.run(tangent_failure_mode="ignore", plot_summary=False)
+
+
 @pytest.mark.parametrize("value", [0.0, -0.1, np.nan, np.inf])
 def test_nonlinear_driver_rejects_invalid_max_strain(value):
     driver = _history_driver(dolfinx.mesh.CellType.triangle)

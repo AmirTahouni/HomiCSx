@@ -707,10 +707,10 @@ class NonlinearHomogenizationDriver:
         J_avg : float
             Volume-averaged Jacobian.
         C_tangent : np.ndarray
-            The homogenized consistent tangent stiffness tensor in Voigt
-            notation (shape: ``(dim*dim, dim*dim)``).
+            Full step-consistent derivative ``d vec(P) / d vec(F)`` with
+            row-major component order (shape: ``(dim*dim, dim*dim)``).
         material_states : dict or None
-            Material state variables.
+            Detached material-state snapshot.
         context : NonlinearFluctuationProblemContext
             The problem context.
         load_name : str
@@ -718,35 +718,29 @@ class NonlinearHomogenizationDriver:
         state : SimulationState
             Shared mutable state container.
 
-        Typical uses include material-stability analysis, acoustic-tensor
-        checks, multiscale coupling, stiffness-degradation tracking, and
-        bifurcation detection.
+        Typical uses include multiscale coupling, stiffness tracking, and
+        user-defined stability analyses that explicitly select compatible
+        stress and strain measures.
 
         Example
         -------
-        >>> def stability_check(data: PostTangentData):
-        ...     C = data.C_tangent
-        ...     # Extract Voigt matrix for 2D
-        ...     C_voigt = np.array([
-        ...         [C[0,0], C[0,1], C[0,3]],
-        ...         [C[1,0], C[1,1], C[1,3]],
-        ...         [C[3,0], C[3,1], C[3,3]],
-        ...     ])
-        ...     eigenvalues = np.linalg.eigvalsh(C_voigt)
-        ...     if np.any(eigenvalues < 0):
-        ...         print(f"INSTABILITY at load {data.current_load:.4f}!")
-        ...         data.state.set('material_unstable', True)
+        >>> def store_tangent_norm(data: PostTangentData):
+        ...     data.state.set(
+        ...         'tangent_norm', float(np.linalg.norm(data.C_tangent))
+        ...     )
         ...
-        >>> driver.add_post_tangent_hook(stability_check)
+        >>> driver.add_post_tangent_hook(store_tangent_norm)
 
         Notes
         -----
         The tangent is computed by finite-difference perturbation of the
         macroscopic deformation gradient using state-aware solves. Two-
-        dimensional problems produce a 4-by-4 plane-strain tangent; indices
-        ``[0, 1, 3]`` correspond to ``(11, 22, 12)`` when converting to a
-        3-by-3 Voigt matrix. Three-dimensional problems produce a 9-by-9
-        tangent that can be converted to 6-by-6 Voigt notation.
+        dimensional problems use ``[P11, P12, P21, P22]`` versus
+        ``[F11, F12, F21, F22]``; three-dimensional problems use the analogous
+        nine-component row-major ordering. This is not Voigt notation. Any
+        symmetric reduction requires an explicitly chosen stress/strain pair
+        and tensor- versus engineering-shear convention. The hook receives
+        detached displacement and state snapshots and is observational.
         """
         self._post_tangent_hooks.append(callback)
     
@@ -855,6 +849,7 @@ class NonlinearHomogenizationDriver:
         self,
         tangent_every: int = 1,
         tangent_delta: float = 1e-6,
+        tangent_failure_mode: str = "raise",
         output_prefix: str = "rve",
         max_strain: float = 0.2,
         custom_loads: Optional[Dict[str, Callable]] = None,
@@ -877,6 +872,10 @@ class NonlinearHomogenizationDriver:
         tangent_delta : float
             Positive finite perturbation used for finite-difference tangent
             columns (default: 1e-6)
+        tangent_failure_mode : {"raise", "record"}
+            ``"raise"`` stops when a requested tangent is unavailable or
+            non-finite. ``"record"`` continues with ``Ceff=None`` and records
+            ``tangent_status="failed"`` in the history.
         output_prefix : str
             Prefix for output files (default: "rve")
         max_strain : float
@@ -918,6 +917,10 @@ class NonlinearHomogenizationDriver:
             raise TypeError("tangent_delta must be a positive real number")
         if not np.isfinite(tangent_delta) or tangent_delta <= 0.0:
             raise ValueError("tangent_delta must be finite and greater than zero")
+        if tangent_failure_mode not in {"raise", "record"}:
+            raise ValueError(
+                "tangent_failure_mode must be either 'raise' or 'record'"
+            )
         if isinstance(max_strain, bool) or not isinstance(max_strain, Real):
             raise TypeError("max_strain must be a positive real number")
         if not np.isfinite(max_strain) or max_strain <= 0.0:
@@ -980,6 +983,7 @@ class NonlinearHomogenizationDriver:
             dim=self.dim,
             tangent_every=tangent_every,
             tangent_delta=tangent_delta,
+            tangent_failure_mode=tangent_failure_mode,
             output_prefix=output_prefix,
             max_strain=max_strain,
             custom_loads=custom_loads,
@@ -989,6 +993,7 @@ class NonlinearHomogenizationDriver:
             csv=csv_opt,
             strain_rate=strain_rate,
             _hook_data=hook_data,
+            matrix_phase_id=self.matrix_phase_id,
         )
         
         # Handle return format

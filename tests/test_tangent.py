@@ -83,7 +83,10 @@ def test_history_dependent_tangent_replays_step_and_restores_committed_state(
         q[...] = q + 4.0 + F_perturbed[0, 0]
         return u_arg, 1, 2, 0.0
 
-    def fake_average(domain, u_arg, F_macro_arg, assignment_arg, tags, dim, quad, states):
+    def fake_average(
+        domain, u_arg, F_macro_arg, assignment_arg, tags, dim, quad, states,
+        *args,
+    ):
         q = states[0][0].get_state("q")[0, 0]
         return 2.0 * F_macro_arg.value.copy() + q * np.eye(2), 0.0, 1.0
 

@@ -40,7 +40,10 @@ class NonlinearHomogenizationResult:
     ----------
     histories : Dict[str, Dict]
         History dictionaries for each load case.
-        Keys are load case names, values are dicts with 'step', 'load_param', 'load_type', 'Fbar', 'Pbar', 'Wbar', 'Jbar', 'converged', 'iters', and 'Ceff'.
+        Keys are load case names, values are dicts with ``step``,
+        ``load_param``, ``load_type``, ``Fbar``, ``Pbar``, ``Wbar``, ``Jbar``,
+        ``converged``, ``iters``, ``Ceff``, and ``tangent_status``. ``Ceff`` is
+        the full row-major derivative ``d vec(P) / d vec(F)``, not Voigt form.
     state_histories : Dict[str, List] or None
         Material state histories for each load case.
     summary : Dict

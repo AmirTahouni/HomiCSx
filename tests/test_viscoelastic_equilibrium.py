@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from homicsx import (
     GeometryInput,
@@ -23,6 +24,8 @@ def _final_fluctuation_for_rate(
     deformation=None,
     step_ratio=1.0,
     mutate_post_stress_snapshot=False,
+    mutate_post_tangent_snapshot=False,
+    tangent_failure_mode="raise",
 ):
     geometry_input = GeometryInput(
         dim=2,
@@ -86,6 +89,16 @@ def _final_fluctuation_for_rate(
 
         driver.add_post_stress_hook(mutate_detached_snapshot)
 
+    if mutate_post_tangent_snapshot:
+        def mutate_detached_tangent_snapshot(data):
+            data.u.x.array[:] = 1.0e6
+            for phase_states in data.material_states.values():
+                for material_state in phase_states.values():
+                    for name in material_state.state_variable_names:
+                        material_state.get_state(name)[...] = 1.0e6
+
+        driver.add_post_tangent_hook(mutate_detached_tangent_snapshot)
+
     def held_shear(unused_parameter):
         if deformation is not None:
             return np.asarray(deformation, dtype=float)
@@ -95,6 +108,7 @@ def _final_fluctuation_for_rate(
         strain_rate=strain_rate,
         tangent_every=tangent_every,
         tangent_delta=tangent_delta,
+        tangent_failure_mode=tangent_failure_mode,
         max_strain=0.01,
         custom_loads={"held_shear": held_shear},
         from_built_in_loads=[],
@@ -174,10 +188,29 @@ def test_real_viscoelastic_tangent_uses_one_sided_fallback():
     _, tangent, _ = _final_fluctuation_for_rate(
         strain_rate=10.0,
         tangent_every=1,
-        tangent_delta=0.2,
+        tangent_delta=0.11,
         deformation=deformation,
     )
     assert np.all(np.isfinite(tangent[:, 0]))
+
+
+def test_nonfinite_tangent_is_fail_fast_or_explicitly_recorded():
+    deformation = np.array([[0.1, 0.0], [0.0, 1.0]])
+    with pytest.raises(RuntimeError, match="Requested tangent calculation failed"):
+        _final_fluctuation_for_rate(
+            strain_rate=10.0,
+            tangent_every=1,
+            tangent_delta=0.2,
+            deformation=deformation,
+        )
+    _, tangent, _ = _final_fluctuation_for_rate(
+        strain_rate=10.0,
+        tangent_every=1,
+        tangent_delta=0.2,
+        deformation=deformation,
+        tangent_failure_mode="record",
+    )
+    assert tangent is None
 
 
 def test_multistep_viscoelastic_tangent_uses_nontrivial_previous_state():
@@ -196,6 +229,20 @@ def test_post_stress_state_snapshot_cannot_contaminate_tangent():
         tangent_every=1,
         mutate_post_stress_snapshot=True,
     )
+    np.testing.assert_allclose(mutated_stress, reference_stress, atol=1.0e-12)
+    np.testing.assert_allclose(mutated_tangent, reference_tangent, atol=1.0e-10)
+
+
+def test_post_tangent_snapshots_cannot_contaminate_committed_data():
+    reference_u, reference_tangent, reference_stress = _final_fluctuation_for_rate(
+        strain_rate=10.0, tangent_every=1
+    )
+    mutated_u, mutated_tangent, mutated_stress = _final_fluctuation_for_rate(
+        strain_rate=10.0,
+        tangent_every=1,
+        mutate_post_tangent_snapshot=True,
+    )
+    np.testing.assert_allclose(mutated_u, reference_u, atol=1.0e-12)
     np.testing.assert_allclose(mutated_stress, reference_stress, atol=1.0e-12)
     np.testing.assert_allclose(mutated_tangent, reference_tangent, atol=1.0e-10)
 

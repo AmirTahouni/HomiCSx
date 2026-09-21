@@ -23,15 +23,13 @@ from homicsx.core.homogenization import AdaptiveSettings
 from homicsx.core.material import MaterialState, QuadraturePointEvaluator
 from homicsx.fem.fluctuation import NonlinearFluctuationProblemContext
 
-import numpy as np
-import csv
-from mpi4py import MPI
-import ufl
-from dolfinx import fem
-from petsc4py import PETSc
 
 
 logger = logging.getLogger(__name__)
+
+
+class TangentComputationError(RuntimeError):
+    """Raised when a requested homogenized tangent cannot be produced."""
 
 # =============================================================================
 # Kinematics and Utilities
@@ -132,11 +130,15 @@ def _init_history() -> dict:
         "Jbar": [],
         "converged": [],
         "iters": [],
-        "Ceff": []
+        "Ceff": [],
+        "tangent_status": [],
     }
 
 
-def _record_history(history, step_idx, a, load_type, Fbar, Pbar, Wbar, Jbar, converged, iters, Ceff):
+def _record_history(
+    history, step_idx, a, load_type, Fbar, Pbar, Wbar, Jbar,
+    converged, iters, Ceff, tangent_status,
+):
     """Internal helper to keep the main loop clean."""
     history["step"].append(step_idx)
     history["load_param"].append(float(a))
@@ -148,6 +150,7 @@ def _record_history(history, step_idx, a, load_type, Fbar, Pbar, Wbar, Jbar, con
     history["converged"].append(int(converged))
     history["iters"].append(int(iters))
     history["Ceff"].append(None if Ceff is None else np.array(Ceff, copy=True))
+    history["tangent_status"].append(str(tangent_status))
 
 
 def _save_history_csv(history: dict, filename: str, dim: int):
@@ -161,6 +164,10 @@ def _save_history_csv(history: dict, filename: str, dim: int):
         for j in range(dim):
             header.append(f"P{i+1}{j+1}")
     header.extend(["Wbar", "Jbar", "converged", "iters"])
+    header.append("tangent_status")
+    for i in range(dim * dim):
+        for j in range(dim * dim):
+            header.append(f"dP{i}_dF{j}")
     
     with open(filename, "w", newline="") as f:
         writer = csv.writer(f)
@@ -187,8 +194,14 @@ def _save_history_csv(history: dict, filename: str, dim: int):
                 history["Wbar"][k],
                 history["Jbar"][k],
                 history["converged"][k],
-                history["iters"][k]
+                history["iters"][k],
+                history["tangent_status"][k],
             ])
+            tangent = history["Ceff"][k]
+            if tangent is None:
+                row.extend([""] * (dim * dim) ** 2)
+            else:
+                row.extend(np.asarray(tangent).reshape(-1))
             
             writer.writerow(row)
 
@@ -250,6 +263,16 @@ def _get_tangent_component_curve(history: dict, row: int, col: int) -> np.ndarra
     return np.array(vals, dtype=float)
 
 
+def _mesh_tag_lookup(cell_tags: mesh.MeshTags) -> Dict[int, int]:
+    """Map tagged mesh entity IDs to values without assuming dense tags."""
+    return {
+        int(entity): int(tag)
+        for entity, tag in zip(
+            cell_tags.indices, cell_tags.values, strict=True
+        )
+    }
+
+
 # =============================================================================
 # Energy and Stress Computation
 # =============================================================================
@@ -259,6 +282,7 @@ def _compute_phase_volumes(
         cell_tags: dolfinx.mesh.MeshTags, 
         material_assignment: MaterialAssignment,
         physical_tags: PhysicalTags,
+        matrix_phase_id: int = 0,
 ):
     """
     Compute the volume of each phase.
@@ -273,7 +297,7 @@ def _compute_phase_volumes(
     total_volume = 0.0
     
     for phase_id in material_assignment.materials_by_phase.keys():
-        tag = physical_tags.cell_tag_for_phase(phase_id)
+        tag = physical_tags.cell_tag_for_phase(phase_id, matrix_phase_id)
         vol_local = fem.assemble_scalar(fem.form(1.0 * dx(tag)))
         volume = domain.comm.allreduce(vol_local, op=MPI.SUM)
         phase_volumes[phase_id] = volume
@@ -308,7 +332,8 @@ def _compute_average_P_and_energy_with_state(
     
     # Compute phase volumes using existing function
     phase_volumes, total_volume = _compute_phase_volumes(
-        domain, cell_tags, material_assignment, physical_tags=physical_tags
+        domain, cell_tags, material_assignment, physical_tags=physical_tags,
+        matrix_phase_id=matrix_phase_id,
     )
     
     # Initialize averaged quantities
@@ -379,8 +404,9 @@ def _compute_average_P_and_energy_with_state(
         J_phase_sum = {phase_id: 0.0 for phase_id in material_assignment.materials_by_phase.keys()}
         phase_vol_check = {phase_id: 0.0 for phase_id in material_assignment.materials_by_phase.keys()}
         
+        entity_to_tag = _mesh_tag_lookup(cell_tags)
         for cell_idx, F_cell in F_by_cell.items():
-            physical_tag = cell_tags.values[cell_idx]
+            physical_tag = entity_to_tag.get(int(cell_idx))
             # Map physical tag back to phase_id
             phase_id = tag_to_phase.get(physical_tag)
             if phase_id is None:
@@ -685,6 +711,8 @@ def _compute_Ceff_fd_with_state(
     dim: int,
     quad_evaluator: QuadraturePointEvaluator,
     context: Any,
+    physical_tags: Optional[PhysicalTags] = None,
+    matrix_phase_id: int = 0,
     previous_material_states: Optional[
         Dict[int, Dict[int, MaterialState]]
     ] = None,
@@ -700,6 +728,8 @@ def _compute_Ceff_fd_with_state(
     restored before returning.
     """
     has_history = material_assignment.has_history_dependence()
+    if physical_tags is None:
+        physical_tags = PhysicalTags()
     if has_history and previous_material_states is None:
         raise ValueError(
             "previous_material_states is required for a history-dependent "
@@ -715,7 +745,8 @@ def _compute_Ceff_fd_with_state(
     )
     P0, _, _ = _compute_average_P_and_energy_with_state(
         domain, u, F_macro, material_assignment, cell_tags, dim,
-        quad_evaluator, context.material_states
+        quad_evaluator, context.material_states, physical_tags,
+        matrix_phase_id,
     )
     P0_vec = _flatten_tensor(P0)
 
@@ -744,7 +775,8 @@ def _compute_Ceff_fd_with_state(
             return None
         P_perturbed, _, _ = _compute_average_P_and_energy_with_state(
             domain, u_sol, F_macro, material_assignment, cell_tags, dim,
-            quad_evaluator, context.material_states
+            quad_evaluator, context.material_states, physical_tags,
+            matrix_phase_id,
         )
         return _flatten_tensor(P_perturbed)
 
@@ -799,6 +831,8 @@ def _run_one_load_case_with_history(
     load_function: Callable,
     dim: int,
     context: NonlinearFluctuationProblemContext,
+    matrix_phase_id: int = 0,
+    output_prefix: str = "rve",
     xdmf: bool = False,
     tangent_every: int = 1,
     tangent_delta: float = 1e-6,
@@ -806,6 +840,7 @@ def _run_one_load_case_with_history(
     # physical_dt: float = 1.0,
     strain_rate: Optional[float] = None,
     _hook_data: Optional[Dict] = None,
+    tangent_failure_mode: str = "raise",
 ) -> Tuple[Dict, Optional[List[Tuple[float, Dict]]]]:
     """
     Run a single load case with full material history tracking.
@@ -841,13 +876,13 @@ def _run_one_load_case_with_history(
     total_physical_time = 0.0
     # failure_attempt = 0
     
-    print(f"\n" + "="*70)
+    print("\n" + "="*70)
     print(f"STARTING LOAD CASE: {load_name}")
     print(f"   Target Load: {target_val:.4f} | Initial da: {da:.2e}")
     if strain_rate is not None:
         print(f"   Constant strain rate: {strain_rate:.2e} (1/time)")
     if material_assignment.has_history_dependence():
-        print(f"   History-dependent materials detected - tracking state evolution")
+        print("   History-dependent materials detected - tracking state evolution")
         print(f"   Quadrature points per cell: {context.quad_evaluator.num_quad_points}")
     print("="*70)
     
@@ -868,6 +903,15 @@ def _run_one_load_case_with_history(
             Fbar = load_function(next_a)
         else:
             raise ValueError(f"Unknown load_tag: {load_tag}")
+
+        Fbar = np.asarray(Fbar, dtype=PETSc.ScalarType)
+        if Fbar.shape != (dim, dim) or not np.all(np.isfinite(Fbar)):
+            raise ValueError(
+                f"Load function '{load_name}' produced an invalid deformation "
+                f"gradient; expected a finite {(dim, dim)} array, got "
+                f"shape {Fbar.shape}."
+            )
+        Fbar = Fbar.copy()
         
         progress = (next_a / target_val) * 100
         print(f"\nStep {step_idx:3d} | Progress: {progress:6.2f}% | Load: {next_a:.6f} | da: {dt_load:.2e}")
@@ -1000,7 +1044,7 @@ def _run_one_load_case_with_history(
             Pbar, Wbar, Jbar = _compute_average_P_and_energy_with_state(
                 domain, u, F_macro, material_assignment, cell_tags, dim,
                 context.quad_evaluator, context.material_states, 
-                physical_tags, matrix_phase_id=0
+                physical_tags, matrix_phase_id=matrix_phase_id
             )
             
             # Check physical stability
@@ -1067,8 +1111,9 @@ def _run_one_load_case_with_history(
             
             # Compute tangent stiffness if requested
             Ceff = None
+            tangent_status = "skipped" if skip_tangent else "not_scheduled"
             if not skip_tangent and (step_idx % tangent_every) == 0:
-                print(f"   Computing Tangent stiffness...")
+                print("   Computing Tangent stiffness...")
                 try:
                     Ceff = _compute_Ceff_fd_with_state(
                         problem=problem,
@@ -1081,28 +1126,50 @@ def _run_one_load_case_with_history(
                         dim=dim,
                         quad_evaluator=context.quad_evaluator,
                         context=context,
+                        physical_tags=physical_tags,
+                        matrix_phase_id=matrix_phase_id,
                         previous_material_states=increment_start_states,
                         delta=tangent_delta,
                     )
+                    if not np.all(np.isfinite(Ceff)):
+                        raise TangentComputationError(
+                            "Tangent calculation returned non-finite entries"
+                        )
+                    tangent_status = "computed"
                     print("   Done.")
-                except Exception:
+                except Exception as exc:
                     logger.exception("Tangent stiffness computation failed")
                     Ceff = None
+                    tangent_status = "failed"
+                    if tangent_failure_mode == "raise":
+                        raise TangentComputationError(
+                            "Requested tangent calculation failed"
+                        ) from exc
             
             # --- POST-TANGENT HOOK ---
             if Ceff is not None and _hook_data and _hook_data.get('post_tangent'):
                 from homicsx.homogenization.driver import PostTangentData
                 state = _hook_data.get('state')
+                hook_state_guard = (
+                    _snapshot_material_states(context.material_states)
+                    if context.material_states is not None
+                    else None
+                )
+                hook_solution_guard = u.x.array.copy()
                 post_tan_data = PostTangentData(
                     step_idx=step_idx,
                     current_load=current_a,
                     F_macro=Fbar.copy(),
-                    u=u_sol,
+                    u=_detached_function(u_sol),
                     P_avg=Pbar.copy(),
                     W_avg=Wbar,
                     J_avg=Jbar,
                     C_tangent=Ceff.copy(),
-                    material_states=context.material_states,
+                    material_states=(
+                        _snapshot_material_states(hook_state_guard)
+                        if hook_state_guard is not None
+                        else None
+                    ),
                     context=context,
                     load_name=load_name,
                     # tangent_computation_time=tangent_time,
@@ -1110,11 +1177,16 @@ def _run_one_load_case_with_history(
                     state=state,
                 )
                 _execute_hooks(_hook_data['post_tangent'], post_tan_data, "Post-tangent")
+                _assert_observational_hooks_preserved_live_data(
+                    context, hook_state_guard, u, hook_solution_guard,
+                    "post_tangent",
+                )
 
             # Record history
             _record_history(
                 history, step_idx, current_a, load_name,
-                Fbar, Pbar, Wbar, Jbar, converged, iters, Ceff
+                Fbar, Pbar, Wbar, Jbar, converged, iters, Ceff,
+                tangent_status,
             )
             
             step_idx += 1
@@ -1130,6 +1202,8 @@ def _run_one_load_case_with_history(
                 if da < old_da:
                     print(f"   Decreasing step size: {old_da:.2e} -> {da:.2e}")
                     
+        except TangentComputationError:
+            raise
         except RuntimeError as e:
             logger.warning("Retrying with a reduced step after error: %s", e)
             da *= settings.cutback_factor
@@ -1143,8 +1217,11 @@ def _run_one_load_case_with_history(
                 
                 # Write XDMF with collected solutions before exiting
                 if xdmf_solutions is not None and len(xdmf_solutions) > 0:
-                    _write_xdmf_at_end(domain, xdmf_solutions, F_macro, 
-                                       material_assignment, cell_tags, dim, load_name)
+                    _write_xdmf_at_end(
+                        domain, xdmf_solutions, F_macro, material_assignment,
+                        cell_tags, dim, load_name, physical_tags,
+                        matrix_phase_id, output_prefix,
+                    )
    
                 return history, state_history if state_history else None
             
@@ -1158,8 +1235,10 @@ def _run_one_load_case_with_history(
     # In run_one_load_case_with_history:
     if xdmf_solutions is not None and len(xdmf_solutions) > 0:
         print(f"\n   Writing XDMF output with {len(xdmf_solutions)} time steps...")
-        _write_xdmf_at_end(domain, xdmf_solutions, F_macro, 
-                        material_assignment, cell_tags, dim, load_name, physical_tags)
+        _write_xdmf_at_end(
+            domain, xdmf_solutions, F_macro, material_assignment, cell_tags,
+            dim, load_name, physical_tags, matrix_phase_id, output_prefix,
+        )
         print("   Done.")
     
     print(f"\nLOAD CASE '{load_name}' COMPLETED SUCCESSFULLY.")
@@ -1190,6 +1269,8 @@ def _run_all_load_cases(
     # physical_dt: float = 1.0,
     strain_rate: Optional[float] = None,
     _hook_data: Optional[Dict] = None,
+    matrix_phase_id: int = 0,
+    tangent_failure_mode: str = "raise",
 ) -> Dict[str, Tuple[Dict, Optional[List]]]:
     """
     Run all standard load cases for homogenization with material history support.
@@ -1345,7 +1426,9 @@ def _run_all_load_cases(
         if context.material_states is not None:
             print("   Re-initializing material states for new load case...")
             context.material_states = material_assignment.initialize_states(
-                domain, cell_tags, context.quad_evaluator
+                domain, cell_tags, context.quad_evaluator,
+                physical_tags=physical_tags,
+                matrix_phase_id=matrix_phase_id,
             )
             context.time = 0.0
             context.dt = load_vals[1] - load_vals[0] if len(load_vals) > 1 else 1.0
@@ -1365,12 +1448,15 @@ def _run_all_load_cases(
             load_function=load_func,
             dim=dim,
             context=context,
+            matrix_phase_id=matrix_phase_id,
+            output_prefix=output_prefix,
             xdmf=xdmf,
             tangent_every=tangent_every,
             tangent_delta=tangent_delta,
             adaptive_settings=adaptive_settings,
             strain_rate=strain_rate,
             _hook_data=_hook_data,
+            tangent_failure_mode=tangent_failure_mode,
         )
 
         # Save CSV if requested
@@ -1441,6 +1527,8 @@ def _write_xdmf_at_end(
     dim: int,
     load_name: str,
     physical_tags: Any = None,
+    matrix_phase_id: int = 0,
+    output_prefix: str = "rve",
 ):
     """
     Write all fields to XDMF file at the end of the load case.
@@ -1451,7 +1539,9 @@ def _write_xdmf_at_end(
     from dolfinx.io import XDMFFile
     
     # Create XDMF file
-    xdmf_file = XDMFFile(domain.comm, f"{load_name}_results.xdmf", "w")
+    xdmf_file = XDMFFile(
+        domain.comm, f"{output_prefix}_{load_name}_results.xdmf", "w"
+    )
     xdmf_file.write_mesh(domain)
     
     # Use DG0 for stress/energy fields (element-wise constant)
@@ -1499,7 +1589,7 @@ def _write_xdmf_at_end(
         I = ufl.Identity(dim)
         
         for phase_id, material in material_assignment.materials_by_phase.items():
-            tag = physical_tags.cell_tag_for_phase(phase_id, matrix_phase_id=0)
+            tag = physical_tags.cell_tag_for_phase(phase_id, matrix_phase_id)
             cells = cell_tags.find(tag)
             
             if len(cells) > 0:
@@ -1548,7 +1638,7 @@ def _write_xdmf_at_end(
         F_macro.value[...] = F_macro_original
     
     xdmf_file.close()
-    print(f"   XDMF write complete.")
+    print("   XDMF write complete.")
 
 
 def _summarize_histories(all_histories: dict, dim: int) -> dict:
@@ -1998,110 +2088,30 @@ def _visualize_deformed_geometry(domain, u_field, cell_markers, geometry, factor
     return plotter.show(jupyter_backend="html")
 
 
-def _save_history_csv(history: Dict, filename: str, dim: int):
-    """Save load case history to CSV file."""
-    import csv
-    
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        
-        # Write header
-        header = ['step', 'load_value', 'W_avg', 'J_avg', 'converged', 'iterations']
-        
-        # Add stress components
-        if dim == 2:
-            header.extend(['P_xx', 'P_yy', 'P_xy'])
-        elif dim == 3:
-            header.extend(['P_xx', 'P_yy', 'P_zz', 'P_xy', 'P_yz', 'P_xz'])
-            
-        # Add tangent stiffness if available
-        if history['C_eff'][0] is not None:
-            n_comps = 4 if dim == 2 else 9
-            for i in range(n_comps):
-                for j in range(n_comps):
-                    header.append(f'C_{i}{j}')
-        
-        writer.writerow(header)
-        
-        # Write data
-        for i in range(len(history['steps'])):
-            row = [
-                history['steps'][i],
-                history['load_values'][i],
-                history['W_avg'][i],
-                history['J_avg'][i],
-                history['converged'][i],
-                history['iterations'][i],
-            ]
-            
-            # Add stress components
-            P = history['P_avg'][i]
-            if dim == 2:
-                row.extend([P[0, 0], P[1, 1], P[0, 1]])
-            elif dim == 3:
-                row.extend([P[0, 0], P[1, 1], P[2, 2], P[0, 1], P[1, 2], P[0, 2]])
-            
-            # Add tangent if available
-            if history['C_eff'][i] is not None:
-                row.extend(history['C_eff'][i].flatten())
-                
-            writer.writerow(row)
-
-
 def _save_state_history_csv(state_history: List[Tuple[float, Dict]], filename: str, dim: int):
-    """Save material state evolution to CSV file."""
-    import csv
-    
+    """Save heterogeneous material states in a stable long-form schema."""
     if not state_history:
         return
-        
+
     with open(filename, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        
-        # Get state variable names from first snapshot
-        first_snapshot = state_history[0][1]
-        state_var_names = []
-        for phase_id, phase_states in first_snapshot.items():
-            if phase_states:
-                first_cell_state = next(iter(phase_states.values()))
-                state_var_names = first_cell_state.state_variable_names
-                break
-        
-        # Write header
-        header = ['load_value', 'phase_id', 'cell_idx']
-        for var_name in state_var_names:
-            # Get shape from first state
-            for phase_id, phase_states in first_snapshot.items():
-                if phase_states:
-                    first_cell_state = next(iter(phase_states.values()))
-                    var_data = first_cell_state.get_state(var_name)
-                    shape = var_data.shape[1:]  # Skip quadrature point dimension
-                    if len(shape) == 0:
-                        header.append(var_name)
-                    elif len(shape) == 1:
-                        for i in range(shape[0]):
-                            header.append(f'{var_name}_{i}')
-                    elif len(shape) == 2:
-                        for i in range(shape[0]):
-                            for j in range(shape[1]):
-                                header.append(f'{var_name}_{i}{j}')
-                    break
-        
-        writer.writerow(header)
-        
-        # Write data for each load step
+        writer.writerow([
+            'load_value', 'phase_id', 'cell_idx', 'quadrature_point',
+            'variable', 'component', 'value',
+        ])
         for load_val, snapshot in state_history:
             for phase_id, phase_states in snapshot.items():
                 for cell_idx, state in phase_states.items():
-                    row = [load_val, phase_id, cell_idx]
-                    
-                    for var_name in state_var_names:
-                        var_data = state.get_state(var_name)
-                        # Average over quadrature points
-                        avg_data = np.mean(var_data, axis=0)
-                        row.extend(avg_data.flatten())
-                    
-                    writer.writerow(row)
+                    for variable in state.state_variable_names:
+                        values = np.asarray(state.get_state(variable))
+                        for quadrature_point, point_values in enumerate(values):
+                            flat_values = np.asarray(point_values).reshape(-1)
+                            for component, value in enumerate(flat_values):
+                                writer.writerow([
+                                    load_val, phase_id, cell_idx,
+                                    quadrature_point, variable, component,
+                                    float(value),
+                                ])
 
 
 __all__ = [

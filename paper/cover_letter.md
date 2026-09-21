@@ -44,8 +44,9 @@ states the software’s current limitations and archival maintenance model.
 
 This manuscript is original, is not under consideration elsewhere, and has one
 author. The author declares no competing interests, and no specific funding
-supported the software. Version 1.0.1 is preserved at
-https://github.com/AmirTahouni/HomiCSx/tree/v1.0.1. The author confirms responsibility for the work
+supported the software. The v1.0.1 release candidate is identified by a
+temporary GitHub tag; its final Zenodo version DOI will be inserted before
+submission. The author confirms responsibility for the work
 and for the disclosed use of an AI-assisted coding tool during code review,
 validation preparation, documentation editing, and manuscript drafting.
 

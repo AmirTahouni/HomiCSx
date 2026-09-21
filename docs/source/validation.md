@@ -8,9 +8,10 @@ HomiCSx uses complementary verification and validation checks:
   constructed implementation.
 
 A dedicated nonuniform-mesh regression uses two triangular cells with areas 1
-and 2 and prescribed cellwise fields. It verifies exact geometric measures and
-the corresponding volume-weighted macroscopic stress, recoverable energy, and
-mean Jacobian in the history-dependent integration path.
+and 2 and prescribed cellwise fields. It verifies exact affine-cell measures
+for the supported first-order mesh representation and the corresponding
+volume-weighted macroscopic stress, recoverable energy, and mean Jacobian in
+the history-dependent integration path.
 
 ## Analytical verification
 

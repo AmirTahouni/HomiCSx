@@ -19,10 +19,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - name: Create test environment
-        uses: mamba-org/setup-micromamba@v3
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3
         with:
           environment-file: environment-dev.yml
           cache-environment: true
@@ -37,11 +37,11 @@ jobs:
         run: |
           python -m pytest --cov=homicsx --cov-report=term-missing --cov-fail-under=60
           python -m coverage json -o coverage.json
-          python -c "import json; d=json.load(open('coverage.json'))['files']; limits={'homicsx/core/material.py':80,'homicsx/homogenization/linear.py':45,'homicsx/homogenization/driver.py':80,'homicsx/homogenization/nlhelpers.py':45,'homicsx/fem/nonlinear_problem.py':60}; bad={p:(d[p]['summary']['percent_covered'],v) for p,v in limits.items() if d[p]['summary']['percent_covered'] < v}; assert not bad, bad"
+          python -c "import json; d=json.load(open('coverage.json'))['files']; limits={'homicsx/core/material.py':85,'homicsx/homogenization/linear.py':45,'homicsx/homogenization/driver.py':82,'homicsx/homogenization/nlhelpers.py':60,'homicsx/fem/nonlinear_problem.py':60}; bad={p:(d[p]['summary']['percent_covered'],v) for p,v in limits.items() if d[p]['summary']['percent_covered'] < v}; assert not bad, bad"
 
       - name: Static analysis
         shell: bash -el {0}
-        run: python -m ruff check --select F401,F841 homicsx tests examples validation
+        run: python -m ruff check --select E9,F,B --ignore B007,B905 homicsx tests examples validation
 
       - name: Build documentation with warnings as errors
         shell: bash -el {0}

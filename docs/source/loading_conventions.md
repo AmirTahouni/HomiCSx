@@ -32,3 +32,12 @@ result = driver.run(
 
 The solver reports the deformation gradient actually used at each converged
 step in `history["Fbar"]`; this is the authoritative record for reproducibility.
+
+Malformed custom-load outputs are rejected before the nonlinear solve. A load
+callable must return a finite `(dim, dim)` deformation-gradient array; the same
+validation is repeated after pre-step hooks modify the target.
+
+When `csv_opt=True`, `output_prefix` prefixes the macroscopic and state-history
+CSV files. State histories use one row per load, phase, cell, quadrature point,
+variable, and component, so phases may expose different state variables. The
+same prefix is applied to XDMF output when `xdmf_opt=True`.

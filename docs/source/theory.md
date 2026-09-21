@@ -199,8 +199,9 @@ $$\bar{\mathbf{P}} = \frac{1}{|\Omega_0|} \int_{\Omega_0} \mathbf{P} \, d\Omega$
 
 History-dependent numerical averaging uses each cell's geometric measure and
 quadrature weights normalized on the reference cell. It therefore remains a
-true volume average on nonuniform unstructured meshes rather than a cell-count
-average.
+true volume average on the supported first-order nonuniform meshes rather than
+a cell-count average. Higher-order curved cells are outside this verified
+claim.
 
 The reported effective tangent modulus is computed by central finite
 differences:
@@ -217,3 +218,12 @@ fails to converge, a one-sided difference against the converged base stress is
 used; a column is marked non-finite only if both perturbations fail. XDMF stress
 and energy reconstruction remains restricted to history-independent materials;
 viscoelastic state-aware field data can instead be collected through hooks.
+
+The returned finite-strain tangent is the complete derivative
+`d vec(P) / d vec(F)` in row-major order. In 2D the row and column component
+orders are `(11, 12, 21, 22)`; in 3D they are
+`(11, 12, 13, 21, 22, 23, 31, 32, 33)`. It is not Voigt notation. A symmetric
+reduction requires a separately specified work-conjugate stress/strain pair
+and tensor- or engineering-shear convention. Requested tangent failures raise
+by default; `tangent_failure_mode="record"` instead stores `Ceff=None` with an
+explicit `tangent_status="failed"`.

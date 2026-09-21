@@ -14,7 +14,7 @@ python examples/viscoelastic_periodic_2d.py
 
 The test suite executes the same `run_example()` function and requires a
 decreasing stress history and exact agreement between the hook-collected and
-driver-returned values. See the validation page for the independent Abaqus
+driver-returned values. See the validation page for the separate Abaqus
 comparisons; this example is a usage demonstration, not the validation itself.
 
 ```{literalinclude} ../../../examples/viscoelastic_periodic_2d.py

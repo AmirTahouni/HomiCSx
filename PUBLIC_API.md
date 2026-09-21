@@ -13,6 +13,14 @@ materials, material assignment, problem settings, linear and nonlinear
 homogenization drivers and results, adaptive settings, simulation state, and
 typed hook data objects.
 
+For nonlinear results, `Ceff` is the complete row-major derivative
+`d vec(P) / d vec(F)`, not a Voigt matrix. `tangent_status` records whether a
+tangent was computed, skipped, not scheduled, or failed. Requested failures
+raise by default; callers may explicitly select the record-and-continue mode.
+Post-convergence, post-stress, and post-tangent hooks receive detached field
+and constitutive-state snapshots. CSV output uses a wide macroscopic-history
+table and a long material-state table that supports phase-specific variables.
+
 HomiCSx 1.x supports solver execution on one MPI rank. MPI remains a runtime
 dependency of DOLFINx and PETSc, but distributed homogenization is not part of
 the supported API; the public drivers reject communicators with more than one

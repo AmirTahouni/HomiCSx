@@ -484,12 +484,16 @@ class RVEGeometry:
         return float(np.prod(self.domain_size))
     
     def _update_phase_ids(self) -> None:
-        present_phases = {self.phase_ids[0]}
+        matrix_phase_id = self.phase_ids[0]
+        present_phases = {matrix_phase_id}
         for inc in self.inclusions:
             present_phases.add(inc.phase_id)
             if inc.has_interphase:
                 present_phases.add(inc.interphase_phase_id)
-        self.phase_ids = tuple(sorted(list(present_phases)))
+        self.phase_ids = (
+            matrix_phase_id,
+            *sorted(present_phases - {matrix_phase_id}),
+        )
 
     @property
     def core_volume_fraction(self) -> float:

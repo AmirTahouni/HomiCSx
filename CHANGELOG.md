@@ -20,10 +20,20 @@ semantic versioning for its publication-supported public API.
   generalized-Maxwell tangents that replay every perturbation from the same
   previous converged state without contaminating the committed solution.
 - Corrected history-dependent macroscopic stress, energy, Jacobian, and
-  tangent averages to use exact geometric cell measures on nonuniform meshes.
+  tangent averages to use geometric cell measures on supported first-order
+  nonuniform meshes.
 - Validated nonlinear run controls and made post-convergence and post-stress
   hooks observational through detached solution and material-state snapshots.
-- Added packaging CI, focused solver coverage gates, and unused-code checks.
+- Propagated custom matrix-phase and physical-tag conventions throughout the
+  nonlinear residual, averaging, state-reset, tangent, and XDMF paths, with
+  sparse `MeshTags` handled by entity ID rather than array position.
+- Repaired macroscopic CSV output, introduced heterogeneous-safe long-format
+  state CSV output, and applied `output_prefix` to XDMF filenames.
+- Documented nonlinear tangents as the full row-major `d vec(P)/d vec(F)`,
+  added explicit status and fail-fast/record policies, and made post-tangent
+  hooks observational through detached snapshots.
+- Added unconditional custom-load validation, packaging CI, focused solver
+  coverage gates, broader Ruff checks, and commit-pinned workflow actions.
 
 ### Removed
 

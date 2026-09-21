@@ -32,6 +32,15 @@ from homicsx.mesh import build_gmsh_model, generate_mesh
 # helpers
 # ------------------------------------------------------------
 
+
+def test_rve_geometry_preserves_nonminimum_matrix_phase_id():
+    geometry = RVEGeometry(
+        dim=2,
+        domain_size=np.array([1.0, 1.0]),
+        phase_ids=(3,),
+    )
+    assert geometry.phase_ids == (3,)
+
 def _physical_groups_by_dim():
     """
     Return physical groups as a dict:

@@ -55,6 +55,9 @@ work but are not currently part of the verification matrix.
   restored afterward. Central differences require up to twice the square of
   the spatial dimension in additional equilibrium solves at every requested
   tangent step, so `tangent_every` should be chosen with that cost in mind.
+  The returned matrix is the full row-major `d vec(P) / d vec(F)`, not a
+  symmetric Voigt reduction. Tangent failure is fail-fast by default and can
+  be explicitly recorded through `tangent_failure_mode="record"`.
 - HomiCSx 1.x supports solver execution on one MPI rank. The public drivers
   reject distributed communicators until cross-rank consistency is verified in
   continuous integration.

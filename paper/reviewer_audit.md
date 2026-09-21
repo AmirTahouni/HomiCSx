@@ -19,11 +19,15 @@ constitutive energy-gradient checks, mesh refinement, regression tests, and
 separately constructed Abaqus cases cover the advertised linear,
 hyperelastic, and viscoelastic core. The comparison reports conventional
 macroscopic quantities, not the application paper's localization statistics.
-History-dependent averages use exact geometric cell measures and normalized
-quadrature weights; a deliberately nonuniform-cell regression verifies this
-path. Step-consistent tangents are checked across every 2D column, a 3D shear
+History-dependent averages on supported first-order meshes use geometric cell
+measures and normalized quadrature weights; a deliberately nonuniform-cell
+regression verifies this path. Custom phase/tag conventions and sparse tags
+are tested across multiple load cases. Step-consistent tangents are checked
+across every 2D column, a 3D shear
 column, nontrivial prior history, perturbation sizes, and a real-solver
 one-sided fallback, while committed fields and branch states are preserved.
+CSV/XDMF output, heterogeneous state layouts, invalid custom loads, explicit
+tangent failures, and detached post-tangent hook data are also covered.
 The manuscript explicitly excludes pointwise equivalence and heterogeneous 3D
 viscoelastic Abaqus validation from what has been established.
 
@@ -33,7 +37,7 @@ viscoelastic Abaqus validation from what has been established.
 version-constrained Conda environment, deterministic examples, tests, figure generators,
 validation metadata, and compact reference results. The final release must be
 tested in a fresh environment and archived before submission. The v1.0.1
-corrective release candidate passes 148 tests, 63.13% statement coverage, a
+corrective release candidate passes 157 tests, 66.68% statement coverage, a
 strict documentation build, distribution checks, and manuscript compilation;
 the new archive DOI remains to be inserted after Zenodo deposits the release.
 
