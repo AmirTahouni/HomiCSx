@@ -37,7 +37,7 @@ viscoelastic Abaqus validation from what has been established.
 version-constrained Conda environment, deterministic examples, tests, figure generators,
 validation metadata, and compact reference results. The final release must be
 tested in a fresh environment and archived before submission. The v1.0.1
-corrective release candidate passes 157 tests, 66.68% statement coverage, a
+corrective release candidate passes 159 tests, 67% statement coverage, a
 strict documentation build, distribution checks, and manuscript compilation;
 the new archive DOI remains to be inserted after Zenodo deposits the release.
 

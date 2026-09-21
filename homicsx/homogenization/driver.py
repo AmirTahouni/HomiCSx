@@ -437,7 +437,7 @@ class NonlinearHomogenizationDriver:
             ``True`` if the load case completed successfully, ``False`` if
             it terminated early due to convergence failure.
         context : NonlinearFluctuationProblemContext
-            The problem context.
+            Read-only access to the solver-owned problem context.
         state : SimulationState
             Shared mutable state container.
 
@@ -596,7 +596,8 @@ class NonlinearHomogenizationDriver:
         This hook runs **before** :meth:`add_post_stress_hook`. It is
         observational: ``u`` and ``material_states`` are detached snapshots.
         Mutating solver-owned displacement or constitutive state indirectly
-        through ``context`` is detected, restored, and rejected. Put
+        through ``context`` (including ``context.F_macro``) is detected,
+        restored, and rejected. Put
         deterministic constitutive-state transformations in a pre-step hook,
         where they are included in both the base solve and tangent replays.
         """
@@ -639,8 +640,9 @@ class NonlinearHomogenizationDriver:
         material_states : dict or None
             Detached material-state snapshot for all phases and cells.
         context : NonlinearFluctuationProblemContext
-            The problem context, including the quadrature evaluator for
-            computing local deformation gradients.
+            Read-only access to the solver-owned problem context, including
+            the quadrature evaluator for computing local deformation
+            gradients.
         load_name : str
             Name of the current load case.
         state : SimulationState
@@ -670,7 +672,8 @@ class NonlinearHomogenizationDriver:
         material-state arguments are detached snapshots. The shared ``state``
         container remains mutable for communication between hooks. The object
         at ``context.quad_evaluator`` provides methods for computing local
-        deformation gradients.
+        deformation gradients. Mutation of solver-owned data exposed through
+        ``context`` is detected, restored, and rejected.
         """
         self._post_stress_hooks.append(callback)
     
@@ -712,7 +715,7 @@ class NonlinearHomogenizationDriver:
         material_states : dict or None
             Detached material-state snapshot.
         context : NonlinearFluctuationProblemContext
-            The problem context.
+            Read-only access to the solver-owned problem context.
         load_name : str
             Name of the current load case.
         state : SimulationState
@@ -741,6 +744,8 @@ class NonlinearHomogenizationDriver:
         symmetric reduction requires an explicitly chosen stress/strain pair
         and tensor- versus engineering-shear convention. The hook receives
         detached displacement and state snapshots and is observational.
+        Mutation of solver-owned data exposed through ``context`` is detected,
+        restored, and rejected.
         """
         self._post_tangent_hooks.append(callback)
     
@@ -901,10 +906,10 @@ class NonlinearHomogenizationDriver:
             
         Returns
         -------
-        summary : dict
-            Summary of homogenization results
-        state_histories : dict or None
-            State histories for history-dependent materials
+        NonlinearHomogenizationResult
+            Result container holding per-load histories, summary quantities,
+            and material-state histories when history-dependent materials are
+            present.
         """
         _require_serial(self.mesh_obj)
         if isinstance(tangent_every, bool) or not isinstance(

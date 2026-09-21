@@ -273,6 +273,16 @@ def _mesh_tag_lookup(cell_tags: mesh.MeshTags) -> Dict[int, int]:
     }
 
 
+def _macroscopic_result_is_physical(Pbar: np.ndarray, Wbar: float, Jbar: float) -> bool:
+    """Return whether all macroscopic outputs are finite and ``Jbar`` is positive."""
+    return bool(
+        np.isfinite(Wbar)
+        and np.all(np.isfinite(Pbar))
+        and np.isfinite(Jbar)
+        and Jbar > 0
+    )
+
+
 # =============================================================================
 # Energy and Stress Computation
 # =============================================================================
@@ -547,6 +557,7 @@ def _assert_observational_hooks_preserved_live_data(
     state_before: Optional[Dict[int, Dict[int, MaterialState]]],
     function: fem.Function,
     solution_before: np.ndarray,
+    macro_before: np.ndarray,
     stage: str,
 ) -> None:
     """Restore and reject mutation of solver-owned data through context."""
@@ -556,17 +567,20 @@ def _assert_observational_hooks_preserved_live_data(
         and not _material_states_equal(context.material_states, state_before)
     )
     solution_changed = not np.array_equal(function.x.array, solution_before)
+    macro_changed = not np.array_equal(context.F_macro.value, macro_before)
     if state_changed:
         _restore_material_states(context.material_states, state_before)
         _sync_material_state_coefficients(context)
     if solution_changed:
         function.x.array[:] = solution_before
         function.x.scatter_forward()
-    if state_changed or solution_changed:
+    if macro_changed:
+        context.F_macro.value[...] = macro_before
+    if state_changed or solution_changed or macro_changed:
         raise ValueError(
-            f"{stage} hooks must not mutate live converged displacement or "
-            "constitutive state; detached snapshots are provided for "
-            "observational access"
+            f"{stage} hooks must not mutate solver-owned context, live "
+            "converged displacement, or constitutive state; detached "
+            "snapshots are provided for observational access"
         )
 
 
@@ -1014,6 +1028,7 @@ def _run_one_load_case_with_history(
                     else None
                 )
                 hook_solution_guard = u.x.array.copy()
+                hook_macro_guard = np.array(context.F_macro.value, copy=True)
                 post_conv_data = PostConvergenceData(
                     step_idx=step_idx,
                     current_load=next_a,
@@ -1037,6 +1052,7 @@ def _run_one_load_case_with_history(
                     hook_state_guard,
                     u,
                     hook_solution_guard,
+                    hook_macro_guard,
                     "post_convergence",
                 )
 
@@ -1048,7 +1064,7 @@ def _run_one_load_case_with_history(
             )
             
             # Check physical stability
-            if np.isnan(Wbar) or np.any(np.isnan(Pbar)) or Jbar <= 0:
+            if not _macroscopic_result_is_physical(Pbar, Wbar, Jbar):
                 print(f"   PHYSICAL INSTABILITY: Wbar={Wbar}, Jbar={Jbar:.4f}.")
                 raise RuntimeError("Physical instability detected")
             
@@ -1082,6 +1098,7 @@ def _run_one_load_case_with_history(
                     else None
                 )
                 hook_solution_guard = u.x.array.copy()
+                hook_macro_guard = np.array(context.F_macro.value, copy=True)
                 post_stress_data = PostStressData(
                     step_idx=step_idx,
                     current_load=current_a,
@@ -1106,6 +1123,7 @@ def _run_one_load_case_with_history(
                     hook_state_guard,
                     u,
                     hook_solution_guard,
+                    hook_macro_guard,
                     "post_stress",
                 )
             
@@ -1156,6 +1174,7 @@ def _run_one_load_case_with_history(
                     else None
                 )
                 hook_solution_guard = u.x.array.copy()
+                hook_macro_guard = np.array(context.F_macro.value, copy=True)
                 post_tan_data = PostTangentData(
                     step_idx=step_idx,
                     current_load=current_a,
@@ -1179,6 +1198,7 @@ def _run_one_load_case_with_history(
                 _execute_hooks(_hook_data['post_tangent'], post_tan_data, "Post-tangent")
                 _assert_observational_hooks_preserved_live_data(
                     context, hook_state_guard, u, hook_solution_guard,
+                    hook_macro_guard,
                     "post_tangent",
                 )
 

@@ -2,14 +2,48 @@ import csv
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
 from homicsx.core.material import MaterialAssignment, MaterialState
 from homicsx.core.mesh import PhysicalTags
 from homicsx.homogenization.nlhelpers import (
+    _assert_observational_hooks_preserved_live_data,
+    _macroscopic_result_is_physical,
     _mesh_tag_lookup,
     _save_history_csv,
     _save_state_history_csv,
 )
+
+
+def test_macroscopic_result_finiteness_rejects_infinities_and_invalid_jacobian():
+    stress = np.eye(2)
+    assert _macroscopic_result_is_physical(stress, 1.0, 1.0)
+    infinite_stress = stress.copy()
+    infinite_stress[0, 0] = np.inf
+    assert not _macroscopic_result_is_physical(infinite_stress, 1.0, 1.0)
+    assert not _macroscopic_result_is_physical(stress, np.inf, 1.0)
+    assert not _macroscopic_result_is_physical(stress, 1.0, np.inf)
+    assert not _macroscopic_result_is_physical(stress, 1.0, 0.0)
+
+
+def test_observational_hook_guard_restores_context_macro():
+    macro = SimpleNamespace(value=np.eye(2))
+    context = SimpleNamespace(F_macro=macro, material_states=None)
+    vector = SimpleNamespace(array=np.array([1.0, 2.0]), scatter_forward=lambda: None)
+    function = SimpleNamespace(x=vector)
+    macro_before = macro.value.copy()
+    macro.value[0, 0] = 9.0
+
+    with pytest.raises(ValueError, match="solver-owned context"):
+        _assert_observational_hooks_preserved_live_data(
+            context,
+            None,
+            function,
+            function.x.array.copy(),
+            macro_before,
+            "post_tangent",
+        )
+    np.testing.assert_array_equal(macro.value, macro_before)
 
 
 def test_sparse_meshtag_lookup_uses_entity_ids_not_value_positions():

@@ -105,9 +105,10 @@ documentation provides the corresponding narrative tutorials.
 ## Verification and documentation
 
 The [verification documentation](docs/source/validation.md) summarizes
-analytical tests, mesh-refinement gates, current-code regression tests, and independent
-Abaqus comparisons based on conventional macroscopic stress, strain, energy,
-Jacobian, and stiffness measures.
+analytical tests, mesh-refinement gates, current-code regression tests, and
+Abaqus comparisons using models separately constructed by the same author,
+based on conventional macroscopic stress, strain, energy, Jacobian, and
+stiffness measures.
 
 - [Documentation](https://homicsx.readthedocs.io/en/latest/)
 - [Abaqus comparison suite](validation/abaqus/README.md)

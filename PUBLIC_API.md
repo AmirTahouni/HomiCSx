@@ -18,8 +18,11 @@ For nonlinear results, `Ceff` is the complete row-major derivative
 tangent was computed, skipped, not scheduled, or failed. Requested failures
 raise by default; callers may explicitly select the record-and-continue mode.
 Post-convergence, post-stress, and post-tangent hooks receive detached field
-and constitutive-state snapshots. CSV output uses a wide macroscopic-history
-table and a long material-state table that supports phase-specific variables.
+and constitutive-state snapshots. Their `context` reference is solver-owned
+and read-only; mutation of live displacement, constitutive state, or
+`context.F_macro` is restored and rejected. CSV output uses a wide
+macroscopic-history table and a long material-state table that supports
+phase-specific variables.
 
 HomiCSx 1.x supports solver execution on one MPI rank. MPI remains a runtime
 dependency of DOLFINx and PETSc, but distributed homogenization is not part of

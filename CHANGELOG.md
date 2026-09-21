@@ -3,10 +3,13 @@
 All notable changes to HomiCSx are documented here. The project follows
 semantic versioning for its publication-supported public API.
 
-## 1.0.1 - 2026-09-18
+## 1.0.1 - 2026-09-21
 
 ### Changed
 
+- Corrected the nonlinear result documentation, rejected non-finite
+  macroscopic outputs, and guarded solver-owned macroscopic deformation data
+  exposed to observational hooks.
 - Restricted the documented solver contract to one MPI rank and made the
   homogenization drivers reject distributed communicators explicitly.
 - Changed the package maturity classifier from Production/Stable to Beta.
