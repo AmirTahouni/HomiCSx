@@ -52,3 +52,6 @@ validation/abaqus/abaqus_acis.log
 *.out
 *.spl
 /tmp/
+
+# Paper dir
+/paper/
