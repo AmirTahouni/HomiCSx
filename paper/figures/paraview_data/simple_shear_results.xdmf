@@ -1,0 +1,236 @@
+<?xml version="1.0"?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf Version="3.0" xmlns:xi="https://www.w3.org/2001/XInclude">
+  <Domain>
+    <Grid Name="mesh" GridType="Uniform">
+      <Topology TopologyType="Triangle" NumberOfElements="990" NodesPerElement="3">
+        <DataItem Dimensions="990 3" NumberType="Int" Format="HDF">simple_shear_results.h5:/Mesh/mesh/topology</DataItem>
+      </Topology>
+      <Geometry GeometryType="XY">
+        <DataItem Dimensions="524 2" Format="HDF">simple_shear_results.h5:/Mesh/mesh/geometry</DataItem>
+      </Geometry>
+    </Grid>
+    <Grid Name="fluctuation" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="fluctuation" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.050000000000000003" />
+        <Attribute Name="fluctuation" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="524 3" Format="HDF">simple_shear_results.h5:/Function/fluctuation/0_050000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="fluctuation" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.10000000000000001" />
+        <Attribute Name="fluctuation" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="524 3" Format="HDF">simple_shear_results.h5:/Function/fluctuation/0_10000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="fluctuation" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.15000000000000002" />
+        <Attribute Name="fluctuation" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="524 3" Format="HDF">simple_shear_results.h5:/Function/fluctuation/0_15000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="fluctuation" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.20000000000000001" />
+        <Attribute Name="fluctuation" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="524 3" Format="HDF">simple_shear_results.h5:/Function/fluctuation/0_20000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="fluctuation" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.25" />
+        <Attribute Name="fluctuation" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="524 3" Format="HDF">simple_shear_results.h5:/Function/fluctuation/0_25</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+    <Grid Name="total_disp" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="total_disp" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.050000000000000003" />
+        <Attribute Name="total_disp" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="524 3" Format="HDF">simple_shear_results.h5:/Function/total_disp/0_050000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="total_disp" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.10000000000000001" />
+        <Attribute Name="total_disp" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="524 3" Format="HDF">simple_shear_results.h5:/Function/total_disp/0_10000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="total_disp" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.15000000000000002" />
+        <Attribute Name="total_disp" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="524 3" Format="HDF">simple_shear_results.h5:/Function/total_disp/0_15000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="total_disp" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.20000000000000001" />
+        <Attribute Name="total_disp" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="524 3" Format="HDF">simple_shear_results.h5:/Function/total_disp/0_20000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="total_disp" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.25" />
+        <Attribute Name="total_disp" AttributeType="Vector" Center="Node">
+          <DataItem Dimensions="524 3" Format="HDF">simple_shear_results.h5:/Function/total_disp/0_25</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+    <Grid Name="PK1_stress" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="PK1_stress" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.050000000000000003" />
+        <Attribute Name="PK1_stress" AttributeType="Tensor" Center="Cell">
+          <DataItem Dimensions="990 9" Format="HDF">simple_shear_results.h5:/Function/PK1_stress/0_050000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="PK1_stress" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.10000000000000001" />
+        <Attribute Name="PK1_stress" AttributeType="Tensor" Center="Cell">
+          <DataItem Dimensions="990 9" Format="HDF">simple_shear_results.h5:/Function/PK1_stress/0_10000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="PK1_stress" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.15000000000000002" />
+        <Attribute Name="PK1_stress" AttributeType="Tensor" Center="Cell">
+          <DataItem Dimensions="990 9" Format="HDF">simple_shear_results.h5:/Function/PK1_stress/0_15000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="PK1_stress" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.20000000000000001" />
+        <Attribute Name="PK1_stress" AttributeType="Tensor" Center="Cell">
+          <DataItem Dimensions="990 9" Format="HDF">simple_shear_results.h5:/Function/PK1_stress/0_20000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="PK1_stress" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.25" />
+        <Attribute Name="PK1_stress" AttributeType="Tensor" Center="Cell">
+          <DataItem Dimensions="990 9" Format="HDF">simple_shear_results.h5:/Function/PK1_stress/0_25</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+    <Grid Name="von_Mises" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="von_Mises" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.050000000000000003" />
+        <Attribute Name="von_Mises" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/von_Mises/0_050000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="von_Mises" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.10000000000000001" />
+        <Attribute Name="von_Mises" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/von_Mises/0_10000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="von_Mises" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.15000000000000002" />
+        <Attribute Name="von_Mises" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/von_Mises/0_15000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="von_Mises" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.20000000000000001" />
+        <Attribute Name="von_Mises" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/von_Mises/0_20000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="von_Mises" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.25" />
+        <Attribute Name="von_Mises" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/von_Mises/0_25</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+    <Grid Name="energy_density" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="energy_density" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.050000000000000003" />
+        <Attribute Name="energy_density" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/energy_density/0_050000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="energy_density" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.10000000000000001" />
+        <Attribute Name="energy_density" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/energy_density/0_10000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="energy_density" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.15000000000000002" />
+        <Attribute Name="energy_density" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/energy_density/0_15000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="energy_density" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.20000000000000001" />
+        <Attribute Name="energy_density" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/energy_density/0_20000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="energy_density" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.25" />
+        <Attribute Name="energy_density" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/energy_density/0_25</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+    <Grid Name="jacobian" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="jacobian" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.050000000000000003" />
+        <Attribute Name="jacobian" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/jacobian/0_050000000000000003</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="jacobian" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.10000000000000001" />
+        <Attribute Name="jacobian" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/jacobian/0_10000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="jacobian" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.15000000000000002" />
+        <Attribute Name="jacobian" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/jacobian/0_15000000000000002</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="jacobian" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.20000000000000001" />
+        <Attribute Name="jacobian" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/jacobian/0_20000000000000001</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid Name="jacobian" GridType="Uniform">
+        <xi:include xpointer="xpointer(/Xdmf/Domain/Grid[@GridType='Uniform'][1]/*[self::Topology or self::Geometry])" />
+        <Time Value="0.25" />
+        <Attribute Name="jacobian" AttributeType="Scalar" Center="Cell">
+          <DataItem Dimensions="990 1" Format="HDF">simple_shear_results.h5:/Function/jacobian/0_25</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+  </Domain>
+</Xdmf>
