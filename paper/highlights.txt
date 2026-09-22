@@ -1,7 +1,0 @@
-Highlights
-
-• End-to-end FEM homogenization spans geometry, meshing, solves, and outputs.
-• Periodic-conforming 2D and 3D meshes support split inclusions.
-• Built-in and user-defined hyperelastic energies enable finite-strain studies.
-• Typed hooks and full row-major tangents support customized finite-strain studies.
-• Paired HomiCSx–Abaqus viscoelastic histories differ by at most 0.159%.
