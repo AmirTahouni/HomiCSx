@@ -3,7 +3,7 @@
 All notable changes to HomiCSx are documented here. The project follows
 semantic versioning for its publication-supported public API.
 
-## 1.0.1 - 2026-09-21
+## 1.0.1 - 2026-09-24
 
 ### Changed
 
