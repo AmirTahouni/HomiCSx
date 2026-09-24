@@ -8,11 +8,11 @@ The publication release should present HomiCSx as an extensible, end-to-end fram
 
 ## Current baseline
 
-- Published and archived version: 1.0.0; corrective release candidate: 1.0.1.
+- Published and archived version: 1.0.1.
 - License: MIT.
 - Public repository history begins on 2026-05-05.
-- Version 1.0.0 is tagged and published on GitHub and archived by Zenodo with
-  version DOI `10.5281/zenodo.22811694` and concept DOI
+- Version 1.0.1 is tagged and published on GitHub and archived by Zenodo with
+  version DOI `10.5281/zenodo.22941320` and concept DOI
   `10.5281/zenodo.22811693`.
 - Documentation is published through Read the Docs.
 - Supported solver environment is described by `environment.yml` and targets Python 3.10, DOLFINx 0.9.0, and dolfinx_mpc 0.9.0.
@@ -77,7 +77,7 @@ it prevents stronger support claims than the evidence justifies.
 1. **Core analytical verification implemented.** End-to-end linear tests check finite output, stiffness symmetry, analytical homogeneous stiffness recovery in 2D plane strain and full six-load-case 3D, and deterministic coarse-to-fine error reduction. The nonlinear periodic solver recovers analytical homogeneous Neo-Hookean macroscopic energy, PK1 stress, and mean J; the constitutive PK1 is independently checked against the numerical energy gradient in 2D and 3D. Hook ordering, shared state, scope, and failure isolation are tested. Further convergence studies can broaden evidence but are no longer a submission blocker for the documented core.
 2. **Packaging metadata completed for the source-release workflow.** `pyproject.toml` now records authorship, license, readme, classifiers, URLs, Python support, and optional test/docs dependencies. The Conda environment is explicitly authoritative for the compiled FEniCSx/PETSc/MPI runtime stack rather than making an unreliable PyPI dependency claim.
 3. **Archival maintenance guidance completed.** `CONTRIBUTING.md`, `SUPPORT.md`, and `SECURITY.md` now document issue reporting, contribution expectations, availability-dependent maintenance, and license-enabled continuity through community forks.
-4. **Archival release metadata completed.** Version 1.0.0, author affiliation,
+4. **Archival release metadata completed.** Version 1.0.1, author affiliation,
    no-ORCID submission, no-funding declaration, no-competing-interest
    declaration, Git tag, GitHub release, and Zenodo identifiers are resolved.
    Reconfirm the live SoftwareX instructions immediately before submission.
@@ -102,8 +102,8 @@ the full solver, documentation, validation, and package checks.
    research-specific notebooks remain recoverable in Git history but are not
    distributed as supported release examples.
 10. **Citation metadata is synchronized.** The author has elected not to add an
-    ORCID. The concept DOI is recorded now; the version-specific v1.0.1 DOI
-    must be synchronized after Zenodo creates the corrective-release record.
+    ORCID. The version DOI `10.5281/zenodo.22941320` identifies the exact
+    v1.0.1 archive and the concept DOI identifies the evolving record family.
 
 ### P2 Documentation and presentation improvements
 
@@ -235,7 +235,7 @@ This posture must be checked against the target journal immediately before submi
   execution and harden finite-difference tangent handling.
 - Add focused coverage gates, linting, package validation, and installed-wheel
   smoke testing to CI.
-- Rebuild the manuscript and create a corrective GitHub/Zenodo release.
+- Rebuild and visually inspect the DOI-synchronized final manuscript.
 
 ## Decision gates
 

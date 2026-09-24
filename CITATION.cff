@@ -15,12 +15,12 @@ version: "1.0.1"
 
 date-released: 2026-09-24
 
-doi: 10.5281/zenodo.22811693
+doi: 10.5281/zenodo.22941320
 
 identifiers:
   - type: doi
     value: 10.5281/zenodo.22811693
-    description: "HomiCSx release archive (concept DOI)"
+    description: "HomiCSx archive (concept DOI; resolves to the latest version)"
 
 license: MIT
 

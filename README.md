@@ -1,6 +1,6 @@
 # HomiCSx
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22811693.svg)](https://doi.org/10.5281/zenodo.22811693)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22941320.svg)](https://doi.org/10.5281/zenodo.22941320)
 
 HomiCSx is an open-source Python framework for first-order finite-element
 computational homogenization on FEniCSx. It connects particulate geometry,
@@ -116,7 +116,8 @@ stiffness measures.
 - [Support and maintenance policy](SUPPORT.md)
 - [Contributing guide](CONTRIBUTING.md)
 - [Citation metadata](CITATION.cff)
-- [Archived v1.0.0 release](https://doi.org/10.5281/zenodo.22811694)
+- [Archived v1.0.1 release](https://doi.org/10.5281/zenodo.22941320)
+- [Zenodo concept DOI](https://doi.org/10.5281/zenodo.22811693)
 
 ## Author and license
 

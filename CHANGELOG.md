@@ -45,6 +45,9 @@ semantic versioning for its publication-supported public API.
 - Removed a redundant research-derived Abaqus dataset whose provenance and
   version metadata no longer matched the publication validation suite.
 
+Version DOI: https://doi.org/10.5281/zenodo.22941320
+Concept DOI: https://doi.org/10.5281/zenodo.22811693
+
 ## 1.0.0 - 2026-09-17
 
 First archival research-software release prepared for the SoftwareX software
